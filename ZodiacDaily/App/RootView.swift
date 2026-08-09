@@ -1,8 +1,11 @@
 import SwiftUI
+import StoreKit
 
 struct RootView: View {
     @EnvironmentObject private var model: AppModel
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.requestReview) private var requestReview
+    @AppStorage("review-prompted-version") private var reviewPromptedVersion = ""
     @State private var selectedTab = 0
 
     var body: some View {
@@ -37,6 +40,9 @@ struct RootView: View {
         .onChange(of: model.selectedSign) { _, _ in
             Task { await model.refreshDailyCard() }
         }
+        .onChange(of: model.successfulSaveEvent) { _, _ in
+            requestReviewAfterMeaningfulUseIfEligible()
+        }
         .onChange(of: scenePhase) { _, phase in
             guard phase == .active else { return }
             Task { await model.refreshDailyCard() }
@@ -64,6 +70,21 @@ struct RootView: View {
                 guard !Task.isCancelled else { return }
                 await model.refreshDailyCard()
             }
+        }
+    }
+
+    private func requestReviewAfterMeaningfulUseIfEligible() {
+        guard model.savedCards.count >= 3 else { return }
+        let currentVersion = Bundle.main.object(
+            forInfoDictionaryKey: "CFBundleShortVersionString"
+        ) as? String ?? "unknown"
+        guard reviewPromptedVersion != currentVersion else { return }
+
+        reviewPromptedVersion = currentVersion
+        Task {
+            try? await Task.sleep(for: .milliseconds(800))
+            guard !Task.isCancelled else { return }
+            requestReview()
         }
     }
 }

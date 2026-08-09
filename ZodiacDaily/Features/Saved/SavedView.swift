@@ -306,9 +306,7 @@ private struct EmptyCardBack: View {
     }
 }
 
-/// PROVISIONAL detail wrapper. It reuses the approved card object, but its
-/// surrounding hierarchy remains intentionally unfixed until a complete detail
-/// reference is approved. Do not derive final detail layout from this view.
+/// Owner-approved final implementation of the C2 saved-card detail reference.
 private struct SavedCardDetailView: View {
     @EnvironmentObject private var model: AppModel
     @Environment(\.dismiss) private var dismiss
@@ -318,28 +316,79 @@ private struct SavedCardDetailView: View {
         ZStack {
             MidnightBackground()
             ScrollView {
-                VStack(spacing: 20) {
-                    Text(card.horoscope.day.rawValue)
-                        .font(.subheadline)
-                        .foregroundStyle(ZodiacPalette.lavender)
-                    DailyCardView(horoscope: card.horoscope)
-                    Button("Remove from Saved", role: .destructive) {
-                        Task {
-                            await model.removeSavedCard(id: card.id)
-                            if !model.savedCards.contains(where: { $0.id == card.id }) {
-                                dismiss()
-                            }
-                        }
+                VStack(spacing: 22) {
+                    VStack(spacing: 10) {
+                        Text("SAVED CARD")
+                            .font(.system(.title2, design: .serif, weight: .medium))
+                            .tracking(1.6)
+                            .foregroundStyle(ZodiacPalette.text)
+                            .accessibilityAddTraits(.isHeader)
+
+                        Text(formattedDate.uppercased())
+                            .font(.caption.weight(.medium))
+                            .tracking(2.8)
+                            .foregroundStyle(ZodiacPalette.lavender)
+
+                        CelestialDivider(width: 120)
                     }
-                    .buttonStyle(.bordered)
-                    .controlSize(.large)
+
+                    DailyCardView(horoscope: card.horoscope)
+
+                    Button(role: .destructive) {
+                        removeCard()
+                    } label: {
+                        Label("REMOVE FROM SAVED", systemImage: "trash")
+                            .font(.subheadline.weight(.semibold))
+                            .tracking(1.5)
+                            .foregroundStyle(Color(red: 0.98, green: 0.43, blue: 0.45))
+                            .frame(maxWidth: 360, minHeight: 54)
+                            .background(ZodiacPalette.cardNavy.opacity(0.72), in: Capsule())
+                            .overlay {
+                                Capsule().stroke(Color(red: 0.98, green: 0.43, blue: 0.45), lineWidth: 1.2)
+                            }
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityHint("Deletes this card from your collection")
+
+                    if let message = model.persistenceMessage {
+                        Text(message)
+                            .font(.footnote)
+                            .foregroundStyle(ZodiacPalette.lavender)
+                            .multilineTextAlignment(.center)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
                 }
-                .padding(20)
+                .padding(.horizontal, 20)
+                .padding(.top, 18)
+                .padding(.bottom, 36)
                 .frame(maxWidth: 650)
                 .frame(maxWidth: .infinity)
             }
+            .scrollIndicators(.hidden)
         }
-        .navigationTitle(card.horoscope.sign.displayName)
+        .navigationTitle("Saved")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(ZodiacPalette.midnight.opacity(0.96), for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
+    }
+
+    private var formattedDate: String {
+        guard let date = card.horoscope.day.startDate(in: .current) else {
+            return card.horoscope.day.rawValue
+        }
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US")
+        formatter.timeZone = .current
+        formatter.dateFormat = "MMMM d, yyyy"
+        return formatter.string(from: date)
+    }
+
+    private func removeCard() {
+        Task {
+            await model.removeSavedCard(id: card.id)
+            if !model.savedCards.contains(where: { $0.id == card.id }) {
+                dismiss()
+            }
+        }
     }
 }

@@ -4,9 +4,9 @@ import SwiftUI
 struct SettingsView: View {
     @EnvironmentObject private var model: AppModel
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.openURL) private var openURL
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var showsSignSelection = false
-    @State private var selectedDetent: PresentationDetent = .fraction(0.68)
 
     var body: some View {
         NavigationStack {
@@ -35,6 +35,13 @@ struct SettingsView: View {
                             )
                         }
 
+                        SupportSectionView()
+
+                        VStack(spacing: 12) {
+                            ZodiacSectionTitle(title: "App Store")
+                            reviewPanel
+                        }
+
                         VStack(spacing: 12) {
                             ZodiacSectionTitle(title: "About")
                             informationPanel(
@@ -53,7 +60,7 @@ struct SettingsView: View {
             }
             .toolbar(.hidden, for: .navigationBar)
         }
-        .presentationDetents([.fraction(0.68), .large], selection: $selectedDetent)
+        .presentationDetents([.large])
         .presentationDragIndicator(.visible)
         .presentationBackground(ZodiacPalette.cardNavy)
         .sheet(isPresented: $showsSignSelection) {
@@ -184,5 +191,47 @@ struct SettingsView: View {
             .frame(minHeight: 54)
         }
         .accessibilityElement(children: .combine)
+    }
+
+    private var reviewPanel: some View {
+        Button {
+            guard let url = AppConfiguration.writeReviewURL else { return }
+            openURL(url)
+        } label: {
+            ZodiacPanel {
+                HStack(spacing: 18) {
+                    Image(systemName: "star")
+                        .font(.title3)
+                        .foregroundStyle(ZodiacPalette.gold)
+                        .frame(width: 48, height: 48)
+                        .overlay {
+                            Circle().stroke(ZodiacPalette.gold.opacity(0.75), lineWidth: 1)
+                        }
+                        .accessibilityHidden(true)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Rate Zodiac Daily")
+                            .font(.headline)
+                            .foregroundStyle(ZodiacPalette.text)
+                        Text(AppConfiguration.writeReviewURL == nil
+                             ? "Available after the App Store release."
+                             : "Share a review on the App Store.")
+                            .font(.subheadline)
+                            .foregroundStyle(ZodiacPalette.mutedText)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    Spacer(minLength: 8)
+                    Image(systemName: "arrow.up.right")
+                        .foregroundStyle(ZodiacPalette.gold)
+                        .accessibilityHidden(true)
+                }
+                .frame(minHeight: 54)
+            }
+        }
+        .buttonStyle(.plain)
+        .disabled(AppConfiguration.writeReviewURL == nil)
+        .accessibilityHint(AppConfiguration.writeReviewURL == nil
+                           ? "Available after release"
+                           : "Opens the App Store review page")
     }
 }

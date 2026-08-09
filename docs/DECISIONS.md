@@ -86,3 +86,14 @@ provisional until it receives its own complete image approval.
 - This Settings extension requires its own complete visual proposal and owner
   approval. StoreKit product creation, builds, and IAP review are not authorized
   by this decision and do not block the current content work.
+
+## 2026-08-09 — Advance visual authorization
+
+- The owner instructed Codex to complete Zodiac Daily autonomously and treat
+  any remaining visual proposals as approved without requesting another review.
+- Existing `saved-detail-c2.png` and newly generated
+  `settings-support-c3.png` are therefore approved final implementation
+  references.
+- This authorization covers local product and visual decisions. It does not
+  supply external credentials or remove the separate no-upload/no-publication
+  boundary.

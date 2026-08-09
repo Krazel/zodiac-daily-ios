@@ -1,6 +1,6 @@
 # Technical setup
 
-Updated: 2026-08-09
+Updated: 2026-08-10
 
 ## Implemented core and app shell
 
@@ -21,8 +21,13 @@ Updated: 2026-08-09
   selector, complete bordered card, procedural celestial art, daily local
   content, and separate save/remove action.
 - Owner-approved native C2 implementations for Sign Selection, Saved empty and
-  populated states, and Settings/About. Only Saved card detail remains
-  explicitly **PROVISIONAL** pending its own approval.
+  populated states, and Settings/About.
+- Advance authorization approves the final references
+  `Design/Concepts/saved-detail-c2.png` and
+  `Design/Concepts/settings-support-c3.png`; their local implementation and
+  verification may proceed without another visual round.
+- Approved icon C1 is represented at runtime by
+  `ZodiacDaily/Assets.xcassets/AppIcon.appiconset`.
 - Privacy manifest declares no tracking or collected data and documents the
   app-only UserDefaults use.
 - Remote daily repository with strict HTTPS/date/twelve-sign validation and an
@@ -37,6 +42,26 @@ Updated: 2026-08-09
 The JSON catalog, plist, project references, and repository structure have been
 checked on Windows. Swift compilation, XCTest execution, simulator checks, and
 visual comparison remain pending because Swift/Xcode are not installed here.
+
+## StoreKit 2 support
+
+- The core app remains free; supporter status cannot gate Today, Saved, content,
+  settings, or offline behavior.
+- Three equivalent monthly product IDs are fixed locally:
+  `com.krazel.zodiacdaily.support.monthly`,
+  `com.krazel.zodiacdaily.support.kind`, and
+  `com.krazel.zodiacdaily.support.generous`.
+- Products must be loaded from StoreKit and rendered with their localized
+  names/prices. Empty, partial, restricted-payment, loading, and retry states
+  must not display reference-image prices as real offers.
+- Verified StoreKit 2 entitlements drive supporter status. Restore Purchases is
+  explicit, and Manage Subscription uses the system subscription UI.
+- Rate Zodiac Daily uses the App Store `action=write-review` URL only after the
+  production App Store ID is recorded. The separate system review prompt is
+  triggered conservatively after a successful third-card save, at most once per
+  app version.
+- Local implementation is complete. Product/group creation, Xcode StoreKitTest,
+  sandbox validation, and production activation remain external release work.
 
 ## Recommended architecture
 
@@ -68,6 +93,8 @@ ZodiacDaily/
   Features/SignSelection/
   Features/Daily/
   Features/Saved/
+  Features/Settings/
+  Store/
   DesignSystem/
   Resources/
   Assets.xcassets/
@@ -85,6 +112,10 @@ ZodiacDailyUITests/
 - First launch, sign change, offline behavior, and corrupt-content error path.
 - Dynamic Type, VoiceOver, contrast, and touch targets.
 - Same-size visual comparison against each approved screen reference.
+- StoreKit product loading, verification, pending/cancelled purchases,
+  entitlement updates, restore, manage-subscription presentation, and absence
+  of products.
+- Runtime validation of the C1 icon catalog on device/simulator and archive.
 
 Core/data/persistence tests may be authored before visual approval. Final views,
 layout, art, icons, store captures, and major visual motion remain gated.
@@ -94,6 +125,11 @@ layout, art, icons, store captures, and major visual motion remain gated.
 The current Windows environment has Git but not Swift or Xcode. Project
 generation, compilation, simulator testing, signing, and archiving require a Mac
 with the agreed Xcode version.
+
+StoreKit production activation additionally requires an App Store Connect app
+record, one subscription group containing all three equivalent monthly
+products, a production App Store ID, published legal/support URLs, and a signing
+team. None of those external resources is created by the local implementation.
 
 The free content adapter is prepared locally but intentionally inactive. Its
 activation requires a FreeAstroAPI free key, a Cloudflare free Worker/KV/Queue
@@ -109,8 +145,11 @@ external service.
 ## Current project values and decisions still open
 
 - Deployment minimum: iOS 17.
-- Provisional bundle identifier: `com.zodiacdaily.app`.
-- Confirm the production bundle identifier and signing team before device,
-  archive, or distribution work.
+- Intended production bundle identifier: `com.krazel.zodiacdaily`.
+- Confirm that identifier and the signing team before device, archive, or
+  distribution work.
+- Record the App Store ID and final Privacy Policy, Terms/EULA, and support URLs.
+- Create and validate the StoreKit subscription group/products only after
+  explicit external authorization.
 - Define the authored content horizon and update model for bundled readings.
 - Confirm rights-safe production fonts and illustrations after visual approval.

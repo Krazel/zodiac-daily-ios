@@ -1,4 +1,4 @@
-# Brain handoff — 2026-08-09
+# Brain handoff — 2026-08-10
 
 Use this block to update `Brain/projects/zodiac-daily.md` while the project
 workspace does not have write access to Brain.
@@ -27,10 +27,13 @@ workspace does not have write access to Brain.
   `38a6ee3` (`feat: finalize approved C2 screens`).
 - Commit del pipeline diario gratuito FreeAstroAPI/Cloudflare y cliente iOS:
   `7380fea` (`feat: add free daily horoscope pipeline`).
-- Working tree: limpio tras el commit de actualizacion de esta ficha.
+- Working tree: contiene trabajo local posterior; no asumir limpio hasta la
+  revision y commit del coordinador.
 - GitHub: pendiente; no se creo repo ni remoto externo.
 - UI: Today, Sign Selection, Saved vacio/poblado y Settings C2 implementadas
-  tras sus aprobaciones. Solo Saved card detail sigue PROVISIONAL.
+  tras sus aprobaciones. `saved-detail-c2`, `settings-support-c3` y el icono C1
+  estan aprobados por autorizacion visual anticipada; pueden implementarse y
+  verificarse sin otra ronda visual.
 - Regla visual actualizada: la aprobacion bloquea solo la implementacion visual
   final; motor, datos, contenido local, persistencia, tests y documentacion
   pueden avanzar en paralelo.
@@ -52,23 +55,32 @@ workspace does not have write access to Brain.
   `Design/Concepts/settings-c2.png`.
 - El propietario aprobo explicitamente las cuatro propuestas anteriores el
   2026-08-09 y pidio continuar. Sign Selection, Saved vacio/poblado y Settings
-  pueden implementarse como UI final. Saved card detail sigue provisional.
-- Propuesta completa para la puerta visual restante:
-  `Design/Concepts/saved-detail-c2.png`. Muestra la carta guardada completa,
-  retorno nativo a Saved y `Remove from Saved` fuera de la carta. Sigue
-  pendiente de aprobacion explicita y no autoriza su implementacion final.
+  se implementaron como UI final. La autorizacion anticipada posterior aprobo
+  tambien Saved card detail, Settings Support C3 y el icono C1.
+- Referencias aprobadas por autorizacion anticipada:
+  `Design/Concepts/saved-detail-c2.png`,
+  `Design/Concepts/settings-support-c3.png` y
+  `Design/Concepts/app-icon-c1.png`.
+- Saved detail muestra la carta completa, retorno nativo a Saved y
+  `Remove from Saved` fuera de la carta. Settings C3 incorpora Support, restore,
+  manage, review, privacidad y terminos sin bloquear el uso gratuito.
+- El icono runtime esta en `ZodiacDaily/Assets.xcassets/AppIcon.appiconset`;
+  publicar el icono o preparar capturas de tienda sigue fuera de alcance.
 - Implementacion actual: `ZodiacDaily.xcodeproj`, SwiftUI iOS 17, Today nativa,
-  seleccion inicial de 12 signos, Saved vacio/poblado, Settings/About,
-  navegacion Today/Saved, persistencia JSON atomica, preferencias locales y
-  manifiesto de privacidad sin tracking ni datos recopilados. Bundle id
-  provisional `com.zodiacdaily.app`, sin team ni icono.
+  seleccion inicial de 12 signos, Saved vacio/poblado/detalle, Settings/About y
+  Support StoreKit 2 local, navegacion Today/Saved, persistencia JSON atomica,
+  preferencias locales y manifiesto de privacidad sin tracking ni datos
+  recopilados. Bundle previsto `com.krazel.zodiacdaily`, sin team ni activacion
+  externa de StoreKit.
 - QA auxiliar de las pantallas C2: sin P0/P1 tras corregir el simbolo del signo
-  en Saved vacio y el retorno tras eliminar desde el detalle provisional.
+  en Saved vacio y el retorno tras eliminar desde el antiguo wrapper de detalle.
   XML, JSON, UTF-8, PBX y privacidad validados en Windows.
-- Siguiente puerta visual: aprobar `Design/Concepts/saved-detail-c2.png` antes
-  de fijar la jerarquia visual final del detalle de una carta guardada.
-- Bloqueo tecnico futuro: compilacion, simulador, firma y archivo necesitan Mac
-  con Xcode; el entorno Windows actual solo permite preparar repo y documentos.
+- Las referencias visuales restantes anteriores ya estan aprobadas. Capturas de
+  tienda y cualquier arte promocional nuevo conservan su propia puerta visual.
+- Bloqueos tecnicos/externos: Mac con Xcode para compilacion, simulador,
+  StoreKitTest, firma y archivo; App Store Connect para productos/grupo;
+  App Store ID para review; URLs publicas de privacidad/terminos/soporte; y
+  equipo de firma.
 - Nucleo implementado como Swift Package: 12 signos, dia local, catalogo ingles
   bundled, generacion FNV-1a determinista, snapshots guardados, stores en
   memoria y JSON file-backed y XCTest. Validacion estatica y JSON correctos;
@@ -105,8 +117,22 @@ workspace does not have write access to Brain.
 - URLs compartidas planificadas, aun no publicadas:
   `https://krazel.github.io/zodiac-daily/privacy/` y
   `https://krazel.github.io/zodiac-daily/support/`.
-- Support the app queda como extension opcional de Settings, con uso principal
-  siempre gratis. No hay StoreKit, productos ni UI implementados.
-- La extension Support/review tiene puerta visual propia pendiente de imagen
-  completa y aprobacion explicita. Crear productos, secretos, builds, subir o
-  enviar a review sigue siendo accion roja.
+- Support the app esta implementado localmente como extension opcional de
+  Settings con StoreKit 2. Today, Saved y el resto del core siguen siempre
+  gratis.
+- Tres niveles mensuales equivalentes:
+  `com.krazel.zodiacdaily.support.monthly`,
+  `com.krazel.zodiacdaily.support.kind` y
+  `com.krazel.zodiacdaily.support.generous`.
+- La UI debe mostrar precios localizados de StoreKit, estados sin productos,
+  Restore Purchases y Manage Subscription. No debe usar como precio real los
+  importes dibujados en la referencia.
+- Rate Zodiac Daily abrira la URL `action=write-review` cuando exista App Store
+  ID; no debe publicarse con un identificador de relleno.
+- La referencia `settings-support-c3.png` esta aprobada por autorizacion
+  anticipada. Crear productos/grupo en App Store Connect, firmar, subir o enviar
+  a review sigue requiriendo autorizacion externa explicita.
+- Riesgo material de lanzamiento: la regla 3.1.2 exige valor continuo para una
+  suscripcion auto-renovable. Antes de crear productos hay que confirmar que el
+  estado supporter/mantenimiento es suficiente o convertir el mismo concepto a
+  apoyo de pago unico; esto no bloquea el commit local.

@@ -20,6 +20,7 @@ final class AppModel: ObservableObject {
     @Published private(set) var dailyState: DailyState = .idle
     @Published private(set) var savedCards: [SavedCard] = []
     @Published private(set) var persistenceMessage: String?
+    @Published private(set) var successfulSaveEvent: UInt = 0
 
     private static let selectedSignKey = "selected-zodiac-sign"
     private let repository: (any HoroscopeRepository)?
@@ -123,14 +124,18 @@ final class AppModel: ObservableObject {
     func toggleCurrentCardSaved() async {
         guard case .loaded(let horoscope) = dailyState else { return }
         persistenceMessage = nil
+        let isSaving = !isCurrentCardSaved
 
         do {
-            if isCurrentCardSaved {
+            if !isSaving {
                 try await savedStore.remove(id: horoscope.archiveKey)
             } else {
                 try await savedStore.save(SavedCard(horoscope: horoscope, savedAt: now()))
             }
             await reloadSavedCards()
+            if isSaving, persistenceMessage == nil {
+                successfulSaveEvent &+= 1
+            }
         } catch {
             persistenceMessage = error.localizedDescription
         }

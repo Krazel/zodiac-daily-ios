@@ -1,6 +1,6 @@
 # iOS implementation
 
-Updated: 2026-08-09
+Updated: 2026-08-10
 
 ## Approved Today screen
 
@@ -57,25 +57,54 @@ transmitted. When remote content is enabled, the app sends the requested date
 to the Zodiac Daily endpoint and normal HTTPS connection metadata is visible to
 the hosting provider.
 
-## Approved additional screens
+## Approved additional screens and icon
 
 Sign Selection, Saved empty/populated, and Settings/About implement their
 owner-approved C2 complete-screen references. They preserve the midnight
 editorial language, collectible-card hierarchy, Dynamic Type reflow, VoiceOver
 labels, safe-area-aware scrolling, and minimum 44-point interactions.
 
-Saved card detail remains **PROVISIONAL**. It reuses the approved card object,
-but its surrounding navigation and remove-action hierarchy cannot become final
-until `Design/Concepts/saved-detail-c2.png` receives explicit approval.
+The owner's advance authorization also approves
+`Design/Concepts/saved-detail-c2.png` and
+`Design/Concepts/settings-support-c3.png` for final visual implementation.
+Saved detail preserves the complete card object and places removal outside the
+card. The Settings extension preserves the C2 sheet language while adding
+optional support, review, privacy, and terms rows. Their implementation and
+verification may proceed without another visual round, but that approval does
+not authorize App Store Connect product creation or publication.
+
+`Design/Concepts/app-icon-c1.png` is the approved icon reference. Its runtime
+asset is stored under `ZodiacDaily/Assets.xcassets/AppIcon.appiconset`; App Store
+submission and storefront artwork remain separate release actions.
+
+## StoreKit support extension
+
+StoreKit 2 support is implemented locally as an optional Settings feature. The
+complete horoscope, Saved archive, and all core behavior remain free regardless
+of supporter status. The three equivalent monthly levels are:
+
+- `com.krazel.zodiacdaily.support.monthly`;
+- `com.krazel.zodiacdaily.support.kind`; and
+- `com.krazel.zodiacdaily.support.generous`.
+
+The UI loads localized names and prices from StoreKit rather than embedding the
+USD values shown in the visual reference. It includes explicit Restore
+Purchases and Manage Subscription actions and remains useful when no products
+are returned. Rate Zodiac Daily uses the App Store
+`action=write-review` URL once the production App Store ID exists, so an
+explicit tap always has a destination. Until then, no production review URL is
+available. The separate StoreKit system review prompt is eligible only after a
+successful save produces at least three collected cards and only once per app
+version; Apple may still suppress it.
 
 ## Xcode handoff
 
 - Open `ZodiacDaily.xcodeproj` on a Mac with Xcode.
 - Target: `ZodiacDaily`, iPhone only, iOS 17.0+.
 - Product name: Zodiac Daily.
-- Provisional bundle identifier: `com.zodiacdaily.app`.
+- Intended production bundle identifier: `com.krazel.zodiacdaily`.
 - Signing team: unset.
-- Final app icon: intentionally absent.
+- Approved runtime icon: `ZodiacDaily/Assets.xcassets/AppIcon.appiconset`.
 - Local dependency: root Swift package product `ZodiacDailyCore`.
 - Optional public configuration: `ZODIAC_DAILY_API_BASE_URL`; leave empty for
   fully local operation. It must never contain the provider key.
@@ -85,6 +114,9 @@ until `Design/Concepts/saved-detail-c2.png` receives explicit approval.
 
 Run the package's `ZodiacDailyCoreTests`, then build the app in an iPhone
 simulator. Verify small and large iPhones, at least one accessibility Dynamic
-Type size, VoiceOver order, save/relaunch/remove behavior, local midnight, and a
-same-size comparison against all approved C2 images. The unapproved Saved card
-detail proposal must not be treated as a final screenshot target yet.
+Type size, VoiceOver order, save/relaunch/remove behavior, local midnight,
+StoreKit empty/loading/purchase/restore states, and same-size comparisons
+against all approved C2/C3 references. Archive, StoreKit testing, signing, and
+runtime icon validation remain blocked until the project is opened on a Mac
+with Xcode. Production support additionally requires the App Store Connect
+products and group, App Store ID, public legal/support URLs, and signing setup.

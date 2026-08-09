@@ -1,6 +1,6 @@
 # Asset inventory
 
-Updated: 2026-08-09
+Updated: 2026-08-10
 
 ## Approved Today implementation
 
@@ -27,11 +27,18 @@ Updated: 2026-08-09
 Their final implementation should continue to use native system fonts, SF
 Symbols, Unicode zodiac glyphs, SwiftUI shapes, and procedural celestial art.
 
+## Newly approved final references
+
+- Saved card detail: `Design/Concepts/saved-detail-c2.png`.
+- Settings support/review extension: `Design/Concepts/settings-support-c3.png`.
+- Both continue to use native system fonts, SF Symbols, Unicode zodiac glyphs,
+  SwiftUI shapes, and procedural celestial art; no new runtime bitmap is needed.
+- Final app icon reference: `Design/Concepts/app-icon-c1.png`.
+- Shipped icon artwork: `ZodiacDaily/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png`,
+  opaque RGB, 1024×1024, with no pre-rounded corners.
+
 ## Still gated
 
-- Final art/layout for Saved card detail. A complete-screen candidate exists at
-  `Design/Concepts/saved-detail-c2.png`, but it is not yet approved.
-- Final app icon and any alternate icons.
 - App Store screenshots, previews, and promotional artwork.
 - Any non-system font or production illustration asset.
 

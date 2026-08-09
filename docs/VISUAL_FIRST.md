@@ -19,12 +19,14 @@ experience.
 | Saved / populated | `Design/Concepts/saved-populated-c2.png` | **Approved for final visual implementation** | 2026-08-09 | Personal archive of clearly separate card thumbnails. Native accessibility adaptations are allowed. |
 | Saved / empty | `Design/Concepts/saved-empty-c2.png` | **Approved for final visual implementation** | 2026-08-09 | Empty collectible-card outline and route back to Today. Native accessibility adaptations are allowed. |
 | Settings / About sheet | `Design/Concepts/settings-c2.png` | **Approved for final visual implementation** | 2026-08-09 | Native sheet for sign, local privacy, and entertainment notice. Native accessibility adaptations are allowed. |
-| Settings / Support and review extension | Not generated | **Awaiting complete visual proposal and explicit approval** | — | Optional Support the app, monthly supporter status/tiers, restore purchases, terms/privacy, and separate App Store review entry. Must not obstruct free use. |
-| Saved / card detail | `Design/Concepts/saved-detail-c2.png` | **Awaiting explicit approval; provisional implementation only** | — | Complete saved-card object, native return path, and Remove from Saved outside the card. |
+| Settings / Support and review extension | `Design/Concepts/settings-support-c3.png` | **Approved for final visual implementation by owner's advance authorization** | 2026-08-09 | Optional Support the app, three equivalent monthly levels, restore/manage, renewal disclosure, terms/privacy, and separate App Store review entry. Must not obstruct free use. Native accessibility adaptations and live localized StoreKit prices are allowed. |
+| Saved / card detail | `Design/Concepts/saved-detail-c2.png` | **Approved for final visual implementation by owner's advance authorization** | 2026-08-09 | Complete saved-card object, native return path, and Remove from Saved outside the card. Native accessibility adaptations are allowed. |
+| App icon | `Design/Concepts/app-icon-c1.png` | **Approved for final production integration by owner's advance authorization** | 2026-08-10 | Central twelve-point gold star and twelve orbiting points on midnight navy. No text, zodiac-specific glyph, transparency, or pre-rounded corners. |
 
-Approval is recorded per screen and state. The Saved card detail and Settings
-support/review extension must each receive explicit approval before their final
-visual hierarchy is implemented.
+Approval is recorded per screen and state. On 2026-08-09 the owner explicitly
+authorized Codex to treat all remaining Zodiac Daily visual proposals as
+approved without another confirmation round. That authorization is recorded on
+the two rows above and does not authorize App Store upload or publication.
 
 Accessibility or native-platform adaptations must preserve the approved visual
 hierarchy while allowing readable Dynamic Type, sufficient contrast, safe
