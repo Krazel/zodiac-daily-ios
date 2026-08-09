@@ -17,12 +17,21 @@ Updated: 2026-08-09
   constellation point sets, stars, crescent, and waves.
 - Motion: no principal visual animation has been fixed or shipped.
 
+## Newly approved screen references
+
+- `Design/Concepts/sign-selection-c2.png`.
+- `Design/Concepts/saved-populated-c2.png`.
+- `Design/Concepts/saved-empty-c2.png`.
+- `Design/Concepts/settings-c2.png`.
+
+Their final implementation should continue to use native system fonts, SF
+Symbols, Unicode zodiac glyphs, SwiftUI shapes, and procedural celestial art.
+
 ## Still gated
 
-- Final art/layout for Sign Selection, Saved, Saved detail, and Settings.
+- Final art/layout for Saved card detail.
 - Final app icon and any alternate icons.
 - App Store screenshots, previews, and promotional artwork.
 - Any non-system font or production illustration asset.
 
-The four new C2 screen proposals remain design references only until explicit
-approval is recorded in `docs/VISUAL_FIRST.md`.
+Approval is recorded per screen in `docs/VISUAL_FIRST.md`.

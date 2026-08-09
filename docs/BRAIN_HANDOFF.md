@@ -40,11 +40,14 @@ workspace does not have write access to Brain.
 - C2 fue aprobada explicitamente por el propietario el 2026-08-09; Today puede
   implementarse con fidelidad. Welcome, Saved y Settings siguen necesitando su
   propia aprobacion visual; cualquier prototipo previo es provisional.
-- Nuevas propuestas C2 pendientes de aprobacion:
+- Propuestas C2 adicionales:
   `Design/Concepts/sign-selection-c2.png`,
   `Design/Concepts/saved-populated-c2.png`,
   `Design/Concepts/saved-empty-c2.png` y
   `Design/Concepts/settings-c2.png`.
+- El propietario aprobo explicitamente las cuatro propuestas anteriores el
+  2026-08-09 y pidio continuar. Sign Selection, Saved vacio/poblado y Settings
+  pueden implementarse como UI final. Saved card detail sigue provisional.
 - Implementacion actual: `ZodiacDaily.xcodeproj`, SwiftUI iOS 17, Today nativa,
   selector de 12 signos, navegacion Today/Saved, persistencia JSON atomica,
   preferencias locales y manifiesto de privacidad sin tracking ni datos

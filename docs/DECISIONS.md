@@ -42,3 +42,11 @@ The owner explicitly approved `today-c2-collectible-card.png` and authorized
 implementation. It is the final visual reference for Today. Sign Selection,
 Saved, and Settings still require their own image approval; any implementation
 of those screens before approval remains provisional.
+
+## 2026-08-09 — Remaining primary screens approved
+
+The owner explicitly approved `sign-selection-c2.png`,
+`saved-populated-c2.png`, `saved-empty-c2.png`, and `settings-c2.png` and asked
+the project to continue. These images now authorize final visual implementation
+of Sign Selection, both Saved states, and Settings. Saved card detail remains
+provisional until it receives its own complete image approval.
