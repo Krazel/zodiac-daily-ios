@@ -1,0 +1,24 @@
+# macOS
+.DS_Store
+
+# Xcode user state and build output
+DerivedData/
+build/
+.build/
+xcuserdata/
+*.xcuserstate
+*.ipa
+*.dSYM
+*.dSYM.zip
+
+# Secrets and local configuration
+.env
+.env.*
+Secrets.xcconfig
+
+# Temporary files
+*.tmp
+*.swp
+
+# Keep project files, assets, non-secret configuration, and Package.resolved
+# versioned when they are added.
