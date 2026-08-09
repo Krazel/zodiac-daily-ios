@@ -2,21 +2,32 @@
 
 Updated: 2026-08-09
 
-## Implemented non-visual core
+## Implemented core and app shell
 
 - Swift Package `ZodiacDailyCore`; no UI or third-party dependencies.
 - Twelve stable zodiac-sign identifiers and Gregorian `LocalDayKey`.
 - Versioned, bundled English catalog with deterministic FNV-1a selection.
 - Separate edition identity and sign/day archive key.
 - Immutable saved-card snapshots behind `SavedCardStore`.
-- In-memory actor store for tests and provisional integration.
+- In-memory actor store for focused tests.
+- Actor-isolated JSON file store with lazy loading, atomic writes, immutable
+  snapshot semantics, relaunch persistence, and corrupt-archive errors.
 - XCTest coverage for catalog validity, all 12 signs, deterministic editions,
   local midnight/time zones/DST, content-version snapshots, save/remove,
-  ordering, and deduplication.
+  ordering, deduplication, JSON relaunch persistence, and corrupt archives.
+- Manual `ZodiacDaily.xcodeproj` for an iPhone-only iOS 17 SwiftUI app with the
+  local package linked and no third-party dependencies.
+- Approved Today C2 implementation: native midnight background, masthead, sign
+  selector, complete bordered card, procedural celestial art, daily local
+  content, and separate save/remove action.
+- Functional native scaffolds for Sign Selection, Saved, and Settings. These
+  are explicitly **PROVISIONAL** and cannot define their final visual design.
+- Privacy manifest declares no tracking or collected data and documents the
+  app-only UserDefaults use.
 
-The JSON catalog and repository structure have been checked on Windows. Swift
-compilation and XCTest execution remain pending because Swift/Xcode are not
-installed in this environment.
+The JSON catalog, plist, project references, and repository structure have been
+checked on Windows. Swift compilation, XCTest execution, simulator checks, and
+visual comparison remain pending because Swift/Xcode are not installed here.
 
 ## Recommended architecture
 
@@ -27,8 +38,8 @@ installed in this environment.
   SwiftData types in domain models.
 - A selected-sign store that can later be backed by `@AppStorage` in app
   infrastructure.
-- A `SavedCardStore` protocol with SwiftData confined to an iOS infrastructure
-  adapter; saved cards retain an immutable content snapshot.
+- A `SavedCardStore` protocol with a JSON file-backed actor in app
+  infrastructure; saved cards retain an immutable content snapshot.
 - Bundled local content behind a replaceable `HoroscopeRepository`; no backend,
   account, analytics, or network dependency.
 - `ShareLink` remains isolated as a later stretch option.
@@ -79,9 +90,11 @@ The intended GitHub repository is a private repository named
 pushing are deliberately pending explicit authorization because they change an
 external service.
 
-## Decisions still open
+## Current project values and decisions still open
 
-- Confirm iOS 17 as the deployment minimum.
-- Confirm bundle identifier and signing team before project generation.
+- Deployment minimum: iOS 17.
+- Provisional bundle identifier: `com.zodiacdaily.app`.
+- Confirm the production bundle identifier and signing team before device,
+  archive, or distribution work.
 - Define the authored content horizon and update model for bundled readings.
 - Confirm rights-safe production fonts and illustrations after visual approval.

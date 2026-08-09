@@ -15,9 +15,10 @@ experience.
 | Screen / state | Candidate images | Status | Approval date | Requested changes |
 |---|---|---|---|---|
 | Today / daily card available | `Design/Concepts/today-c2-collectible-card.png` | **Approved for final visual implementation** | 2026-08-09 | Preserve the complete saveable-card object with all four corners visible and keep Save Card outside it. Native accessibility adaptations are allowed. |
-| Welcome / no sign selected | Not generated | Needs image approval; provisional implementation only | — | Follow the approved C2 visual language. |
-| Saved / empty and populated | Not generated | Needs image approval; provisional implementation only | — | Follow the approved C2 visual language. |
-| Settings / About sheet | Not generated | Needs image approval; provisional implementation only | — | Follow the approved C2 visual language. |
+| Welcome / no sign selected | `Design/Concepts/sign-selection-c2.png` | Awaiting approval; provisional implementation only | — | All 12 signs, no personal data, Pisces shown selected as an example. |
+| Saved / populated | `Design/Concepts/saved-populated-c2.png` | Awaiting approval; provisional implementation only | — | Personal archive of clearly separate card thumbnails. |
+| Saved / empty | `Design/Concepts/saved-empty-c2.png` | Awaiting approval; provisional implementation only | — | Empty collectible-card outline and route back to Today. |
+| Settings / About sheet | `Design/Concepts/settings-c2.png` | Awaiting approval; provisional implementation only | — | Native sheet for sign, local privacy, and entertainment notice. |
 
 Approval of Today does not imply approval of the remaining screens. After a
 direction is chosen, each required screen will receive its own complete image
