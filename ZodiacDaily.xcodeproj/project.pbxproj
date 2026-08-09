@@ -17,6 +17,7 @@
 		A10000000000000000000009 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000009 /* SettingsView.swift */; };
 		A1000000000000000000000A /* ZodiacDailyCore in Frameworks */ = {isa = PBXBuildFile; productRef = I10000000000000000000001 /* ZodiacDailyCore */; };
 		A1000000000000000000000B /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000B /* PrivacyInfo.xcprivacy */; };
+		A1000000000000000000000C /* AppConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000C /* AppConfiguration.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -31,6 +32,7 @@
 		B10000000000000000000009 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		B1000000000000000000000A /* ZodiacDaily.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ZodiacDaily.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B1000000000000000000000B /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		B1000000000000000000000C /* AppConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfiguration.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,7 +64,7 @@
 		};
 		C10000000000000000000004 /* App */ = {
 			isa = PBXGroup;
-			children = (B10000000000000000000001 /* ZodiacDailyApp.swift */, B10000000000000000000002 /* AppModel.swift */, B10000000000000000000003 /* RootView.swift */,);
+			children = (B10000000000000000000001 /* ZodiacDailyApp.swift */, B1000000000000000000000C /* AppConfiguration.swift */, B10000000000000000000002 /* AppModel.swift */, B10000000000000000000003 /* RootView.swift */,);
 			path = App;
 			sourceTree = "<group>";
 		};
@@ -163,6 +165,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A10000000000000000000001 /* ZodiacDailyApp.swift in Sources */,
+				A1000000000000000000000C /* AppConfiguration.swift in Sources */,
 				A10000000000000000000002 /* AppModel.swift in Sources */,
 				A10000000000000000000003 /* RootView.swift in Sources */,
 				A10000000000000000000004 /* ZodiacPalette.swift in Sources */,
@@ -188,6 +191,7 @@
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Zodiac Daily";
+				INFOPLIST_KEY_ZodiacDailyAPIBaseURL = "$(ZODIAC_DAILY_API_BASE_URL)";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -200,6 +204,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
+				ZODIAC_DAILY_API_BASE_URL = "";
 			};
 			name = Debug;
 		};
@@ -212,6 +217,7 @@
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Zodiac Daily";
+				INFOPLIST_KEY_ZodiacDailyAPIBaseURL = "$(ZODIAC_DAILY_API_BASE_URL)";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -224,6 +230,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
+				ZODIAC_DAILY_API_BASE_URL = "";
 			};
 			name = Release;
 		};

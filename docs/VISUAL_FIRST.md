@@ -19,10 +19,12 @@ experience.
 | Saved / populated | `Design/Concepts/saved-populated-c2.png` | **Approved for final visual implementation** | 2026-08-09 | Personal archive of clearly separate card thumbnails. Native accessibility adaptations are allowed. |
 | Saved / empty | `Design/Concepts/saved-empty-c2.png` | **Approved for final visual implementation** | 2026-08-09 | Empty collectible-card outline and route back to Today. Native accessibility adaptations are allowed. |
 | Settings / About sheet | `Design/Concepts/settings-c2.png` | **Approved for final visual implementation** | 2026-08-09 | Native sheet for sign, local privacy, and entertainment notice. Native accessibility adaptations are allowed. |
+| Settings / Support and review extension | Not generated | **Awaiting complete visual proposal and explicit approval** | — | Optional Support the app, monthly supporter status/tiers, restore purchases, terms/privacy, and separate App Store review entry. Must not obstruct free use. |
 | Saved / card detail | `Design/Concepts/saved-detail-c2.png` | **Awaiting explicit approval; provisional implementation only** | — | Complete saved-card object, native return path, and Remove from Saved outside the card. |
 
-Approval is recorded per screen. The Saved card detail proposal must receive
-its own explicit approval before its surrounding hierarchy becomes final UI.
+Approval is recorded per screen and state. The Saved card detail and Settings
+support/review extension must each receive explicit approval before their final
+visual hierarchy is implemented.
 
 Accessibility or native-platform adaptations must preserve the approved visual
 hierarchy while allowing readable Dynamic Type, sufficient contrast, safe

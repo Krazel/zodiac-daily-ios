@@ -25,6 +25,14 @@ Updated: 2026-08-09
   explicitly **PROVISIONAL** pending its own approval.
 - Privacy manifest declares no tracking or collected data and documents the
   app-only UserDefaults use.
+- Remote daily repository with strict HTTPS/date/twelve-sign validation and an
+  automatic bundled fallback.
+- Durable first-edition pinning by sign/day so remote and fallback changes do
+  not alter a card during the day or after relaunch.
+- Undeployed Cloudflare Worker adapter with queue-based FreeAstroAPI ingestion,
+  exact-date KV cache, secret isolation, and public cache-only routes. Cron
+  triggers only enqueue work; the free queue consumer handles the heavier
+  twelve-sign normalization outside the cron's 10 ms CPU ceiling.
 
 The JSON catalog, plist, project references, and repository structure have been
 checked on Windows. Swift compilation, XCTest execution, simulator checks, and
@@ -41,8 +49,9 @@ visual comparison remain pending because Swift/Xcode are not installed here.
   infrastructure.
 - A `SavedCardStore` protocol with a JSON file-backed actor in app
   infrastructure; saved cards retain an immutable content snapshot.
-- Bundled local content behind a replaceable `HoroscopeRepository`; no backend,
-  account, analytics, or network dependency.
+- Bundled local content behind a replaceable `HoroscopeRepository`; the remote
+  repository is optional and never prevents offline reading. There are no user
+  accounts, analytics, or personal-data requests.
 - `ShareLink` remains isolated as a later stretch option.
 
 ## Structure that may advance before visual approval
@@ -85,6 +94,12 @@ layout, art, icons, store captures, and major visual motion remain gated.
 The current Windows environment has Git but not Swift or Xcode. Project
 generation, compilation, simulator testing, signing, and archiving require a Mac
 with the agreed Xcode version.
+
+The free content adapter is prepared locally but intentionally inactive. Its
+activation requires a FreeAstroAPI free key, a Cloudflare free Worker/KV/Queue
+setup, the provider key stored as a Worker secret, deployment authorization,
+and the resulting public HTTPS base URL added to the Xcode build setting. Exact
+commands and verification steps live in `Backend/freeastro-worker/README.md`.
 
 The intended GitHub repository is a private repository named
 `zodiac-daily-ios`, with branch `main` and remote `origin`. Creating it and

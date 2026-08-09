@@ -7,7 +7,8 @@ public name is **Zodiac Daily** and the internal project name is
 The current milestone implements the owner-approved C2 Today, Sign Selection,
 Saved empty/populated, and Settings screens as a native SwiftUI app. The visual
 gate remains active for Saved card detail and later production artwork. Engine,
-content, and persistence are fully local.
+preferences, saved cards, and a date-correct fallback remain local; fresh daily
+content can come from the optional Zodiac Daily endpoint.
 
 ## Current status
 
@@ -19,7 +20,11 @@ content, and persistence are fully local.
   `Design/Concepts/saved-detail-c2.png` awaits approval.
 - Persistence: saved-card snapshots use an actor-isolated, atomic JSON archive
   in Application Support; the selected sign uses local app preferences.
-- External services: none.
+- Daily content: a FreeAstroAPI-to-Cloudflare Worker adapter is implemented but
+  not deployed. When configured, the app loads the complete twelve-sign daily
+  edition through our endpoint, pins the first resolved sign/day card locally,
+  and falls back locally on any failure.
+- External services: no account, secret, Worker, or remote has been created yet.
 - GitHub: private repository pending explicit authorization.
 
 Open `ZodiacDaily.xcodeproj` on a Mac with Xcode. The provisional bundle

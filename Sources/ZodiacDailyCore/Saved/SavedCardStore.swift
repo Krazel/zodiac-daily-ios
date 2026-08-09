@@ -14,6 +14,16 @@ public enum FileBackedSavedCardStoreError: Error, Equatable, Sendable {
     case invalidArchive
 }
 
+public enum FileBackedSavedCardStoreRecoveryPolicy: Sendable {
+    /// Preserve the archive and surface the error. This is the safe default
+    /// for user-owned saved cards.
+    case fail
+
+    /// Treat an unreadable archive as a disposable cache. The next successful
+    /// save atomically replaces it with a valid archive.
+    case replaceCorruptArchive
+}
+
 extension FileBackedSavedCardStoreError: LocalizedError {
     public var errorDescription: String? {
         switch self {
@@ -37,11 +47,16 @@ public actor FileBackedSavedCardStore: SavedCardStore {
     }
 
     private let fileURL: URL
+    private let recoveryPolicy: FileBackedSavedCardStoreRecoveryPolicy
     private var cardsByID: [SavedCard.ID: SavedCard] = [:]
     private var hasLoaded = false
 
-    public init(fileURL: URL) {
+    public init(
+        fileURL: URL,
+        recoveryPolicy: FileBackedSavedCardStoreRecoveryPolicy = .fail
+    ) {
         self.fileURL = fileURL
+        self.recoveryPolicy = recoveryPolicy
     }
 
     public func save(_ card: SavedCard) async throws {
@@ -95,9 +110,19 @@ public actor FileBackedSavedCardStore: SavedCardStore {
             )
             hasLoaded = true
         } catch let error as FileBackedSavedCardStoreError {
-            throw error
+            try recoverOrThrow(error)
         } catch {
-            throw FileBackedSavedCardStoreError.invalidArchive
+            try recoverOrThrow(FileBackedSavedCardStoreError.invalidArchive)
+        }
+    }
+
+    private func recoverOrThrow(_ error: FileBackedSavedCardStoreError) throws {
+        switch recoveryPolicy {
+        case .fail:
+            throw error
+        case .replaceCorruptArchive:
+            cardsByID = [:]
+            hasLoaded = true
         }
     }
 

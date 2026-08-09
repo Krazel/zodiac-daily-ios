@@ -27,6 +27,7 @@ final class AppModel: ObservableObject {
     private let userDefaults: UserDefaults
     private let now: @Sendable () -> Date
     private let initializationMessage: String?
+    private var refreshGeneration: UInt64 = 0
 
     init(
         userDefaults: UserDefaults = .standard,
@@ -37,22 +38,41 @@ final class AppModel: ObservableObject {
         selectedSign = userDefaults.string(forKey: Self.selectedSignKey)
             .flatMap(ZodiacSign.init(rawValue:))
 
+        let supportDirectory = FileManager.default.urls(
+            for: .applicationSupportDirectory,
+            in: .userDomainMask
+        ).first ?? FileManager.default.temporaryDirectory
+        let archiveDirectory = supportDirectory
+            .appendingPathComponent("ZodiacDaily", isDirectory: true)
+        savedStore = FileBackedSavedCardStore(
+            fileURL: archiveDirectory.appendingPathComponent("saved-cards.json")
+        )
+
         do {
-            repository = try BundledHoroscopeRepository()
+            let bundledRepository = try BundledHoroscopeRepository()
+            let source: any HoroscopeRepository
+            if let baseURL = AppConfiguration.apiBaseURL,
+               let remoteRepository = try? RemoteHoroscopeRepository(baseURL: baseURL) {
+                source = FallbackHoroscopeRepository(
+                    primary: remoteRepository,
+                    fallback: bundledRepository
+                )
+            } else {
+                source = bundledRepository
+            }
+            repository = PinnedHoroscopeRepository(
+                upstream: source,
+                store: FileBackedSavedCardStore(
+                    fileURL: archiveDirectory.appendingPathComponent("daily-editions.json"),
+                    recoveryPolicy: .replaceCorruptArchive
+                ),
+                now: now
+            )
             initializationMessage = nil
         } catch {
             repository = nil
             initializationMessage = error.localizedDescription
         }
-
-        let supportDirectory = FileManager.default.urls(
-            for: .applicationSupportDirectory,
-            in: .userDomainMask
-        ).first ?? FileManager.default.temporaryDirectory
-        let archiveURL = supportDirectory
-            .appendingPathComponent("ZodiacDaily", isDirectory: true)
-            .appendingPathComponent("saved-cards.json")
-        savedStore = FileBackedSavedCardStore(fileURL: archiveURL)
     }
 
     var isCurrentCardSaved: Bool {
@@ -70,6 +90,9 @@ final class AppModel: ObservableObject {
     }
 
     func refreshDailyCard() async {
+        refreshGeneration &+= 1
+        let generation = refreshGeneration
+
         guard let sign = selectedSign else {
             dailyState = .idle
             return
@@ -80,13 +103,19 @@ final class AppModel: ObservableObject {
         }
 
         dailyState = .loading
+        let day = LocalDayKey(date: now(), timeZone: .current)
         do {
-            let day = LocalDayKey(date: now(), timeZone: .current)
             let horoscope = try await repository.horoscope(for: sign, day: day)
-            guard selectedSign == sign else { return }
-            dailyState = .loaded(horoscope)
+            guard generation == refreshGeneration,
+                  selectedSign == sign,
+                  LocalDayKey(date: now(), timeZone: .current) == day else { return }
+            let displayed = savedCards.first { $0.id == horoscope.archiveKey }?.horoscope
+                ?? horoscope
+            dailyState = .loaded(displayed)
         } catch {
-            guard selectedSign == sign else { return }
+            guard generation == refreshGeneration,
+                  selectedSign == sign,
+                  LocalDayKey(date: now(), timeZone: .current) == day else { return }
             dailyState = .failed(error.localizedDescription)
         }
     }

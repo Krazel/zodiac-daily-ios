@@ -25,13 +25,37 @@ The app refreshes when the selected sign changes, when it becomes active, on
 pull-to-refresh, and when the local Gregorian day crosses midnight. Stale async
 results are discarded if the user changes signs while a card is loading.
 
+## Fresh daily content
+
+When `ZODIAC_DAILY_API_BASE_URL` contains the public HTTPS Worker address, the
+app requests one normalized document containing all twelve signs for the local
+date. It sends neither a FreeAstroAPI key nor the user's selected sign. The
+response must contain twelve unique, validated readings for the exact requested
+date; otherwise the bundled repository supplies the card automatically.
+`PinnedHoroscopeRepository` stores the first resolved card for each sign/day in
+`Application Support/ZodiacDaily/daily-editions.json`, so a network transition
+cannot change the visible card later that day or after relaunch. This derived
+cache rebuilds itself if its archive is corrupt; the separate user-owned saved
+cards archive keeps the stricter fail-without-overwrite policy. If the derived
+cache cannot write, the already resolved card is still shown for availability.
+
+The Worker in `Backend/freeastro-worker` is read-only for public traffic. Only
+its queue consumer can spend provider quota: normally twelve FreeAstroAPI
+requests per day, paced at one per second, cached in Cloudflare KV. Cron
+triggers only enqueue work so they stay below the free plan's tighter CPU
+ceiling. No external account, secret, queue, KV namespace, or deployment has
+been created yet.
+
 ## Persistence
 
 `FileBackedSavedCardStore` stores versioned JSON in
 `Application Support/ZodiacDaily/saved-cards.json`. It loads lazily inside an
 actor, writes atomically, deduplicates by sign/day, and never replaces the first
 saved snapshot with a later content version. The selected sign is stored in the
-app's local `UserDefaults` container. Nothing is transmitted.
+app's local `UserDefaults` container. Saved cards and the selected sign are not
+transmitted. When remote content is enabled, the app sends the requested date
+to the Zodiac Daily endpoint and normal HTTPS connection metadata is visible to
+the hosting provider.
 
 ## Approved additional screens
 
@@ -53,6 +77,8 @@ until `Design/Concepts/saved-detail-c2.png` receives explicit approval.
 - Signing team: unset.
 - Final app icon: intentionally absent.
 - Local dependency: root Swift package product `ZodiacDailyCore`.
+- Optional public configuration: `ZODIAC_DAILY_API_BASE_URL`; leave empty for
+  fully local operation. It must never contain the provider key.
 - The shared app scheme builds and runs the app. Run the root package tests
   separately with `swift test` from the repository root; they are not embedded
   as an Xcode unit-test target in the app scheme.

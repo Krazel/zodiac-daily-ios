@@ -28,6 +28,8 @@ data.
 4. **Settings / About sheet**
    - Change sign.
    - Short entertainment-content and local-privacy notices.
+   - Planned optional Support the app and App Store review entries; their final
+     UI remains visually gated and StoreKit activation is release work.
 
 ## Required states
 
@@ -49,7 +51,8 @@ No permissions are required in the MVP.
 - The user can select a sign, read one stable card for the local day, save it,
   find it after relaunch, and change sign.
 - All 12 signs and daily-key behavior have automated coverage.
-- Core flows work offline without accounts, tracking, or production services.
+- Core flows work offline without accounts or tracking. Fresh content uses the
+  free daily service when available and bundled content when it is not.
 - Approved screens are reproduced faithfully and pass Dynamic Type, VoiceOver,
   contrast, and touch-target checks.
 - English-only copy is complete and reviewed.
@@ -59,7 +62,10 @@ No permissions are required in the MVP.
 - Android, a dedicated iPad layout, web, and additional languages.
 - Accounts, login, sync, profiles, birth dates, or personal data.
 - Natal charts, compatibility, tarot, chat, or personalized AI.
-- Notifications, widgets, purchases, subscriptions, analytics, or ads.
+- Notifications, widgets, analytics, or ads.
+- Paid feature gates. Optional monthly supporter products are release-readiness
+  work and may not restrict the free core experience.
 - Publishing, TestFlight, or App Store submission.
-- A content-management backend.
+- A general-purpose content-management backend. The narrow daily cache/proxy is
+  allowed and contains no user accounts or personal data.
 - Sharing is a stretch candidate, not a base requirement.
