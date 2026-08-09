@@ -22,14 +22,16 @@ workspace does not have write access to Brain.
   (`feat: add deterministic horoscope core`).
 - Commit de proyecto iOS, Today aprobado, persistencia y propuestas restantes:
   `4c6928c` (`feat: build approved Today iOS app`).
-- Working tree: cambios C2 finales en revision antes de commit.
+- Commit de las cuatro pantallas C2 aprobadas y propuesta Saved detail:
+  `38a6ee3` (`feat: finalize approved C2 screens`).
+- Working tree: limpio tras el commit de cierre documental.
 - GitHub: pendiente; no se creo repo ni remoto externo.
 - UI: Today, Sign Selection, Saved vacio/poblado y Settings C2 implementadas
   tras sus aprobaciones. Solo Saved card detail sigue PROVISIONAL.
 - Regla visual actualizada: la aprobacion bloquea solo la implementacion visual
   final; motor, datos, contenido local, persistencia, tests y documentacion
   pueden avanzar en paralelo.
-- Propuestas Today pendientes de aprobacion:
+- Historial de propuestas Today:
   - A `Design/Concepts/today-a-celestial-broadsheet.png` — recomendada.
   - B `Design/Concepts/today-b-modern-magazine.png`.
   - C `Design/Concepts/today-c-mystic-night.png`.
@@ -53,9 +55,14 @@ workspace does not have write access to Brain.
   retorno nativo a Saved y `Remove from Saved` fuera de la carta. Sigue
   pendiente de aprobacion explicita y no autoriza su implementacion final.
 - Implementacion actual: `ZodiacDaily.xcodeproj`, SwiftUI iOS 17, Today nativa,
-  selector de 12 signos, navegacion Today/Saved, persistencia JSON atomica,
-  preferencias locales y manifiesto de privacidad sin tracking ni datos
-  recopilados. Bundle id provisional `com.zodiacdaily.app`, sin team ni icono.
+  seleccion inicial de 12 signos, Saved vacio/poblado, Settings/About,
+  navegacion Today/Saved, persistencia JSON atomica, preferencias locales y
+  manifiesto de privacidad sin tracking ni datos recopilados. Bundle id
+  provisional `com.zodiacdaily.app`, sin team ni icono.
+- QA auxiliar de las pantallas C2: sin P0/P1 tras corregir el simbolo del signo
+  en Saved vacio y el retorno tras eliminar desde el detalle provisional.
+  XML, JSON, UTF-8, PBX, privacidad y ausencia de red/servicios validados en
+  Windows.
 - Siguiente puerta visual: aprobar `Design/Concepts/saved-detail-c2.png` antes
   de fijar la jerarquia visual final del detalle de una carta guardada.
 - Bloqueo tecnico futuro: compilacion, simulador, firma y archivo necesitan Mac
