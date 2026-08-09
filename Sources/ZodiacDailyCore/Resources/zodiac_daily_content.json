@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "signs": {
+    "aries": {
+      "headlines": ["Choose the first brave step", "Let momentum meet intention", "Make room for a clean beginning", "Lead with warmth, not hurry"],
+      "readings": ["Your energy is persuasive today, especially when you give it one clear direction. Begin the task that has been waiting for your courage, then let patience shape the finish.", "A direct conversation can clear more space than another round of planning. Say what matters with generosity and leave the other person room to answer.", "The day rewards decisive movement, but not needless speed. Choose one promise you can keep and let that become your measure of progress.", "Something small is ready to become real through action. Trust your instinct to begin, while giving the details the steady attention they deserve."]
+    },
+    "taurus": {
+      "headlines": ["Protect what helps you bloom", "A steady choice gathers value", "Let comfort become clarity", "Build the day at your own pace"],
+      "readings": ["A calm pace will reveal what pressure has been hiding. Give your attention to the practical detail that makes everything else feel more secure.", "You do not need to change every part of the plan. Strengthen the piece that already works, and allow consistency to create the opening you need.", "Pleasure and usefulness can share the same space today. Choose what feels grounding, then notice how easily your priorities arrange themselves around it.", "An honest boundary can be a form of care. Keep your answer simple and let your actions show where your energy truly belongs."]
+    },
+    "gemini": {
+      "headlines": ["Follow the question with energy", "A fresh connection changes the story", "Give the bright idea a shape", "Listen for the useful surprise"],
+      "readings": ["Curiosity opens the right door today, but focus will carry you through it. Capture the promising idea and give it one concrete next step.", "A conversation may contain more than its obvious subject. Listen for the detail that shifts your perspective, then ask the question others have skipped.", "Your mind wants variety, while the day asks for a thread. Connect two scattered thoughts and you may discover the simple answer hiding between them.", "News or a change of plan can work in your favor. Stay flexible without abandoning the intention that brought you here."]
+    },
+    "cancer": {
+      "headlines": ["Make a home for what matters", "Quiet knowledge points the way", "Care begins with a clear boundary", "Let tenderness have structure"],
+      "readings": ["Your sensitivity is useful information, not an instruction to retreat. Name what the atmosphere is telling you, then choose the response that protects your peace.", "A familiar ritual can restore your sense of direction. Return to what grounds you before deciding how much of yourself the outside world receives.", "Someone may need your warmth, but you are allowed to set the terms. Offer what is sustainable and trust that real care does not require exhaustion.", "The past offers context today, not a destination. Keep the wisdom, release the old reflex, and make room for a gentler next chapter."]
+    },
+    "leo": {
+      "headlines": ["Let confidence become generous", "Take the stage with purpose", "Your warmth sets the tone", "Create the moment you hoped to find"],
+      "readings": ["You are easier to notice today, so let your presence serve something meaningful. A sincere word of encouragement may become your most memorable gesture.", "A creative impulse deserves more than private admiration. Give it a visible form, even if the first version is modest and unfinished.", "Recognition feels good, but self-respect is the steadier compass. Choose the action you would still value even if nobody applauded it.", "The room changes when you bring your full attention into it. Lead with warmth and others will be more willing to meet your courage with their own."]
+    },
+    "virgo": {
+      "headlines": ["The useful detail brings relief", "Refine, then let it breathe", "Small care creates real order", "Make the next step beautifully simple"],
+      "readings": ["A manageable improvement will do more than an ambitious overhaul. Fix the point of friction you meet every day and enjoy the space it returns to you.", "Your eye for detail is sharp, but completion matters too. Decide what good enough means before you begin refining the work.", "A practical act of care can say what words have struggled to express. Offer help that respects both your limits and the other person's independence.", "The answer becomes clearer when you separate the urgent from the important. Finish one small obligation, then give your best attention to what lasts."]
+    },
+    "libra": {
+      "headlines": ["Balance begins with an honest choice", "Beauty clarifies the decision", "Meet in the generous middle", "Harmony needs your true voice"],
+      "readings": ["A fair outcome includes you, too. Before agreeing, notice whether the arrangement leaves enough room for your own needs and convictions.", "The right environment can help the right answer emerge. Bring a little order or beauty to your surroundings, then revisit the choice with a calmer eye.", "A relationship benefits from graceful directness today. Name the imbalance without keeping score and invite a solution both sides can genuinely support.", "You may see every side of the question, but the moment still asks for a choice. Let your deepest value break the tie."]
+    },
+    "scorpio": {
+      "headlines": ["Trust what the surface cannot explain", "A private truth becomes power", "Release the old grip", "Depth reveals the clean answer"],
+      "readings": ["Your instincts are precise today, especially around what remains unsaid. Use that knowledge to ask a clear question rather than drawing a final conclusion alone.", "Something is ready to be simplified through honesty. Name the desire beneath the strategy and the next move will become much easier to recognize.", "Holding tighter will not protect what is already changing. Keep the lesson, loosen the grip, and let transformation create a more truthful shape.", "Privacy can restore your power when it is chosen, not defensive. Give yourself a quiet interval and return with only the words that matter."]
+    },
+    "sagittarius": {
+      "headlines": ["Let the horizon widen the plan", "A bold question finds a path", "Carry your freedom with purpose", "The road teaches as you move"],
+      "readings": ["A wider perspective turns today's obstacle into useful information. Step back, remember the larger adventure, and choose the route that leaves room to learn.", "Your honesty can be liberating when it arrives with care. Share the truth as an invitation to understand, not a verdict delivered from a distance.", "Restlessness may be pointing toward genuine growth. Before you leap, decide what you want the new experience to teach you.", "An unexpected detour contains a story worth following. Keep your commitments, but allow curiosity to revise the route between them."]
+    },
+    "capricorn": {
+      "headlines": ["Build for the life beyond today", "Quiet discipline opens the gate", "Let ambition choose its true purpose", "The strong plan leaves room to live"],
+      "readings": ["Progress becomes visible through one well-placed effort. Attend to the task with lasting value and let the smaller demands wait their proper turn.", "Responsibility is one of your strengths, but it is not your entire identity. Make space for something that restores you without needing to earn its place.", "A long-term goal may need a kinder structure. Adjust the pace before you question the destination, and choose a rhythm you can sustain.", "Authority grows from consistency today. Keep the promise you made to yourself, especially if no one else is there to measure it."]
+    },
+    "aquarius": {
+      "headlines": ["The unusual idea deserves a trial", "Change starts at the useful edge", "Make space for a freer pattern", "Your perspective refreshes the room"],
+      "readings": ["The solution may be hiding outside the usual categories. Test the unconventional idea on a small scale and let evidence guide the next experiment.", "Community matters, but so does the distinct voice you bring to it. Contribute without sanding away the quality that makes your perspective valuable.", "A stale routine is ready for a thoughtful disruption. Change one assumption and observe which possibilities suddenly become available.", "Distance can bring clarity, provided you return to the human feeling underneath the problem. Pair your broad view with one personal act of care."]
+    },
+    "pisces": {
+      "headlines": ["Give the dream a gentle shore", "Intuition asks for a listening hour", "Let imagination become medicine", "A soft answer can still be clear"],
+      "readings": ["Your imagination is offering more than escape today. Write down the image that keeps returning and ask what practical need it may be trying to express.", "A subtle feeling becomes easier to understand when you stop rushing to name it. Give it quiet attention, then choose one grounded action in response.", "Compassion flows naturally, but it needs a boundary to remain generous. Help where you can make a real difference and release what was never yours to carry.", "Creative time can restore the part of you that explanations cannot reach. Make something without judging its usefulness and notice what becomes clearer afterward."]
+    }
+  }
+}

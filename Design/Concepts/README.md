@@ -9,7 +9,11 @@ validated for accessibility after approval.
 - `today-b-modern-magazine.png` — bright, graphic, contemporary editorial
   direction.
 - `today-c-mystic-night.png` — dark, atmospheric, premium evening direction.
+- `today-c2-collectible-card.png` — revised C direction after owner feedback;
+  the reading is a complete collectible card with a separate Save Card action.
 
-Status: **awaiting explicit owner approval through Brain general**.
+Current recommendation: **C2 — Collectible Card**.
+
+Status: **awaiting explicit owner approval or another targeted adjustment**.
 
 No concept is permission to implement other screens.
