@@ -74,7 +74,12 @@
 		};
 		C10000000000000000000006 /* Features */ = {
 			isa = PBXGroup;
-			children = (C10000000000000000000007 /* Daily */, C10000000000000000000008 /* Provisional */,);
+			children = (
+				C10000000000000000000007 /* Daily */,
+				C10000000000000000000008 /* SignSelection */,
+				C1000000000000000000000A /* Saved */,
+				C1000000000000000000000B /* Settings */,
+			);
 			path = Features;
 			sourceTree = "<group>";
 		};
@@ -84,10 +89,22 @@
 			path = Daily;
 			sourceTree = "<group>";
 		};
-		C10000000000000000000008 /* Provisional */ = {
+		C10000000000000000000008 /* SignSelection */ = {
 			isa = PBXGroup;
-			children = (B10000000000000000000007 /* SignSelectionView.swift */, B10000000000000000000008 /* SavedView.swift */, B10000000000000000000009 /* SettingsView.swift */,);
-			path = Provisional;
+			children = (B10000000000000000000007 /* SignSelectionView.swift */,);
+			path = SignSelection;
+			sourceTree = "<group>";
+		};
+		C1000000000000000000000A /* Saved */ = {
+			isa = PBXGroup;
+			children = (B10000000000000000000008 /* SavedView.swift */,);
+			path = Saved;
+			sourceTree = "<group>";
+		};
+		C1000000000000000000000B /* Settings */ = {
+			isa = PBXGroup;
+			children = (B10000000000000000000009 /* SettingsView.swift */,);
+			path = Settings;
 			sourceTree = "<group>";
 		};
 		C10000000000000000000009 /* Resources */ = {

@@ -100,7 +100,8 @@ struct DailyCardView: View {
     }
 }
 
-private struct CelestialArtwork: View {
+/// Procedural art shared by the approved Today card and approved Saved previews.
+struct CelestialArtwork: View {
     let sign: ZodiacSign
 
     private let stars: [CGPoint] = [

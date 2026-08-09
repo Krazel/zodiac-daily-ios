@@ -33,13 +33,16 @@ actor, writes atomically, deduplicates by sign/day, and never replaces the first
 saved snapshot with a later content version. The selected sign is stored in the
 app's local `UserDefaults` container. Nothing is transmitted.
 
-## Provisional screens
+## Approved additional screens
 
-Sign Selection, Saved (including its detail wrapper), and Settings/About are
-functional but **PROVISIONAL**. They intentionally use plain native List/Form
-layouts and source comments identify the gate. They must receive complete-screen
-image approval before their final layout, art, iconography, or major motion is
-implemented.
+Sign Selection, Saved empty/populated, and Settings/About implement their
+owner-approved C2 complete-screen references. They preserve the midnight
+editorial language, collectible-card hierarchy, Dynamic Type reflow, VoiceOver
+labels, safe-area-aware scrolling, and minimum 44-point interactions.
+
+Saved card detail remains **PROVISIONAL**. It reuses the approved card object,
+but its surrounding navigation and remove-action hierarchy cannot become final
+until `Design/Concepts/saved-detail-c2.png` receives explicit approval.
 
 ## Xcode handoff
 
@@ -57,4 +60,5 @@ implemented.
 Run the package's `ZodiacDailyCoreTests`, then build the app in an iPhone
 simulator. Verify small and large iPhones, at least one accessibility Dynamic
 Type size, VoiceOver order, save/relaunch/remove behavior, local midnight, and a
-same-size comparison against the approved C2 image.
+same-size comparison against all approved C2 images. The unapproved Saved card
+detail proposal must not be treated as a final screenshot target yet.

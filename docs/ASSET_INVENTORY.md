@@ -29,7 +29,8 @@ Symbols, Unicode zodiac glyphs, SwiftUI shapes, and procedural celestial art.
 
 ## Still gated
 
-- Final art/layout for Saved card detail.
+- Final art/layout for Saved card detail. A complete-screen candidate exists at
+  `Design/Concepts/saved-detail-c2.png`, but it is not yet approved.
 - Final app icon and any alternate icons.
 - App Store screenshots, previews, and promotional artwork.
 - Any non-system font or production illustration asset.

@@ -4,18 +4,19 @@ Independent iOS app for a brief, editorial daily horoscope ritual. The working
 public name is **Zodiac Daily** and the internal project name is
 `ZodiacDailyNative`.
 
-The current milestone implements the owner-approved C2 Today screen as a native
-SwiftUI app while preserving the per-screen visual gate for the remaining
-flows. Engine, content, and persistence are fully local.
+The current milestone implements the owner-approved C2 Today, Sign Selection,
+Saved empty/populated, and Settings screens as a native SwiftUI app. The visual
+gate remains active for Saved card detail and later production artwork. Engine,
+content, and persistence are fully local.
 
 ## Current status
 
 - Product: MVP defined for iPhone, English only.
-- Visuals: `today-c2-collectible-card.png` was approved on 2026-08-09 and is the
-  final visual reference for Today.
-- Code: iOS 17 SwiftUI project and Today are implemented. Sign Selection, Saved,
-  and Settings are functional system-UI scaffolds explicitly marked provisional
-  until their own complete-screen images are approved.
+- Visuals: the five complete C2 references for Today, Sign Selection, Saved
+  empty/populated, and Settings were approved on 2026-08-09.
+- Code: those approved screens are implemented in the iOS 17 SwiftUI project.
+  Saved card detail remains explicitly provisional while
+  `Design/Concepts/saved-detail-c2.png` awaits approval.
 - Persistence: saved-card snapshots use an actor-isolated, atomic JSON archive
   in Application Support; the selected sign uses local app preferences.
 - External services: none.

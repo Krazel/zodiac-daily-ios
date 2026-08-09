@@ -8,7 +8,6 @@ struct RootView: View {
     var body: some View {
         Group {
             if model.selectedSign == nil {
-                // PROVISIONAL: Sign Selection has not received visual approval.
                 SignSelectionView(requiresSelection: true)
             } else {
                 TabView(selection: $selectedTab) {
@@ -18,14 +17,18 @@ struct RootView: View {
                         }
                         .tag(0)
 
-                    // PROVISIONAL: Saved navigation/layout has not received visual approval.
-                    SavedView()
+                    SavedView {
+                        selectedTab = 0
+                    }
                         .tabItem {
                             Label("Saved", systemImage: "bookmark")
                         }
                         .tag(1)
                 }
                 .tint(ZodiacPalette.gold)
+                .toolbarBackground(ZodiacPalette.midnight, for: .tabBar)
+                .toolbarBackground(.visible, for: .tabBar)
+                .toolbarColorScheme(.dark, for: .tabBar)
             }
         }
         .task {

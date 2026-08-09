@@ -20,8 +20,9 @@ Updated: 2026-08-09
 - Approved Today C2 implementation: native midnight background, masthead, sign
   selector, complete bordered card, procedural celestial art, daily local
   content, and separate save/remove action.
-- Functional native scaffolds for Sign Selection, Saved, and Settings. These
-  are explicitly **PROVISIONAL** and cannot define their final visual design.
+- Owner-approved native C2 implementations for Sign Selection, Saved empty and
+  populated states, and Settings/About. Only Saved card detail remains
+  explicitly **PROVISIONAL** pending its own approval.
 - Privacy manifest declares no tracking or collected data and documents the
   app-only UserDefaults use.
 

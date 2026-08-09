@@ -22,10 +22,10 @@ workspace does not have write access to Brain.
   (`feat: add deterministic horoscope core`).
 - Commit de proyecto iOS, Today aprobado, persistencia y propuestas restantes:
   `4c6928c` (`feat: build approved Today iOS app`).
-- Working tree: limpio.
+- Working tree: cambios C2 finales en revision antes de commit.
 - GitHub: pendiente; no se creo repo ni remoto externo.
-- UI: Today C2 implementada tras aprobacion; Sign Selection, Saved y Settings
-  son andamios funcionales PROVISIONALES que no fijan su diseno final.
+- UI: Today, Sign Selection, Saved vacio/poblado y Settings C2 implementadas
+  tras sus aprobaciones. Solo Saved card detail sigue PROVISIONAL.
 - Regla visual actualizada: la aprobacion bloquea solo la implementacion visual
   final; motor, datos, contenido local, persistencia, tests y documentacion
   pueden avanzar en paralelo.
@@ -37,9 +37,9 @@ workspace does not have write access to Brain.
     toda la lectura como una carta guardable; recomendacion actual.
 - Feedback registrado: la lectura debe sentirse como una carta/tarjeta que el
   usuario guarda como objeto, no como un panel unido a la pantalla.
-- C2 fue aprobada explicitamente por el propietario el 2026-08-09; Today puede
-  implementarse con fidelidad. Welcome, Saved y Settings siguen necesitando su
-  propia aprobacion visual; cualquier prototipo previo es provisional.
+- C2 fue aprobada explicitamente por el propietario el 2026-08-09 para Today.
+  Las aprobaciones posteriores de Welcome, Saved vacio/poblado y Settings
+  autorizan tambien su implementacion visual final.
 - Propuestas C2 adicionales:
   `Design/Concepts/sign-selection-c2.png`,
   `Design/Concepts/saved-populated-c2.png`,
@@ -48,13 +48,16 @@ workspace does not have write access to Brain.
 - El propietario aprobo explicitamente las cuatro propuestas anteriores el
   2026-08-09 y pidio continuar. Sign Selection, Saved vacio/poblado y Settings
   pueden implementarse como UI final. Saved card detail sigue provisional.
+- Propuesta completa para la puerta visual restante:
+  `Design/Concepts/saved-detail-c2.png`. Muestra la carta guardada completa,
+  retorno nativo a Saved y `Remove from Saved` fuera de la carta. Sigue
+  pendiente de aprobacion explicita y no autoriza su implementacion final.
 - Implementacion actual: `ZodiacDaily.xcodeproj`, SwiftUI iOS 17, Today nativa,
   selector de 12 signos, navegacion Today/Saved, persistencia JSON atomica,
   preferencias locales y manifiesto de privacidad sin tracking ni datos
   recopilados. Bundle id provisional `com.zodiacdaily.app`, sin team ni icono.
-- Siguiente puerta visual: aprobar las propuestas C2 de Welcome, Saved y
-  Settings antes de convertir sus andamios de sistema en experiencia visual
-  final.
+- Siguiente puerta visual: aprobar `Design/Concepts/saved-detail-c2.png` antes
+  de fijar la jerarquia visual final del detalle de una carta guardada.
 - Bloqueo tecnico futuro: compilacion, simulador, firma y archivo necesitan Mac
   con Xcode; el entorno Windows actual solo permite preparar repo y documentos.
 - Nucleo implementado como Swift Package: 12 signos, dia local, catalogo ingles

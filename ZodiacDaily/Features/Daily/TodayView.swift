@@ -31,7 +31,6 @@ struct TodayView: View {
             .toolbar(.hidden, for: .navigationBar)
         }
         .sheet(isPresented: $showsSettings) {
-            // PROVISIONAL: Settings/About has not received visual approval.
             SettingsView()
         }
     }
