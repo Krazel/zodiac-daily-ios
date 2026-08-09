@@ -18,6 +18,8 @@ workspace does not have write access to Brain.
 - Repo local: `C:\Users\dmkra\Documents\Codex Apps\ZodiacDailyNative`.
 - Rama: `main`.
 - Primer commit seguro: `5ff603a` (`chore: initialize Zodiac Daily repository`).
+- Commit de nucleo y revision visual C2: `9e7b53a`
+  (`feat: add deterministic horoscope core`).
 - Working tree: limpio.
 - GitHub: pendiente; no se creo repo ni remoto externo.
 - UI: no implementada, conforme a visual-first.
