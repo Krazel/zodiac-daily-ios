@@ -20,6 +20,8 @@ workspace does not have write access to Brain.
 - Primer commit seguro: `5ff603a` (`chore: initialize Zodiac Daily repository`).
 - Commit de nucleo y revision visual C2: `9e7b53a`
   (`feat: add deterministic horoscope core`).
+- Commit de proyecto iOS, Today aprobado, persistencia y propuestas restantes:
+  `4c6928c` (`feat: build approved Today iOS app`).
 - Working tree: limpio.
 - GitHub: pendiente; no se creo repo ni remoto externo.
 - UI: Today C2 implementada tras aprobacion; Sign Selection, Saved y Settings
