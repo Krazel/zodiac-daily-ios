@@ -34,7 +34,9 @@ workspace does not have write access to Brain.
     toda la lectura como una carta guardable; recomendacion actual.
 - Feedback registrado: la lectura debe sentirse como una carta/tarjeta que el
   usuario guarda como objeto, no como un panel unido a la pantalla.
-- Primera decision del propietario: aprobar C2 o pedir otro ajuste concreto.
+- C2 fue aprobada explicitamente por el propietario el 2026-08-09; Today puede
+  implementarse con fidelidad. Welcome, Saved y Settings siguen necesitando su
+  propia aprobacion visual; cualquier prototipo previo es provisional.
 - Tras aprobacion: registrar imagen/fecha/cambios y generar Welcome, Saved y
   Settings en esa direccion; no implementar todavia esas pantallas sin su propia
   aprobacion.

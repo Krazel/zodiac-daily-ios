@@ -35,3 +35,10 @@ The owner asked for the reading to feel more like a card that can be saved as an
 owned object. `today-c2-collectible-card.png` applies that feedback by showing
 the complete card with all four corners visible and keeping the Save Card action
 outside the card. C2 is now the recommended candidate pending explicit approval.
+
+## 2026-08-09 — Today C2 approved
+
+The owner explicitly approved `today-c2-collectible-card.png` and authorized
+implementation. It is the final visual reference for Today. Sign Selection,
+Saved, and Settings still require their own image approval; any implementation
+of those screens before approval remains provisional.
