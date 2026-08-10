@@ -53,7 +53,7 @@ struct ZodiacMasthead: View {
     var compact = false
 
     var body: some View {
-        VStack(spacing: compact ? 5 : 9) {
+        VStack(spacing: compact ? 4 : 9) {
             HStack(spacing: 11) {
                 Rectangle()
                     .fill(ZodiacPalette.gold.opacity(0.42))
@@ -68,8 +68,8 @@ struct ZodiacMasthead: View {
             .accessibilityHidden(true)
 
             Text("ZODIAC DAILY")
-                .font(.custom("Didot", size: compact ? 22 : 28))
-                .tracking(compact ? 2.2 : 3)
+                .font(.custom("Didot", size: compact ? 17 : 28))
+                .tracking(compact ? 1.4 : 3)
                 .foregroundStyle(ZodiacPalette.paleGold)
                 .minimumScaleFactor(0.7)
                 .lineLimit(1)

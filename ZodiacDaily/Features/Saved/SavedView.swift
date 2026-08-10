@@ -60,6 +60,8 @@ struct SavedView: View {
     private var savedHeader: some View {
         VStack(spacing: 0) {
             ZodiacMasthead(compact: true)
+                .offset(y: -11)
+                .padding(.bottom, 5)
 
             Text("Your Saved Cards")
                 .font(
@@ -74,6 +76,7 @@ struct SavedView: View {
                 .minimumScaleFactor(0.78)
                 .lineLimit(1)
                 .padding(.top, 0)
+                .offset(y: model.savedCards.isEmpty ? 0 : -11)
                 .accessibilityAddTraits(.isHeader)
 
             if model.savedCards.isEmpty {
@@ -88,6 +91,7 @@ struct SavedView: View {
                     .tracking(0.45)
                     .foregroundStyle(ZodiacPalette.lavender)
                     .padding(.top, 3)
+                    .offset(y: -11)
                     .accessibilityLabel(collectionSummary)
             }
         }
@@ -427,6 +431,7 @@ struct SavedCardDetailView: View {
                             contentSpacing: -44,
                             headlineSize: 30,
                             readingBottomPadding: 46,
+                            readingStackSpacing: 4,
                             symbolSize: 56,
                             symbolTopPadding: 27
                         )

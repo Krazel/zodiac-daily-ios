@@ -5,9 +5,10 @@ struct DailyCardView: View {
     let horoscope: DailyHoroscope
     var maxWidth: CGFloat = 328
     var artworkHeight: CGFloat = 296
-    var contentSpacing: CGFloat = -28
+    var contentSpacing: CGFloat = -7
     var headlineSize: CGFloat = 30
-    var readingBottomPadding: CGFloat = 46
+    var readingBottomPadding: CGFloat = 37
+    var readingStackSpacing: CGFloat = 1
     var symbolSize: CGFloat = 54
     var symbolTopPadding: CGFloat = 25
 
@@ -23,7 +24,7 @@ struct DailyCardView: View {
                         .accessibilityHidden(true)
                 }
 
-            VStack(spacing: 4) {
+            VStack(spacing: readingStackSpacing) {
                 Text("TODAY’S READING")
                     .font(.system(size: 11, weight: .medium))
                     .tracking(4)
