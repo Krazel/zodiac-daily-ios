@@ -74,11 +74,15 @@ jobs:
           test -d "$APP_PATH"
           mkdir -p visual-qa
           xcrun simctl install "$UDID" "$APP_PATH"
+          DATA_CONTAINER="$(
+            xcrun simctl get_app_container \
+              "$UDID" com.krazel.zodiacdaily data
+          )"
+          STATE_MARKER="${DATA_CONTAINER}/tmp/visual-qa-rendered-state.txt"
 
           for STATE in sign-selection today saved-empty saved-populated saved-detail settings; do
             xcrun simctl terminate "$UDID" com.krazel.zodiacdaily >/dev/null 2>&1 || true
-            xcrun simctl spawn "$UDID" defaults delete \
-              com.krazel.zodiacdaily visual-qa-rendered-state >/dev/null 2>&1 || true
+            rm -f "$STATE_MARKER"
             LAUNCH_OUTPUT="$(
               SIMCTL_CHILD_ZODIAC_VISUAL_QA_STATE="$STATE" \
                 xcrun simctl launch --terminate-running-process \
@@ -90,10 +94,8 @@ jobs:
             test "$APP_PID" -gt 0
             sleep 6
             kill -0 "$APP_PID"
-            ACTUAL_STATE="$(
-              xcrun simctl spawn "$UDID" defaults read \
-                com.krazel.zodiacdaily visual-qa-rendered-state
-            )"
+            test -f "$STATE_MARKER"
+            ACTUAL_STATE="$(cat "$STATE_MARKER")"
             test "$ACTUAL_STATE" = "$STATE"
 
             SCREENSHOT="visual-qa/${STATE}.png"

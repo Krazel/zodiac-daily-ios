@@ -79,9 +79,11 @@ struct RootView: View {
         .onAppear {
             #if DEBUG
             if let visualState = AppModel.visualQAState {
-                UserDefaults.standard.set(
-                    visualState.rawValue,
-                    forKey: "visual-qa-rendered-state"
+                let markerURL = FileManager.default.temporaryDirectory
+                    .appendingPathComponent("visual-qa-rendered-state.txt")
+                try? Data(visualState.rawValue.utf8).write(
+                    to: markerURL,
+                    options: .atomic
                 )
             }
             #endif
