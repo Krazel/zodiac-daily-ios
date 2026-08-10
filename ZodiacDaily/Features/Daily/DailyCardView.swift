@@ -3,7 +3,7 @@ import ZodiacDailyCore
 
 struct DailyCardView: View {
     let horoscope: DailyHoroscope
-    var maxWidth: CGFloat = 314
+    var maxWidth: CGFloat = 328
     var artworkHeight: CGFloat = 316
 
     var body: some View {

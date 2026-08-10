@@ -12,7 +12,7 @@ struct SignSelectionView: View {
 
     private var columns: [GridItem] {
         let count = dynamicTypeSize.isAccessibilitySize ? 2 : 3
-        return Array(repeating: GridItem(.flexible(), spacing: 11), count: count)
+        return Array(repeating: GridItem(.flexible(), spacing: 8), count: count)
     }
 
     var body: some View {
@@ -41,7 +41,7 @@ struct SignSelectionView: View {
                         }
                         .padding(.bottom, 24)
 
-                        LazyVGrid(columns: columns, spacing: 11) {
+                        LazyVGrid(columns: columns, spacing: 8) {
                             ForEach(ZodiacSign.allCases, id: \.self) { sign in
                                 SignChoiceCard(
                                     sign: sign,
@@ -52,7 +52,7 @@ struct SignSelectionView: View {
                                 }
                             }
                         }
-                        .frame(maxWidth: dynamicTypeSize.isAccessibilitySize ? 354 : 322)
+                        .frame(maxWidth: dynamicTypeSize.isAccessibilitySize ? 354 : 330)
                         .padding(.bottom, 24)
 
                         Button(action: confirmSelection) {
@@ -66,7 +66,7 @@ struct SignSelectionView: View {
                             }
                             .font(.custom("Didot", size: 15, relativeTo: .headline).weight(.semibold))
                             .tracking(3)
-                            .frame(width: 272, height: 49)
+                            .frame(width: 283, height: 49)
                         }
                         .buttonStyle(.plain)
                         .foregroundStyle(ZodiacPalette.gold)
@@ -148,8 +148,8 @@ struct SignSelectionView: View {
             .accessibilityHidden(true)
 
             Text("ZODIAC DAILY")
-                .font(.custom("Didot", size: 22, relativeTo: .title2))
-                .tracking(1.8)
+                .font(.custom("Didot", size: 21, relativeTo: .title2))
+                .tracking(1.6)
                 .foregroundStyle(ZodiacPalette.paleGold)
                 .minimumScaleFactor(0.72)
                 .lineLimit(1)

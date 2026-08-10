@@ -105,7 +105,7 @@ struct TodayView: View {
                 }
                 .foregroundStyle(ZodiacPalette.paleGold)
                 .padding(.horizontal, 20)
-                .frame(width: 216, height: 51)
+                .frame(width: 225, height: 51)
                 .background(ZodiacPalette.midnight.opacity(0.72), in: Capsule())
                 .overlay {
                     Capsule().stroke(ZodiacPalette.gold, lineWidth: 1)
@@ -125,7 +125,7 @@ struct TodayView: View {
             ProgressView("Preparing today’s card…")
                 .tint(ZodiacPalette.gold)
                 .foregroundStyle(ZodiacPalette.text)
-                .frame(maxWidth: 314, minHeight: 456)
+                .frame(maxWidth: 328, minHeight: 456)
                 .padding(.top, 39)
 
         case .failed(let message):
@@ -147,14 +147,14 @@ struct TodayView: View {
             }
             .foregroundStyle(ZodiacPalette.text)
             .padding(.horizontal, 24)
-            .frame(maxWidth: 314, minHeight: 456)
+            .frame(maxWidth: 328, minHeight: 456)
             .padding(.top, 39)
             .accessibilityElement(children: .contain)
 
         case .loaded(let horoscope):
             VStack(spacing: 6) {
                 DailyCardView(horoscope: horoscope)
-                    .frame(maxWidth: 314)
+                    .frame(maxWidth: 328)
 
                 Button {
                     Task { await model.toggleCurrentCardSaved() }
