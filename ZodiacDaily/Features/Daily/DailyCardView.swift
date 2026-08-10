@@ -72,6 +72,13 @@ struct DailyCardView: View {
                 startPoint: .top,
                 endPoint: .bottom
             )
+
+            Image("CelestialBackground")
+                .resizable()
+                .scaledToFill()
+                .opacity(0.11)
+                .blendMode(.screen)
+                .accessibilityHidden(true)
         }
         .clipShape(RoundedRectangle(cornerRadius: 25, style: .continuous))
         .overlay {
@@ -240,12 +247,12 @@ private struct DailyCardBackView: View {
                 .offset(y: 22)
                 .accessibilityHidden(true)
 
-            VStack(spacing: 4) {
+            VStack(spacing: 6) {
                 Text(horoscope.sign.symbol)
                     .font(.system(size: 36, weight: .ultraLight))
                     .foregroundStyle(ZodiacPalette.gold)
 
-                Text("DAILY DETAILS")
+                Text("DEEPER READING")
                     .font(.system(size: 9, weight: .semibold))
                     .tracking(3.1)
                     .foregroundStyle(ZodiacPalette.lavender)
@@ -359,7 +366,7 @@ private struct DailyCardBackView: View {
             Text("DAILY SCORES")
                 .font(.system(size: 8, weight: .semibold))
                 .tracking(2.4)
-                .foregroundStyle(ZodiacPalette.lavender)
+                .foregroundStyle(ZodiacPalette.gold)
 
             LazyVGrid(
                 columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 2),
@@ -369,6 +376,11 @@ private struct DailyCardBackView: View {
                 scoreCell("CAREER", value: careerScore)
                 scoreCell("MONEY", value: moneyScore)
                 scoreCell("HEALTH", value: healthScore)
+            }
+            .overlay {
+                Rectangle()
+                    .fill(ZodiacPalette.gold.opacity(0.48))
+                    .frame(width: 0.75, height: 58)
             }
 
             sectionDivider
@@ -383,6 +395,7 @@ private struct DailyCardBackView: View {
 
             sectionDivider
             detailText("MOON", value: "\(moonSign.uppercased()) · \(moonPhase.uppercased())", size: 11)
+            Spacer(minLength: 8)
             essenceSection
         }
     }
@@ -406,7 +419,7 @@ private struct DailyCardBackView: View {
             Text("\(horoscope.sign.displayName.uppercased()) ESSENCE")
                 .font(.system(size: 8, weight: .semibold))
                 .tracking(2.2)
-                .foregroundStyle(ZodiacPalette.lavender)
+                .foregroundStyle(ZodiacPalette.gold)
 
             Text(details.signEssence)
                 .font(.custom("Didot", size: 12, relativeTo: .caption))
@@ -422,7 +435,7 @@ private struct DailyCardBackView: View {
             Text(title)
                 .font(.system(size: 8, weight: .semibold))
                 .tracking(2.3)
-                .foregroundStyle(ZodiacPalette.lavender)
+                .foregroundStyle(ZodiacPalette.gold)
             Text(value)
                 .font(.custom("Didot", size: size, relativeTo: .caption))
                 .foregroundStyle(ZodiacPalette.paleGold)
@@ -439,7 +452,7 @@ private struct DailyCardBackView: View {
                 Text(title)
                     .font(.system(size: 7.5, weight: .semibold))
                     .tracking(1.6)
-                    .foregroundStyle(ZodiacPalette.lavender)
+                    .foregroundStyle(ZodiacPalette.gold)
                 Spacer(minLength: 3)
                 Text(String(value))
                     .font(.custom("Didot", size: 13, relativeTo: .caption))
@@ -464,7 +477,7 @@ private struct DailyCardBackView: View {
             Text(title)
                 .font(.system(size: 7.5, weight: .semibold))
                 .tracking(1.8)
-                .foregroundStyle(ZodiacPalette.lavender)
+                .foregroundStyle(ZodiacPalette.gold)
             Text(value)
                 .font(.custom("Didot", size: 14, relativeTo: .subheadline))
                 .foregroundStyle(ZodiacPalette.paleGold)

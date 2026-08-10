@@ -109,29 +109,29 @@ public struct DailyCardDetails: Codable, Hashable, Sendable {
     public static func signEssence(for sign: ZodiacSign) -> String {
         switch sign {
         case .aries:
-            "Courageous beginnings guided by direct, vital energy."
+            "Courageous · Direct · Vital"
         case .taurus:
-            "Steady devotion, sensual wisdom, and the strength to cultivate."
+            "Steady · Devoted · Sensual"
         case .gemini:
-            "Curious intelligence that connects ideas, people, and possibilities."
+            "Curious · Expressive · Versatile"
         case .cancer:
-            "Protective sensitivity with a deep instinct for belonging."
+            "Protective · Sensitive · Nurturing"
         case .leo:
-            "Creative warmth that leads through generosity and self-expression."
+            "Creative · Warm · Generous"
         case .virgo:
-            "Discerning care that turns thoughtful details into useful order."
+            "Discerning · Thoughtful · Practical"
         case .libra:
-            "Relational grace seeking beauty, fairness, and mutual understanding."
+            "Graceful · Fair · Harmonious"
         case .scorpio:
-            "Emotional depth with the courage to transform what is hidden."
+            "Intense · Perceptive · Transformative"
         case .sagittarius:
-            "Expansive truth-seeking shaped by freedom, meaning, and discovery."
+            "Expansive · Honest · Adventurous"
         case .capricorn:
-            "Patient ambition that builds lasting structure from clear purpose."
+            "Patient · Ambitious · Enduring"
         case .aquarius:
-            "Independent vision devoted to progress, community, and new patterns."
+            "Independent · Visionary · Original"
         case .pisces:
-            "Compassionate imagination attuned to intuition, feeling, and wonder."
+            "Intuitive · Compassionate · Imaginative"
         }
     }
 
