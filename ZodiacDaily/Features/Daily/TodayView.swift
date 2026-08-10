@@ -130,7 +130,7 @@ struct TodayView: View {
                 .padding(.top, 24)
 
         case .failed(let message):
-            VStack(spacing: 6) {
+            VStack(spacing: 10) {
                 Image(systemName: "sparkles")
                     .font(.largeTitle)
                     .foregroundStyle(ZodiacPalette.gold)
@@ -153,7 +153,7 @@ struct TodayView: View {
             .accessibilityElement(children: .contain)
 
         case .loaded(let horoscope):
-            VStack(spacing: 16) {
+            VStack(spacing: 6) {
                 DailyCardView(horoscope: horoscope)
                     .frame(maxWidth: 330)
 
