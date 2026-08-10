@@ -1,0 +1,93 @@
+name: Build Zodiac Daily Local QA IPA
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    if: github.actor == github.repository_owner
+    runs-on: macos-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app
+
+      - name: Resolve Swift packages
+        run: |
+          set -euo pipefail
+          xcodebuild -resolvePackageDependencies \
+            -project ZodiacDaily.xcodeproj \
+            -scheme ZodiacDaily
+
+      - name: Build unsigned device app
+        run: |
+          set -euo pipefail
+          xcodebuild build \
+            -project ZodiacDaily.xcodeproj \
+            -scheme ZodiacDaily \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build/ios \
+            CURRENT_PROJECT_VERSION="${GITHUB_RUN_NUMBER}" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY=""
+
+      - name: Validate app bundle
+        id: app
+        run: |
+          set -euo pipefail
+          APP_PATH="$(find build/ios -path '*Release-iphoneos/ZodiacDaily.app' -type d | head -n 1)"
+          if [ -z "$APP_PATH" ] || [ ! -f "$APP_PATH/Info.plist" ]; then
+            echo "ZodiacDaily.app or Info.plist was not produced"
+            exit 1
+          fi
+
+          BUNDLE_ID="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$APP_PATH/Info.plist")"
+          VERSION="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP_PATH/Info.plist")"
+          BUILD="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$APP_PATH/Info.plist")"
+          MINIMUM_IOS="$(/usr/libexec/PlistBuddy -c 'Print :MinimumOSVersion' "$APP_PATH/Info.plist")"
+
+          test "$BUNDLE_ID" = "com.krazel.zodiacdaily"
+          test "$VERSION" = "0.1.0"
+          test "$MINIMUM_IOS" = "17.0"
+          test -f "$APP_PATH/ZodiacDaily"
+          test -f "$APP_PATH/PrivacyInfo.xcprivacy"
+          test -f "$APP_PATH/Assets.car"
+          find "$APP_PATH" -name 'horoscopes.json' -type f -print -quit | grep -q .
+
+          echo "app_path=$APP_PATH" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "build=$BUILD" >> "$GITHUB_OUTPUT"
+
+      - name: Package unsigned Local QA IPA
+        env:
+          APP_PATH: ${{ steps.app.outputs.app_path }}
+          APP_VERSION: ${{ steps.app.outputs.version }}
+          APP_BUILD: ${{ steps.app.outputs.build }}
+        run: |
+          set -euo pipefail
+          mkdir -p unsigned-ipa/Payload output
+          cp -R "$APP_PATH" unsigned-ipa/Payload/ZodiacDaily.app
+
+          VERSIONED_IPA="ZodiacDaily-iPhone-v${APP_VERSION}-build-${APP_BUILD}-unsigned.ipa"
+          (cd unsigned-ipa && zip -qry "../output/${VERSIONED_IPA}" Payload)
+          shasum -a 256 "output/${VERSIONED_IPA}" > "output/${VERSIONED_IPA}.sha256"
+          cp "output/${VERSIONED_IPA}" output/ZodiacDaily-Local-QA-unsigned.ipa
+          ls -lh output/*
+
+      - name: Upload Local QA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ZodiacDaily-Local-QA-unsigned-${{ github.run_number }}
+          path: output/*
+          if-no-files-found: error
+          retention-days: 7

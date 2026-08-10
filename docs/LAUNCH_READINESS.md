@@ -71,6 +71,21 @@ local implementation only, not uploads or external activation.
 - Published Privacy Policy, Terms of Use/EULA, and support URLs.
 - Production signing team, certificates, and provisioning.
 
+## Local QA IPA workflow
+
+`.github/workflows/build-ios-local-qa.yml` is a manual, owner-only GitHub
+Actions workflow for a compile-validated unsigned device IPA. It uses no Apple
+or App Store Connect secrets and performs no release, TestFlight, or App Store
+upload. The downloaded `ZodiacDaily-Local-QA-unsigned.ipa` is intended as input
+to a local signing/install tool such as Sideloadly; it is not directly
+installable until that tool signs it for the test device.
+
+The workflow validates bundle ID `com.krazel.zodiacdaily`, marketing version
+`0.1.0`, build number, iOS 17 minimum, executable, privacy manifest, compiled
+assets, and bundled horoscope content before packaging. It has not run yet:
+this repository currently has no GitHub remote and the local GitHub CLI session
+must be reauthenticated before a workflow can be pushed or dispatched.
+
 ## Remaining release checklist
 
 - [x] Approve Saved card detail visual.
@@ -91,6 +106,9 @@ local implementation only, not uploads or external activation.
       sheet, privacy, and terms locally.
 - [ ] Validate all StoreKit states with a local configuration and sandbox on Mac.
 - [ ] Validate archive, XCTest, simulator, Dynamic Type, and VoiceOver on Mac.
+- [x] Prepare a manual, no-secret Local QA IPA artifact workflow.
+- [ ] Reauthenticate GitHub, create/select the private remote, push the workflow,
+      and run it to obtain the unsigned IPA artifact.
 - [ ] Validate the approved runtime icon and prepare App Store screenshots.
 - [ ] Prepare a protected manual upload workflow; do not add secrets yet.
 - [ ] Obtain explicit authorization before any account/product creation,

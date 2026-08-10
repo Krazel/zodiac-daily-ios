@@ -136,3 +136,9 @@ workspace does not have write access to Brain.
   suscripcion auto-renovable. Antes de crear productos hay que confirmar que el
   estado supporter/mantenimiento es suficiente o convertir el mismo concepto a
   apoyo de pago unico; esto no bloquea el commit local.
+- Flujo Local QA IPA preparado en
+  `.github/workflows/build-ios-local-qa.yml`: manual, owner-only, sin secretos y
+  sin upload a Apple. Compila en `macos-latest`, valida bundle/version/iOS 17,
+  privacidad, assets y contenido, y publica solo un artifact unsigned para
+  firmar/instalar con Sideloadly. Aun no se ha ejecutado porque Zodiac Daily no
+  tiene remoto GitHub y la sesion local de `gh` esta expirada.
