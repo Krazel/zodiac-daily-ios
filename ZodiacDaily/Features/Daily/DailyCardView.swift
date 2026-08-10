@@ -7,18 +7,18 @@ struct DailyCardView: View {
     var body: some View {
         VStack(spacing: 0) {
             CelestialArtwork(sign: horoscope.sign)
-                .frame(height: 280)
+                .frame(height: 292)
                 .overlay(alignment: .top) {
                     Text(horoscope.sign.symbol)
-                        .font(.system(size: 64, weight: .ultraLight))
+                        .font(.system(size: 54, weight: .ultraLight))
                         .foregroundStyle(ZodiacPalette.gold)
-                        .padding(.top, 30)
+                        .padding(.top, 25)
                         .accessibilityHidden(true)
                 }
 
-            VStack(spacing: 13) {
+            VStack(spacing: 8) {
                 Text("TODAY’S READING")
-                    .font(.caption.weight(.medium))
+                    .font(.system(size: 11, weight: .medium))
                     .tracking(4)
                     .foregroundStyle(ZodiacPalette.lavender)
 
@@ -27,6 +27,7 @@ struct DailyCardView: View {
                         .fill(ZodiacPalette.gold.opacity(0.45))
                         .frame(maxWidth: 60, maxHeight: 1)
                     Text("✦")
+                        .font(.caption2)
                         .foregroundStyle(ZodiacPalette.gold)
                     Rectangle()
                         .fill(ZodiacPalette.gold.opacity(0.45))
@@ -35,27 +36,28 @@ struct DailyCardView: View {
                 .accessibilityHidden(true)
 
                 Text(horoscope.headline)
-                    .font(.system(.largeTitle, design: .serif, weight: .medium))
+                    .font(.custom("Didot", size: 28))
                     .foregroundStyle(ZodiacPalette.text)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
 
                 Text("⌁")
-                    .font(.title)
+                    .font(.system(size: 20, weight: .light, design: .serif))
                     .foregroundStyle(ZodiacPalette.gold)
                     .accessibilityHidden(true)
 
                 Text(horoscope.reading)
-                    .font(.body)
+                    .font(.system(size: 15))
                     .foregroundStyle(ZodiacPalette.text.opacity(0.94))
                     .multilineTextAlignment(.center)
-                    .lineSpacing(5)
+                    .lineSpacing(2)
                     .fixedSize(horizontal: false, vertical: true)
             }
             .padding(.horizontal, 28)
-            .padding(.top, 20)
-            .padding(.bottom, 42)
+            .padding(.top, 13)
+            .padding(.bottom, 30)
         }
+        .frame(maxWidth: 330)
         .background {
             LinearGradient(
                 colors: [ZodiacPalette.cardNavy, ZodiacPalette.deepIndigo.opacity(0.85), ZodiacPalette.midnight],
@@ -78,19 +80,15 @@ struct DailyCardView: View {
                 .inset(by: 15)
                 .stroke(ZodiacPalette.gold.opacity(0.65), lineWidth: 0.7)
         }
+        .overlay {
+            OrnateCardCorners()
+        }
         .overlay(alignment: .bottom) {
-            HStack {
-                Text("✦")
-                Spacer()
-                Text("✦")
-                Spacer()
-                Text("✦")
-            }
-            .font(.title2)
-            .foregroundStyle(ZodiacPalette.gold)
-            .padding(.horizontal, 18)
-            .padding(.bottom, 14)
-            .accessibilityHidden(true)
+            Image(systemName: "sparkle")
+                .font(.body)
+                .foregroundStyle(ZodiacPalette.gold)
+                .padding(.bottom, 14)
+                .accessibilityHidden(true)
         }
         .shadow(color: .black.opacity(0.75), radius: 18, y: 12)
         .accessibilityElement(children: .combine)
@@ -100,19 +98,20 @@ struct DailyCardView: View {
     }
 }
 
-/// Procedural art shared by the approved Today card and approved Saved previews.
+/// Production artwork shared by Today, Saved previews, and Saved detail.
 struct CelestialArtwork: View {
     let sign: ZodiacSign
 
-    private let stars: [CGPoint] = [
-        CGPoint(x: 0.08, y: 0.12), CGPoint(x: 0.17, y: 0.31),
-        CGPoint(x: 0.29, y: 0.18), CGPoint(x: 0.36, y: 0.41),
-        CGPoint(x: 0.48, y: 0.24), CGPoint(x: 0.57, y: 0.37),
-        CGPoint(x: 0.67, y: 0.16), CGPoint(x: 0.76, y: 0.34),
-        CGPoint(x: 0.88, y: 0.22), CGPoint(x: 0.92, y: 0.49),
-        CGPoint(x: 0.13, y: 0.53), CGPoint(x: 0.43, y: 0.55),
-        CGPoint(x: 0.62, y: 0.51), CGPoint(x: 0.81, y: 0.59)
-    ]
+    private var artworkName: String {
+        switch sign {
+        case .scorpio, .taurus, .virgo, .capricorn:
+            return "CardLake"
+        case .sagittarius, .aries, .leo:
+            return "CardRoad"
+        case .gemini, .cancer, .libra, .aquarius, .pisces:
+            return "CardOcean"
+        }
+    }
 
     private var constellation: [CGPoint] {
         switch sign {
@@ -144,81 +143,62 @@ struct CelestialArtwork: View {
     }
 
     var body: some View {
-        Canvas { context, size in
-            let bounds = CGRect(origin: .zero, size: size)
-            var background = Path()
-            background.addRect(bounds)
-            context.fill(
-                background,
-                with: .linearGradient(
-                    Gradient(colors: [ZodiacPalette.midnight, ZodiacPalette.cardNavy]),
-                    startPoint: .zero,
-                    endPoint: CGPoint(x: size.width, y: size.height)
-                )
+        ZStack {
+            Image(artworkName)
+                .resizable()
+                .scaledToFill()
+
+            LinearGradient(
+                colors: [
+                    ZodiacPalette.midnight.opacity(0.20),
+                    .clear,
+                    ZodiacPalette.midnight.opacity(0.10)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
             )
 
-            for (index, point) in stars.enumerated() {
-                let center = CGPoint(x: point.x * size.width, y: point.y * size.height)
-                let radius = index.isMultiple(of: 3) ? 1.6 : 0.8
-                let starRect = CGRect(
-                    x: center.x - radius,
-                    y: center.y - radius,
-                    width: radius * 2,
-                    height: radius * 2
+            Canvas { context, size in
+                let points = constellation.map {
+                    CGPoint(x: $0.x * size.width, y: $0.y * size.height)
+                }
+                var connection = Path()
+                if let first = points.first {
+                    connection.move(to: first)
+                    for point in points.dropFirst() {
+                        connection.addLine(to: point)
+                    }
+                }
+                context.stroke(
+                    connection,
+                    with: .color(ZodiacPalette.gold.opacity(0.74)),
+                    style: StrokeStyle(lineWidth: 0.9, dash: [2, 3])
                 )
-                context.fill(Path(ellipseIn: starRect), with: .color(ZodiacPalette.paleGold.opacity(0.85)))
-            }
 
-            let points = constellation.map {
-                CGPoint(
-                    x: $0.x * size.width,
-                    y: $0.y * size.height
-                )
-            }
-            var connection = Path()
-            if let first = points.first {
-                connection.move(to: first)
-                for point in points.dropFirst() {
-                    connection.addLine(to: point)
+                for point in points {
+                    context.fill(
+                        Path(ellipseIn: CGRect(
+                            x: point.x - 3,
+                            y: point.y - 3,
+                            width: 6,
+                            height: 6
+                        )),
+                        with: .color(ZodiacPalette.paleGold)
+                    )
+                    var rays = Path()
+                    rays.move(to: CGPoint(x: point.x - 7, y: point.y))
+                    rays.addLine(to: CGPoint(x: point.x + 7, y: point.y))
+                    rays.move(to: CGPoint(x: point.x, y: point.y - 7))
+                    rays.addLine(to: CGPoint(x: point.x, y: point.y + 7))
+                    context.stroke(
+                        rays,
+                        with: .color(ZodiacPalette.paleGold.opacity(0.72)),
+                        lineWidth: 0.55
+                    )
                 }
             }
-            context.stroke(
-                connection,
-                with: .color(ZodiacPalette.gold.opacity(0.62)),
-                style: StrokeStyle(lineWidth: 0.8, dash: [2.5, 3.5])
-            )
-
-            for point in points {
-                context.fill(
-                    Path(ellipseIn: CGRect(x: point.x - 2.4, y: point.y - 2.4, width: 4.8, height: 4.8)),
-                    with: .color(ZodiacPalette.paleGold)
-                )
-            }
-
-            for wave in 0..<5 {
-                let y = size.height * (0.81 + CGFloat(wave) * 0.038)
-                var path = Path()
-                path.move(to: CGPoint(x: 0, y: y))
-                path.addCurve(
-                    to: CGPoint(x: size.width, y: y + 3),
-                    control1: CGPoint(x: size.width * 0.28, y: y - 8),
-                    control2: CGPoint(x: size.width * 0.69, y: y + 11)
-                )
-                context.stroke(path, with: .color(ZodiacPalette.lavender.opacity(0.22)), lineWidth: 1)
-            }
         }
-        .overlay(alignment: .bottomLeading) {
-            ZStack {
-                Circle()
-                    .fill(ZodiacPalette.paleGold)
-                Circle()
-                    .fill(ZodiacPalette.cardNavy)
-                    .offset(x: 8, y: -4)
-            }
-            .frame(width: 30, height: 30)
-            .padding(.leading, 35)
-            .padding(.bottom, 48)
-        }
+        .clipped()
         .accessibilityHidden(true)
     }
 

@@ -1,0 +1,122 @@
+name: Capture Zodiac Daily Visual QA
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    if: github.actor == github.repository_owner
+    runs-on: macos-latest
+    timeout-minutes: 35
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app
+
+      - name: Create visual QA simulator
+        id: simulator
+        run: |
+          set -euo pipefail
+          RUNTIME_ID="$(xcrun simctl list runtimes -j | jq -r '
+            [.runtimes[] | select(.isAvailable == true and (.name | startswith("iOS")))]
+            | last | .identifier
+          ')"
+          DEVICE_TYPE_ID="$(xcrun simctl list devicetypes -j | jq -r '
+            [.devicetypes[] | select(.name == "iPhone 15 Pro")]
+            | first | .identifier
+          ')"
+          test -n "$RUNTIME_ID"
+          test "$RUNTIME_ID" != "null"
+          test -n "$DEVICE_TYPE_ID"
+          test "$DEVICE_TYPE_ID" != "null"
+
+          UDID="$(xcrun simctl create ZodiacVisualQA "$DEVICE_TYPE_ID" "$RUNTIME_ID")"
+          xcrun simctl boot "$UDID"
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl ui "$UDID" appearance dark
+          xcrun simctl status_bar "$UDID" override \
+            --time 9:41 \
+            --batteryState charged \
+            --batteryLevel 100 \
+            --wifiBars 3 \
+            --cellularBars 4
+          echo "udid=$UDID" >> "$GITHUB_OUTPUT"
+          echo "runtime=$RUNTIME_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Build visual QA app
+        env:
+          UDID: ${{ steps.simulator.outputs.udid }}
+        run: |
+          set -euo pipefail
+          xcodebuild build \
+            -project ZodiacDaily.xcodeproj \
+            -scheme ZodiacDaily \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination "platform=iOS Simulator,id=${UDID}" \
+            -derivedDataPath build/visual-qa \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Capture approved states
+        env:
+          UDID: ${{ steps.simulator.outputs.udid }}
+        run: |
+          set -euo pipefail
+          APP_PATH="$(find build/visual-qa -path '*Debug-iphonesimulator/ZodiacDaily.app' -type d | head -n 1)"
+          test -d "$APP_PATH"
+          mkdir -p visual-qa
+          xcrun simctl install "$UDID" "$APP_PATH"
+
+          for STATE in sign-selection today saved-empty saved-populated saved-detail settings; do
+            xcrun simctl terminate "$UDID" com.krazel.zodiacdaily >/dev/null 2>&1 || true
+            xcrun simctl spawn "$UDID" defaults delete \
+              com.krazel.zodiacdaily visual-qa-rendered-state >/dev/null 2>&1 || true
+            LAUNCH_OUTPUT="$(
+              SIMCTL_CHILD_ZODIAC_VISUAL_QA_STATE="$STATE" \
+                xcrun simctl launch --terminate-running-process \
+                  "$UDID" com.krazel.zodiacdaily
+            )"
+            echo "$LAUNCH_OUTPUT"
+            sleep 6
+            xcrun simctl spawn "$UDID" ps -A | grep -q ZodiacDaily
+            ACTUAL_STATE="$(
+              xcrun simctl spawn "$UDID" defaults read \
+                com.krazel.zodiacdaily visual-qa-rendered-state
+            )"
+            test "$ACTUAL_STATE" = "$STATE"
+
+            SCREENSHOT="visual-qa/${STATE}.png"
+            xcrun simctl io "$UDID" screenshot "$SCREENSHOT"
+            WIDTH="$(sips -g pixelWidth "$SCREENSHOT" | awk '/pixelWidth/ {print $2}')"
+            HEIGHT="$(sips -g pixelHeight "$SCREENSHOT" | awk '/pixelHeight/ {print $2}')"
+            test "$WIDTH" = "1179"
+            test "$HEIGHT" = "2556"
+          done
+
+          printf 'device=iPhone 15 Pro\nruntime=%s\nsize=1179x2556\n' \
+            '${{ steps.simulator.outputs.runtime }}' > visual-qa/capture-manifest.txt
+          sips -g pixelWidth -g pixelHeight visual-qa/*.png
+
+      - name: Upload visual QA screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: ZodiacDaily-Visual-QA-${{ github.run_number }}
+          path: visual-qa/*
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Shutdown simulator
+        if: always()
+        env:
+          UDID: ${{ steps.simulator.outputs.udid }}
+        run: |
+          if [ -n "${UDID:-}" ]; then
+            xcrun simctl shutdown "$UDID" >/dev/null 2>&1 || true
+            xcrun simctl delete "$UDID" >/dev/null 2>&1 || true
+          fi

@@ -14,22 +14,23 @@ enum ZodiacPalette {
 
 struct MidnightBackground: View {
     var body: some View {
-        LinearGradient(
-            colors: [
-                ZodiacPalette.midnight,
-                Color(red: 0.015, green: 0.030, blue: 0.095),
-                Color.black
-            ],
-            startPoint: .top,
-            endPoint: .bottom
-        )
-        .overlay {
-            RadialGradient(
-                colors: [ZodiacPalette.deepIndigo.opacity(0.50), .clear],
-                center: .topTrailing,
-                startRadius: 0,
-                endRadius: 430
-            )
+        GeometryReader { geometry in
+            Image("CelestialBackground")
+                .resizable()
+                .scaledToFill()
+                .frame(width: geometry.size.width, height: geometry.size.height)
+                .clipped()
+                .overlay {
+                    LinearGradient(
+                        colors: [
+                            ZodiacPalette.midnight.opacity(0.10),
+                            .clear,
+                            Color.black.opacity(0.18)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                }
         }
         .ignoresSafeArea()
     }
@@ -54,7 +55,7 @@ struct ZodiacMasthead: View {
             .accessibilityHidden(true)
 
             Text("ZODIAC DAILY")
-                .font(.system(compact ? .title3 : .title2, design: .serif, weight: .medium))
+                .font(.custom("Didot", size: compact ? 22 : 28))
                 .tracking(compact ? 2.2 : 3)
                 .foregroundStyle(ZodiacPalette.paleGold)
                 .minimumScaleFactor(0.7)
@@ -80,6 +81,64 @@ struct CelestialDivider: View {
                 .frame(maxWidth: width / 2, maxHeight: 1)
         }
         .frame(maxWidth: width)
+        .accessibilityHidden(true)
+    }
+}
+
+struct OrnateCardCorners: View {
+    var inset: CGFloat = 18
+
+    var body: some View {
+        Canvas { context, size in
+            let corners = [
+                CGPoint(x: inset, y: inset),
+                CGPoint(x: size.width - inset, y: inset),
+                CGPoint(x: inset, y: size.height - inset),
+                CGPoint(x: size.width - inset, y: size.height - inset)
+            ]
+
+            for corner in corners {
+                var star = Path()
+                star.move(to: CGPoint(x: corner.x - 9, y: corner.y))
+                star.addLine(to: CGPoint(x: corner.x + 9, y: corner.y))
+                star.move(to: CGPoint(x: corner.x, y: corner.y - 12))
+                star.addLine(to: CGPoint(x: corner.x, y: corner.y + 12))
+                star.move(to: CGPoint(x: corner.x - 6, y: corner.y - 6))
+                star.addLine(to: CGPoint(x: corner.x + 6, y: corner.y + 6))
+                star.move(to: CGPoint(x: corner.x + 6, y: corner.y - 6))
+                star.addLine(to: CGPoint(x: corner.x - 6, y: corner.y + 6))
+                context.stroke(
+                    star,
+                    with: .color(ZodiacPalette.gold),
+                    lineWidth: 0.75
+                )
+            }
+
+            let bracketInset = inset + 15
+            let bracketLength: CGFloat = 13
+            var brackets = Path()
+            brackets.move(to: CGPoint(x: bracketInset, y: bracketInset + bracketLength))
+            brackets.addLine(to: CGPoint(x: bracketInset, y: bracketInset))
+            brackets.addLine(to: CGPoint(x: bracketInset + bracketLength, y: bracketInset))
+
+            brackets.move(to: CGPoint(x: size.width - bracketInset - bracketLength, y: bracketInset))
+            brackets.addLine(to: CGPoint(x: size.width - bracketInset, y: bracketInset))
+            brackets.addLine(to: CGPoint(x: size.width - bracketInset, y: bracketInset + bracketLength))
+
+            brackets.move(to: CGPoint(x: bracketInset, y: size.height - bracketInset - bracketLength))
+            brackets.addLine(to: CGPoint(x: bracketInset, y: size.height - bracketInset))
+            brackets.addLine(to: CGPoint(x: bracketInset + bracketLength, y: size.height - bracketInset))
+
+            brackets.move(to: CGPoint(x: size.width - bracketInset - bracketLength, y: size.height - bracketInset))
+            brackets.addLine(to: CGPoint(x: size.width - bracketInset, y: size.height - bracketInset))
+            brackets.addLine(to: CGPoint(x: size.width - bracketInset, y: size.height - bracketInset - bracketLength))
+            context.stroke(
+                brackets,
+                with: .color(ZodiacPalette.gold.opacity(0.72)),
+                lineWidth: 0.75
+            )
+        }
+        .allowsHitTesting(false)
         .accessibilityHidden(true)
     }
 }

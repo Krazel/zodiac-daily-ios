@@ -12,7 +12,7 @@ struct SignSelectionView: View {
 
     private var columns: [GridItem] {
         let count = dynamicTypeSize.isAccessibilitySize ? 2 : 3
-        return Array(repeating: GridItem(.flexible(), spacing: 10), count: count)
+        return Array(repeating: GridItem(.flexible(), spacing: 8), count: count)
     }
 
     var body: some View {
@@ -21,14 +21,17 @@ struct SignSelectionView: View {
                 MidnightBackground()
 
                 ScrollView {
-                    VStack(spacing: 22) {
-                        ZodiacMasthead()
+                    VStack(spacing: 0) {
+                        selectionMasthead
+                            .padding(.bottom, 32)
 
                         VStack(spacing: 8) {
                             Text(requiresSelection ? "Choose Your Sign" : "Change Your Sign")
-                                .font(.system(.largeTitle, design: .serif, weight: .medium))
+                                .font(.custom("Didot", size: 32, relativeTo: .largeTitle))
                                 .foregroundStyle(ZodiacPalette.text)
                                 .multilineTextAlignment(.center)
+                                .minimumScaleFactor(0.8)
+                                .lineLimit(1)
                                 .accessibilityAddTraits(.isHeader)
 
                             Text("Your daily card will be written for this sign.")
@@ -36,29 +39,35 @@ struct SignSelectionView: View {
                                 .foregroundStyle(ZodiacPalette.mutedText)
                                 .multilineTextAlignment(.center)
                         }
+                        .padding(.bottom, 24)
 
-                        LazyVGrid(columns: columns, spacing: 10) {
+                        LazyVGrid(columns: columns, spacing: 8) {
                             ForEach(ZodiacSign.allCases, id: \.self) { sign in
                                 SignChoiceCard(
                                     sign: sign,
-                                    isSelected: pendingSign == sign
+                                    isSelected: pendingSign == sign,
+                                    usesAccessibleHeight: dynamicTypeSize.isAccessibilitySize
                                 ) {
                                     pendingSign = sign
                                 }
                             }
                         }
+                        .frame(maxWidth: dynamicTypeSize.isAccessibilitySize ? 354 : 305)
+                        .padding(.bottom, 22)
 
                         Button(action: confirmSelection) {
-                            HStack(spacing: 20) {
-                                Image(systemName: "sparkle")
+                            HStack(spacing: 16) {
+                                Text("✦")
+                                    .accessibilityHidden(true)
                                 Text(requiresSelection ? "CONTINUE" : "USE THIS SIGN")
                                     .frame(maxWidth: .infinity)
-                                Image(systemName: "sparkle")
+                                Text("✦")
+                                    .accessibilityHidden(true)
                             }
-                            .font(.headline)
-                            .tracking(3)
-                            .frame(minHeight: 56)
-                            .padding(.horizontal, 24)
+                            .font(.custom("Didot", size: 16, relativeTo: .headline).weight(.semibold))
+                            .tracking(3.2)
+                            .frame(width: 264)
+                            .frame(minHeight: 52)
                         }
                         .buttonStyle(.plain)
                         .foregroundStyle(ZodiacPalette.gold)
@@ -71,10 +80,10 @@ struct SignSelectionView: View {
                         .opacity(pendingSign == nil ? 0.48 : 1)
                         .accessibilityHint("Confirms your selected zodiac sign")
                     }
-                    .padding(.horizontal, 20)
+                    .padding(.horizontal, 16)
                     .padding(.top, 22)
-                    .padding(.bottom, 32)
-                    .frame(maxWidth: 620)
+                    .padding(.bottom, 24)
+                    .frame(maxWidth: 430)
                     .frame(maxWidth: .infinity)
                 }
                 .scrollIndicators(.hidden)
@@ -102,9 +111,17 @@ struct SignSelectionView: View {
         }
         .interactiveDismissDisabled(requiresSelection)
         .onAppear {
+            #if DEBUG
+            if AppModel.visualQAState == .signSelection {
+                pendingSign = .pisces
+            } else if pendingSign == nil {
+                pendingSign = model.selectedSign
+            }
+            #else
             if pendingSign == nil {
                 pendingSign = model.selectedSign
             }
+            #endif
         }
     }
 
@@ -115,72 +132,142 @@ struct SignSelectionView: View {
             dismiss()
         }
     }
+
+    private var selectionMasthead: some View {
+        VStack(spacing: 8) {
+            HStack(spacing: 11) {
+                Rectangle()
+                    .fill(ZodiacPalette.gold.opacity(0.42))
+                    .frame(width: 34, height: 0.75)
+                Image(systemName: "sparkle")
+                    .font(.system(size: 18, weight: .light))
+                    .foregroundStyle(ZodiacPalette.gold)
+                Rectangle()
+                    .fill(ZodiacPalette.gold.opacity(0.42))
+                    .frame(width: 34, height: 0.75)
+            }
+            .accessibilityHidden(true)
+
+            Text("ZODIAC DAILY")
+                .font(.custom("Didot", size: 25, relativeTo: .title2))
+                .tracking(2.8)
+                .foregroundStyle(ZodiacPalette.paleGold)
+                .minimumScaleFactor(0.72)
+                .lineLimit(1)
+        }
+        .accessibilityElement(children: .combine)
+    }
 }
 
 private struct SignChoiceCard: View {
     let sign: ZodiacSign
     let isSelected: Bool
+    let usesAccessibleHeight: Bool
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 12) {
+            VStack(spacing: 16) {
                 Text(sign.symbol)
-                    .font(.system(size: 42, weight: .ultraLight))
+                    .font(.system(size: 39, weight: .ultraLight))
                     .foregroundStyle(ZodiacPalette.gold)
                     .minimumScaleFactor(0.7)
 
                 Text(sign.displayName.uppercased())
-                    .font(.system(.caption, design: .serif, weight: .medium))
-                    .tracking(1.4)
+                    .font(.custom("Didot", size: 12, relativeTo: .caption).weight(.medium))
+                    .tracking(1.6)
                     .foregroundStyle(ZodiacPalette.text)
-                    .minimumScaleFactor(0.68)
+                    .minimumScaleFactor(0.58)
                     .lineLimit(1)
             }
-            .padding(.horizontal, 6)
-            .frame(maxWidth: .infinity, minHeight: 128)
+            .padding(.horizontal, 4)
+            .frame(maxWidth: .infinity, minHeight: usesAccessibleHeight ? 132 : 116)
             .background {
                 LinearGradient(
-                    colors: [ZodiacPalette.cardNavy, ZodiacPalette.midnight],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
+                    colors: [
+                        ZodiacPalette.cardNavy.opacity(0.96),
+                        ZodiacPalette.midnight.opacity(0.98)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
                 )
             }
-            .clipShape(RoundedRectangle(cornerRadius: 13, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             .overlay {
-                RoundedRectangle(cornerRadius: 13, style: .continuous)
-                    .stroke(Color.white.opacity(0.18), lineWidth: 3)
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .stroke(
+                        isSelected ? ZodiacPalette.paleGold : Color.white.opacity(0.20),
+                        lineWidth: isSelected ? 2.4 : 2.2
+                    )
             }
             .overlay {
-                RoundedRectangle(cornerRadius: 9, style: .continuous)
-                    .inset(by: 6)
-                    .stroke(ZodiacPalette.gold, lineWidth: isSelected ? 1.8 : 0.8)
+                RoundedRectangle(cornerRadius: 7, style: .continuous)
+                    .inset(by: 5.5)
+                    .stroke(ZodiacPalette.gold.opacity(0.92), lineWidth: 0.75)
             }
-            .overlay(alignment: .topLeading) {
-                Image(systemName: "sparkle")
-                    .font(.caption2)
-                    .foregroundStyle(ZodiacPalette.gold)
-                    .padding(10)
-                    .accessibilityHidden(true)
-            }
-            .overlay(alignment: .bottomTrailing) {
-                Image(systemName: isSelected ? "checkmark.circle.fill" : "sparkle")
-                    .font(.caption2)
-                    .foregroundStyle(isSelected ? ZodiacPalette.paleGold : ZodiacPalette.gold)
-                    .padding(10)
-                    .accessibilityHidden(true)
-            }
+            .overlay { SignCardOrnaments() }
             .shadow(
-                color: isSelected ? ZodiacPalette.gold.opacity(0.55) : .black.opacity(0.55),
-                radius: isSelected ? 9 : 5,
-                y: 4
+                color: isSelected ? ZodiacPalette.gold.opacity(0.85) : .black.opacity(0.72),
+                radius: isSelected ? 8 : 5,
+                y: 3
             )
-            .contentShape(RoundedRectangle(cornerRadius: 13, style: .continuous))
+            .contentShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
         }
         .buttonStyle(.plain)
         .accessibilityLabel(sign.displayName)
         .accessibilityValue(isSelected ? "Selected" : "Not selected")
         .accessibilityHint("Selects this sign for your daily card")
         .accessibilityAddTraits(isSelected ? .isSelected : [])
+    }
+}
+
+/// Native line work matching the four celestial corner ornaments in the approved cards.
+private struct SignCardOrnaments: View {
+    var body: some View {
+        Canvas { context, size in
+            let inset: CGFloat = 9
+            let corners = [
+                CGPoint(x: inset, y: inset),
+                CGPoint(x: size.width - inset, y: inset),
+                CGPoint(x: inset, y: size.height - inset),
+                CGPoint(x: size.width - inset, y: size.height - inset)
+            ]
+
+            for corner in corners {
+                var star = Path()
+                star.move(to: CGPoint(x: corner.x - 5, y: corner.y))
+                star.addLine(to: CGPoint(x: corner.x + 5, y: corner.y))
+                star.move(to: CGPoint(x: corner.x, y: corner.y - 7))
+                star.addLine(to: CGPoint(x: corner.x, y: corner.y + 7))
+                star.move(to: CGPoint(x: corner.x - 3.5, y: corner.y - 3.5))
+                star.addLine(to: CGPoint(x: corner.x + 3.5, y: corner.y + 3.5))
+                star.move(to: CGPoint(x: corner.x + 3.5, y: corner.y - 3.5))
+                star.addLine(to: CGPoint(x: corner.x - 3.5, y: corner.y + 3.5))
+                context.stroke(star, with: .color(ZodiacPalette.gold), lineWidth: 0.55)
+            }
+
+            let bracketInset: CGFloat = 16
+            let length: CGFloat = 7
+            var brackets = Path()
+            brackets.move(to: CGPoint(x: bracketInset, y: bracketInset + length))
+            brackets.addLine(to: CGPoint(x: bracketInset, y: bracketInset))
+            brackets.addLine(to: CGPoint(x: bracketInset + length, y: bracketInset))
+            brackets.move(to: CGPoint(x: size.width - bracketInset - length, y: bracketInset))
+            brackets.addLine(to: CGPoint(x: size.width - bracketInset, y: bracketInset))
+            brackets.addLine(to: CGPoint(x: size.width - bracketInset, y: bracketInset + length))
+            brackets.move(to: CGPoint(x: bracketInset, y: size.height - bracketInset - length))
+            brackets.addLine(to: CGPoint(x: bracketInset, y: size.height - bracketInset))
+            brackets.addLine(to: CGPoint(x: bracketInset + length, y: size.height - bracketInset))
+            brackets.move(to: CGPoint(x: size.width - bracketInset - length, y: size.height - bracketInset))
+            brackets.addLine(to: CGPoint(x: size.width - bracketInset, y: size.height - bracketInset))
+            brackets.addLine(to: CGPoint(x: size.width - bracketInset, y: size.height - bracketInset - length))
+            context.stroke(
+                brackets,
+                with: .color(ZodiacPalette.gold.opacity(0.72)),
+                lineWidth: 0.55
+            )
+        }
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
     }
 }

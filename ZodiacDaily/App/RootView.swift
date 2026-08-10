@@ -6,32 +6,37 @@ struct RootView: View {
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.requestReview) private var requestReview
     @AppStorage("review-prompted-version") private var reviewPromptedVersion = ""
-    @State private var selectedTab = 0
+    @State private var selectedTab: Int
+
+    init() {
+        let visualState = AppModel.visualQAState
+        let initialTab = visualState == .savedEmpty || visualState == .savedPopulated ? 1 : 0
+        _selectedTab = State(initialValue: initialTab)
+    }
 
     var body: some View {
         Group {
-            if model.selectedSign == nil {
+            if AppModel.visualQAState == .savedDetail,
+               let card = model.savedCards.first {
+                NavigationStack {
+                    SavedCardDetailView(card: card)
+                }
+            } else if model.selectedSign == nil {
                 SignSelectionView(requiresSelection: true)
             } else {
                 TabView(selection: $selectedTab) {
                     TodayView()
-                        .tabItem {
-                            Label("Today", systemImage: "sparkles")
-                        }
                         .tag(0)
 
                     SavedView {
                         selectedTab = 0
                     }
-                        .tabItem {
-                            Label("Saved", systemImage: "bookmark")
-                        }
                         .tag(1)
                 }
-                .tint(ZodiacPalette.gold)
-                .toolbarBackground(ZodiacPalette.midnight, for: .tabBar)
-                .toolbarBackground(.visible, for: .tabBar)
-                .toolbarColorScheme(.dark, for: .tabBar)
+                .toolbar(.hidden, for: .tabBar)
+                .safeAreaInset(edge: .bottom, spacing: 0) {
+                    customTabBar
+                }
             }
         }
         .task {
@@ -71,6 +76,67 @@ struct RootView: View {
                 await model.refreshDailyCard()
             }
         }
+        .onAppear {
+            #if DEBUG
+            if let visualState = AppModel.visualQAState {
+                UserDefaults.standard.set(
+                    visualState.rawValue,
+                    forKey: "visual-qa-rendered-state"
+                )
+            }
+            #endif
+        }
+    }
+
+    private var customTabBar: some View {
+        HStack(spacing: 0) {
+            tabButton(title: "TODAY", systemImage: "sparkle", tab: 0)
+            tabButton(title: "SAVED", systemImage: selectedTab == 1 ? "bookmark.fill" : "bookmark", tab: 1)
+        }
+        .frame(height: 76)
+        .background {
+            LinearGradient(
+                colors: [ZodiacPalette.deepIndigo.opacity(0.97), ZodiacPalette.midnight.opacity(0.99)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea(edges: .bottom)
+        }
+        .overlay(alignment: .top) {
+            Rectangle()
+                .fill(Color.white.opacity(0.22))
+                .frame(height: 0.7)
+        }
+    }
+
+    private func tabButton(title: String, systemImage: String, tab: Int) -> some View {
+        let isSelected = selectedTab == tab
+
+        return Button {
+            selectedTab = tab
+        } label: {
+            VStack(spacing: 7) {
+                Image(systemName: systemImage)
+                    .font(.system(size: 25, weight: .light))
+                    .frame(height: 29)
+
+                Text(title)
+                    .font(.system(size: 12, weight: .medium))
+                    .tracking(2.2)
+                    .lineLimit(1)
+            }
+            .foregroundStyle(isSelected ? ZodiacPalette.paleGold : ZodiacPalette.lavender.opacity(0.72))
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .contentShape(Rectangle())
+            .overlay(alignment: .top) {
+                Rectangle()
+                    .fill(isSelected ? ZodiacPalette.gold : Color.clear)
+                    .frame(width: 74, height: 2)
+            }
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(title.capitalized)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 
     private func requestReviewAfterMeaningfulUseIfEligible() {

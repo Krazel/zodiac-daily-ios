@@ -1,7 +1,8 @@
 import SwiftUI
 import ZodiacDailyCore
 
-/// Owner-approved final visual implementation of the C2 Saved empty and populated states.
+/// Final C2 Saved implementation. The approved empty, populated, and detail
+/// references are the visual specification for the regular-size-class layout.
 struct SavedView: View {
     @EnvironmentObject private var model: AppModel
     let onViewToday: () -> Void
@@ -12,14 +13,8 @@ struct SavedView: View {
                 MidnightBackground()
 
                 ScrollView {
-                    VStack(spacing: 22) {
-                        ZodiacMasthead(compact: true)
-
-                        Text("Your Saved Cards")
-                            .font(.system(.largeTitle, design: .serif, weight: .medium))
-                            .foregroundStyle(ZodiacPalette.text)
-                            .multilineTextAlignment(.center)
-                            .accessibilityAddTraits(.isHeader)
+                    VStack(spacing: 0) {
+                        savedHeader
 
                         if model.savedCards.isEmpty {
                             emptyState
@@ -28,7 +23,7 @@ struct SavedView: View {
                         }
                     }
                     .padding(.horizontal, 20)
-                    .padding(.top, 22)
+                    .padding(.top, model.savedCards.isEmpty ? 34 : 8)
                     .padding(.bottom, 34)
                     .frame(maxWidth: 650)
                     .frame(maxWidth: .infinity)
@@ -38,6 +33,7 @@ struct SavedView: View {
                     await model.reloadSavedCards()
                 }
             }
+            .navigationTitle("Saved")
             .toolbar(.hidden, for: .navigationBar)
             .overlay(alignment: .bottom) {
                 if let message = model.persistenceMessage {
@@ -61,72 +57,93 @@ struct SavedView: View {
         }
     }
 
-    private var populatedState: some View {
-        VStack(spacing: 18) {
-            Text(collectionSummary)
-                .font(.title3)
-                .foregroundStyle(ZodiacPalette.lavender)
-                .accessibilityLabel(collectionSummary)
+    private var savedHeader: some View {
+        VStack(spacing: 0) {
+            ZodiacMasthead(compact: true)
 
-            LazyVStack(spacing: 18) {
-                ForEach(model.savedCards) { card in
-                    NavigationLink {
-                        SavedCardDetailView(card: card)
-                    } label: {
-                        SavedCardPreview(card: card)
-                    }
-                    .buttonStyle(.plain)
-                    .contextMenu {
-                        Button("Delete Card", role: .destructive) {
-                            Task { await model.removeSavedCard(id: card.id) }
-                        }
-                    }
-                    .accessibilityHint("Opens this saved card. Use the actions menu to delete it.")
-                    .accessibilityAction(named: "Delete Card") {
-                        Task { await model.removeSavedCard(id: card.id) }
-                    }
-                }
+            Text("Your Saved Cards")
+                .font(.custom("Didot", size: 35, relativeTo: .largeTitle))
+                .foregroundStyle(ZodiacPalette.text)
+                .multilineTextAlignment(.center)
+                .minimumScaleFactor(0.78)
+                .lineLimit(1)
+                .padding(.top, model.savedCards.isEmpty ? 25 : 12)
+                .accessibilityAddTraits(.isHeader)
+
+            if model.savedCards.isEmpty {
+                Text("⌁")
+                    .font(.system(size: 22, weight: .light, design: .serif))
+                    .foregroundStyle(ZodiacPalette.gold)
+                    .padding(.top, 5)
+                    .accessibilityHidden(true)
+            } else {
+                Text(collectionSummary)
+                    .font(.system(size: 16, weight: .regular))
+                    .tracking(0.45)
+                    .foregroundStyle(ZodiacPalette.lavender)
+                    .padding(.top, 7)
+                    .accessibilityLabel(collectionSummary)
             }
         }
     }
 
-    private var emptyState: some View {
-        VStack(spacing: 22) {
-            Text("⌁")
-                .font(.title)
-                .foregroundStyle(ZodiacPalette.gold)
-                .accessibilityHidden(true)
-
-            EmptyCardBack(sign: model.selectedSign)
-                .frame(maxWidth: 270)
-                .aspectRatio(0.72, contentMode: .fit)
-                .accessibilityHidden(true)
-
-            VStack(spacing: 10) {
-                Text("No Cards Yet")
-                    .font(.system(.title, design: .serif, weight: .medium))
-                    .foregroundStyle(ZodiacPalette.text)
-                    .accessibilityAddTraits(.isHeader)
-
-                Text("Save today’s card to begin your collection.")
-                    .font(.body)
-                    .foregroundStyle(ZodiacPalette.mutedText)
-                    .multilineTextAlignment(.center)
+    private var populatedState: some View {
+        LazyVStack(spacing: 17) {
+            ForEach(model.savedCards) { card in
+                NavigationLink {
+                    SavedCardDetailView(card: card)
+                } label: {
+                    SavedCardPreview(card: card)
+                }
+                .buttonStyle(.plain)
+                .contextMenu {
+                    Button("Delete Card", role: .destructive) {
+                        Task { await model.removeSavedCard(id: card.id) }
+                    }
+                }
+                .accessibilityHint("Opens this saved card. Use the actions menu to delete it.")
+                .accessibilityAction(named: "Delete Card") {
+                    Task { await model.removeSavedCard(id: card.id) }
+                }
             }
+        }
+        .padding(.top, 10)
+    }
+
+    private var emptyState: some View {
+        VStack(spacing: 0) {
+            EmptyCardBack(sign: model.selectedSign)
+                .frame(maxWidth: 254)
+                .aspectRatio(0.588, contentMode: .fit)
+                .padding(.top, 8)
+                .accessibilityHidden(true)
+
+            Text("No Cards Yet")
+                .font(.custom("Didot", size: 29, relativeTo: .title))
+                .foregroundStyle(ZodiacPalette.text)
+                .padding(.top, 28)
+                .accessibilityAddTraits(.isHeader)
+
+            Text("Save today’s card to begin your collection.")
+                .font(.system(size: 15.5))
+                .foregroundStyle(ZodiacPalette.mutedText)
+                .multilineTextAlignment(.center)
+                .padding(.top, 10)
 
             Button(action: onViewToday) {
                 Text("VIEW TODAY’S CARD")
-                    .font(.headline)
-                    .tracking(2.2)
-                    .frame(maxWidth: 310, minHeight: 54)
+                    .font(.system(size: 13, weight: .semibold))
+                    .tracking(2.35)
+                    .frame(maxWidth: 282, minHeight: 47)
             }
             .buttonStyle(.plain)
             .foregroundStyle(ZodiacPalette.gold)
-            .background(ZodiacPalette.cardNavy.opacity(0.78), in: Capsule())
+            .background(ZodiacPalette.cardNavy.opacity(0.48), in: Capsule())
             .overlay {
-                Capsule().stroke(ZodiacPalette.gold, lineWidth: 1.2)
+                Capsule().stroke(ZodiacPalette.gold, lineWidth: 1)
             }
             .contentShape(Capsule())
+            .padding(.top, 24)
             .accessibilityHint("Switches to Today")
         }
     }
@@ -146,7 +163,7 @@ private struct SavedCardPreview: View {
             if dynamicTypeSize.isAccessibilitySize {
                 VStack(spacing: 0) {
                     artwork
-                        .frame(height: 170)
+                        .frame(height: 210)
                     details
                         .padding(.horizontal, 24)
                         .padding(.vertical, 22)
@@ -155,14 +172,15 @@ private struct SavedCardPreview: View {
                 GeometryReader { geometry in
                     HStack(spacing: 0) {
                         artwork
-                            .frame(width: geometry.size.width * 0.52, height: 205)
+                            .frame(width: geometry.size.width * 0.515, height: 242)
+
                         details
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 16)
-                            .frame(maxWidth: .infinity, minHeight: 205)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 17)
+                            .frame(maxWidth: .infinity, minHeight: 242)
                     }
                 }
-                .frame(height: 205)
+                .frame(height: 242)
             }
         }
         .background {
@@ -172,18 +190,26 @@ private struct SavedCardPreview: View {
                 endPoint: .bottomTrailing
             )
         }
-        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 17, style: .continuous))
         .overlay {
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .stroke(Color.white.opacity(0.19), lineWidth: 3)
+            RoundedRectangle(cornerRadius: 17, style: .continuous)
+                .stroke(Color.white.opacity(0.25), lineWidth: 2.5)
         }
         .overlay {
-            RoundedRectangle(cornerRadius: 15, style: .continuous)
-                .inset(by: 7)
-                .stroke(ZodiacPalette.gold, lineWidth: 1)
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .inset(by: 6)
+                .stroke(ZodiacPalette.gold, lineWidth: 0.9)
         }
-        .shadow(color: .black.opacity(0.72), radius: 12, y: 8)
-        .contentShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 11, style: .continuous)
+                .inset(by: 10)
+                .stroke(ZodiacPalette.gold.opacity(0.48), lineWidth: 0.55)
+        }
+        .overlay {
+            OrnateCardCorners(inset: 17)
+        }
+        .shadow(color: .black.opacity(0.72), radius: 10, y: 7)
+        .contentShape(RoundedRectangle(cornerRadius: 17, style: .continuous))
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(
             "\(card.horoscope.sign.displayName), \(formattedDate), \(card.horoscope.headline)"
@@ -192,45 +218,61 @@ private struct SavedCardPreview: View {
 
     private var artwork: some View {
         CelestialArtwork(sign: card.horoscope.sign)
-            .overlay(alignment: .topLeading) {
+            .overlay(alignment: .top) {
                 Text(card.horoscope.sign.symbol)
-                    .font(.system(size: 42, weight: .ultraLight))
+                    .font(.system(size: 39, weight: .ultraLight))
                     .foregroundStyle(ZodiacPalette.gold)
-                    .padding(22)
+                    .padding(.top, 25)
                     .accessibilityHidden(true)
+            }
+            .overlay {
+                LinearGradient(
+                    colors: [.clear, ZodiacPalette.midnight.opacity(0.12)],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
             }
             .clipped()
     }
 
     private var details: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 0) {
+            Spacer(minLength: 0)
+
             Text(card.horoscope.sign.displayName.uppercased())
-                .font(.system(.title2, design: .serif, weight: .medium))
-                .tracking(1.5)
+                .font(.custom("Didot", size: 21, relativeTo: .title2))
+                .tracking(1.25)
                 .foregroundStyle(ZodiacPalette.text)
                 .lineLimit(1)
                 .minimumScaleFactor(0.62)
 
             Text(formattedDate.uppercased())
-                .font(.caption.weight(.medium))
-                .tracking(2.8)
+                .font(.system(size: 11, weight: .medium))
+                .tracking(2.5)
                 .foregroundStyle(ZodiacPalette.lavender)
                 .lineLimit(1)
                 .minimumScaleFactor(0.75)
+                .padding(.top, 8)
 
-            CelestialDivider(width: 95)
+            CelestialDivider(width: 90)
+                .padding(.top, 12)
 
             Text(card.horoscope.headline)
-                .font(.system(.title3, design: .serif, weight: .medium))
+                .font(.custom("Didot", size: 23, relativeTo: .title2))
                 .foregroundStyle(ZodiacPalette.text)
                 .multilineTextAlignment(.center)
                 .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 3)
+                .minimumScaleFactor(0.72)
                 .fixedSize(horizontal: false, vertical: true)
+                .padding(.top, 13)
 
             Text("⌁")
-                .font(.title2)
+                .font(.system(size: 25, weight: .light, design: .serif))
                 .foregroundStyle(ZodiacPalette.gold)
+                .padding(.top, 8)
                 .accessibilityHidden(true)
+
+            Spacer(minLength: 0)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -252,62 +294,105 @@ private struct EmptyCardBack: View {
 
     var body: some View {
         ZStack {
+            Image("CelestialBackground")
+                .resizable()
+                .scaledToFill()
+
             LinearGradient(
-                colors: [ZodiacPalette.cardNavy, ZodiacPalette.midnight],
+                colors: [
+                    ZodiacPalette.cardNavy.opacity(0.36),
+                    ZodiacPalette.midnight.opacity(0.18),
+                    ZodiacPalette.cardNavy.opacity(0.42)
+                ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
 
-            Canvas { context, size in
-                let points: [CGPoint] = [
-                    CGPoint(x: 0.18, y: 0.18), CGPoint(x: 0.31, y: 0.29),
-                    CGPoint(x: 0.52, y: 0.17), CGPoint(x: 0.72, y: 0.33),
-                    CGPoint(x: 0.83, y: 0.21), CGPoint(x: 0.24, y: 0.66),
-                    CGPoint(x: 0.67, y: 0.73), CGPoint(x: 0.79, y: 0.58)
-                ]
-                for (index, point) in points.enumerated() {
-                    let radius: CGFloat = index.isMultiple(of: 3) ? 1.7 : 0.9
-                    let rect = CGRect(
-                        x: point.x * size.width - radius,
-                        y: point.y * size.height - radius,
-                        width: radius * 2,
-                        height: radius * 2
-                    )
-                    context.fill(Path(ellipseIn: rect), with: .color(ZodiacPalette.paleGold.opacity(0.7)))
-                }
-            }
+            RadialConstellation()
+                .padding(.horizontal, 35)
+                .offset(y: -8)
 
-            VStack(spacing: 24) {
-                Image(systemName: "sparkle")
-                Text(sign?.symbol ?? "✦")
-                    .font(.system(size: 54, weight: .ultraLight))
-                Image(systemName: "bookmark")
-                    .font(.title)
-                    .foregroundStyle(ZodiacPalette.lavender)
-            }
-            .foregroundStyle(ZodiacPalette.gold)
+            Text(sign?.symbol ?? "✦")
+                .font(.system(size: 53, weight: .ultraLight))
+                .foregroundStyle(ZodiacPalette.gold)
+                .offset(y: -8)
+
+            Image(systemName: "bookmark")
+                .font(.system(size: 30, weight: .light))
+                .foregroundStyle(ZodiacPalette.lavender)
+                .frame(maxHeight: .infinity, alignment: .bottom)
+                .padding(.bottom, 51)
         }
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 23, style: .continuous))
         .overlay {
-            RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .stroke(Color.white.opacity(0.20), lineWidth: 4)
+            RoundedRectangle(cornerRadius: 23, style: .continuous)
+                .stroke(Color.white.opacity(0.24), lineWidth: 3)
         }
         .overlay {
             RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .inset(by: 10)
-                .stroke(ZodiacPalette.gold, lineWidth: 1.2)
+                .inset(by: 8)
+                .stroke(ZodiacPalette.gold, lineWidth: 1.1)
         }
         .overlay {
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .inset(by: 15)
-                .stroke(ZodiacPalette.gold.opacity(0.62), lineWidth: 0.7)
+            RoundedRectangle(cornerRadius: 15, style: .continuous)
+                .inset(by: 13)
+                .stroke(ZodiacPalette.gold.opacity(0.66), lineWidth: 0.6)
         }
-        .shadow(color: .black.opacity(0.72), radius: 16, y: 10)
+        .overlay {
+            OrnateCardCorners(inset: 27)
+        }
+        .shadow(color: .black.opacity(0.76), radius: 15, y: 10)
     }
 }
 
-/// Owner-approved final implementation of the C2 saved-card detail reference.
-private struct SavedCardDetailView: View {
+private struct RadialConstellation: View {
+    var body: some View {
+        Canvas { context, size in
+            let center = CGPoint(x: size.width / 2, y: size.height / 2)
+            let rayCount = 18
+
+            for index in 0..<rayCount {
+                let angle = (Double(index) / Double(rayCount)) * Double.pi * 2
+                let startRadius: CGFloat = 38
+                let endRadius: CGFloat = index.isMultiple(of: 2) ? 84 : 69
+                let start = CGPoint(
+                    x: center.x + CGFloat(cos(angle)) * startRadius,
+                    y: center.y + CGFloat(sin(angle)) * startRadius
+                )
+                let end = CGPoint(
+                    x: center.x + CGFloat(cos(angle)) * endRadius,
+                    y: center.y + CGFloat(sin(angle)) * endRadius
+                )
+                var ray = Path()
+                ray.move(to: start)
+                ray.addLine(to: end)
+                context.stroke(
+                    ray,
+                    with: .color(ZodiacPalette.gold.opacity(0.74)),
+                    style: StrokeStyle(lineWidth: 0.85, dash: [1.2, 3.4])
+                )
+            }
+
+            for angle in stride(from: 0.0, to: Double.pi * 2, by: Double.pi / 2) {
+                let radius: CGFloat = 93
+                let point = CGPoint(
+                    x: center.x + CGFloat(cos(angle)) * radius,
+                    y: center.y + CGFloat(sin(angle)) * radius
+                )
+                var star = Path()
+                star.move(to: CGPoint(x: point.x - 8, y: point.y))
+                star.addLine(to: CGPoint(x: point.x + 8, y: point.y))
+                star.move(to: CGPoint(x: point.x, y: point.y - 8))
+                star.addLine(to: CGPoint(x: point.x, y: point.y + 8))
+                context.stroke(star, with: .color(ZodiacPalette.gold), lineWidth: 0.8)
+            }
+        }
+        .accessibilityHidden(true)
+    }
+}
+
+/// Final implementation of the approved C2 saved-card detail reference.
+struct SavedCardDetailView: View {
     @EnvironmentObject private var model: AppModel
     @Environment(\.dismiss) private var dismiss
     let card: SavedCard
@@ -315,39 +400,39 @@ private struct SavedCardDetailView: View {
     var body: some View {
         ZStack {
             MidnightBackground()
+
             ScrollView {
-                VStack(spacing: 22) {
-                    VStack(spacing: 10) {
-                        Text("SAVED CARD")
-                            .font(.system(.title2, design: .serif, weight: .medium))
-                            .tracking(1.6)
-                            .foregroundStyle(ZodiacPalette.text)
-                            .accessibilityAddTraits(.isHeader)
+                VStack(spacing: 0) {
+                    Text(formattedDate.uppercased())
+                        .font(.system(size: 14, weight: .medium))
+                        .tracking(3.8)
+                        .foregroundStyle(ZodiacPalette.lavender)
 
-                        Text(formattedDate.uppercased())
-                            .font(.caption.weight(.medium))
-                            .tracking(2.8)
-                            .foregroundStyle(ZodiacPalette.lavender)
-
-                        CelestialDivider(width: 120)
-                    }
+                    CelestialDivider(width: 122)
+                        .padding(.top, 12)
 
                     DailyCardView(horoscope: card.horoscope)
+                        .padding(.top, 22)
 
                     Button(role: .destructive) {
                         removeCard()
                     } label: {
                         Label("REMOVE FROM SAVED", systemImage: "trash")
-                            .font(.subheadline.weight(.semibold))
-                            .tracking(1.5)
-                            .foregroundStyle(Color(red: 0.98, green: 0.43, blue: 0.45))
-                            .frame(maxWidth: 360, minHeight: 54)
-                            .background(ZodiacPalette.cardNavy.opacity(0.72), in: Capsule())
-                            .overlay {
-                                Capsule().stroke(Color(red: 0.98, green: 0.43, blue: 0.45), lineWidth: 1.2)
-                            }
+                            .font(.system(size: 13, weight: .semibold))
+                            .tracking(1.8)
+                            .foregroundStyle(Color(red: 1.0, green: 0.27, blue: 0.24))
+                            .frame(maxWidth: 320, minHeight: 55)
                     }
                     .buttonStyle(.plain)
+                    .background(
+                        ZodiacPalette.midnight.opacity(0.36),
+                        in: RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    )
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .stroke(Color(red: 1.0, green: 0.27, blue: 0.24), lineWidth: 1.2)
+                    }
+                    .padding(.top, 39)
                     .accessibilityHint("Deletes this card from your collection")
 
                     if let message = model.persistenceMessage {
@@ -356,20 +441,44 @@ private struct SavedCardDetailView: View {
                             .foregroundStyle(ZodiacPalette.lavender)
                             .multilineTextAlignment(.center)
                             .fixedSize(horizontal: false, vertical: true)
+                            .padding(.top, 14)
                     }
                 }
-                .padding(.horizontal, 20)
-                .padding(.top, 18)
-                .padding(.bottom, 36)
+                .padding(.horizontal, 24)
+                .padding(.top, 20)
+                .padding(.bottom, 52)
                 .frame(maxWidth: 650)
                 .frame(maxWidth: .infinity)
             }
             .scrollIndicators(.hidden)
         }
-        .navigationTitle("Saved")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(ZodiacPalette.midnight.opacity(0.96), for: .navigationBar)
+        .navigationBarBackButtonHidden(true)
+        .toolbar(.visible, for: .navigationBar)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button {
+                    dismiss()
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 19, weight: .medium))
+                        Text("Saved")
+                            .font(.system(size: 17))
+                    }
+                    .foregroundStyle(ZodiacPalette.gold)
+                }
+                .accessibilityLabel("Back to Saved")
+            }
+
+            ToolbarItem(placement: .principal) {
+                Text("Saved Card")
+                    .font(.custom("Didot", size: 21, relativeTo: .title3))
+                    .foregroundStyle(ZodiacPalette.text)
+            }
+        }
+        .toolbarBackground(ZodiacPalette.midnight.opacity(0.02), for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
+        .toolbarColorScheme(.dark, for: .navigationBar)
     }
 
     private var formattedDate: String {
