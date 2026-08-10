@@ -2,20 +2,30 @@
 
 Generated: 2026-08-10
 
-Each PNG places the approved reference on the left and the corresponding raw
-iPhone 15 Pro simulator capture on the right. Both panels use a 1179 x 2556
-canvas. The reference panel includes its original decorative device frame;
-the implementation panel is the screen-only image produced by `simctl`.
+Each PNG contains four panels: approved reference, implementation, 50% overlay,
+and an amplified difference view. The approved device frame was cropped to its
+display area and normalized to the same 1179 x 2556 iPhone 15 Pro canvas as the
+raw `simctl` capture. The generated mockups do not all share a physical iPhone
+aspect ratio, so horizontal and vertical normalization are measured separately.
 
 ## Capture source
 
-- Workflow run: `31386424927`
-- Captured commit: `7968640`
+- Workflow run: `31403855782`
+- Captured commit: `b4db977`
 - Simulator: iPhone 15 Pro
 - Runtime: iOS 26.5
 - Resolution: 1179 x 2556
 
-The later commit `3386dff` changes only Today vertical spacing: 8 points above
-the selector, 6 points above the loaded card, and 10 points between the card
-and its save action. It still needs a replacement Today capture because macOS
-runner allocation is currently blocked at the GitHub account billing layer.
+## Normalized comparison results
+
+Mean absolute RGB error (lower is closer; it also includes system status-bar
+rendering and illustration differences):
+
+- Today: 17.018
+- Sign Selection: 17.938
+- Saved Empty: 11.923
+- Saved Populated: 16.631
+- Saved Detail: 16.755
+- Settings: 14.647
+
+The six captures compiled and rendered successfully in the same workflow run.
