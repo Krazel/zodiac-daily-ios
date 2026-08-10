@@ -130,7 +130,7 @@ struct TodayView: View {
                 .padding(.top, 24)
 
         case .failed(let message):
-            VStack(spacing: 16) {
+            VStack(spacing: 12) {
                 Image(systemName: "sparkles")
                     .font(.largeTitle)
                     .foregroundStyle(ZodiacPalette.gold)
@@ -168,7 +168,7 @@ struct TodayView: View {
                     .textCase(.uppercase)
                     .tracking(2.5)
                     .frame(width: 176)
-                    .frame(minHeight: 50)
+                    .frame(minHeight: 47)
                 }
                 .buttonStyle(.plain)
                 .foregroundStyle(ZodiacPalette.gold)
@@ -191,7 +191,7 @@ struct TodayView: View {
                         .accessibilityLabel("Save error: \(message)")
                 }
             }
-            .padding(.top, 24)
+            .padding(.top, 18)
         }
     }
 

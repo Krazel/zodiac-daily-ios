@@ -16,7 +16,7 @@ struct DailyCardView: View {
                         .accessibilityHidden(true)
                 }
 
-            VStack(spacing: 8) {
+            VStack(spacing: 5) {
                 Text("TODAY’S READING")
                     .font(.system(size: 11, weight: .medium))
                     .tracking(4)
@@ -25,37 +25,37 @@ struct DailyCardView: View {
                 HStack(spacing: 11) {
                     Rectangle()
                         .fill(ZodiacPalette.gold.opacity(0.45))
-                        .frame(maxWidth: 60, maxHeight: 1)
+                        .frame(maxWidth: 50, maxHeight: 1)
                     Text("✦")
                         .font(.caption2)
                         .foregroundStyle(ZodiacPalette.gold)
                     Rectangle()
                         .fill(ZodiacPalette.gold.opacity(0.45))
-                        .frame(maxWidth: 60, maxHeight: 1)
+                        .frame(maxWidth: 50, maxHeight: 1)
                 }
                 .accessibilityHidden(true)
 
                 Text(horoscope.headline)
-                    .font(.custom("Didot", size: 28))
+                    .font(.custom("Didot", size: 27))
                     .foregroundStyle(ZodiacPalette.text)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
 
-                Text("⌁")
-                    .font(.system(size: 20, weight: .light, design: .serif))
+                Text("∿")
+                    .font(.system(size: 15, weight: .light, design: .serif))
                     .foregroundStyle(ZodiacPalette.gold)
                     .accessibilityHidden(true)
 
                 Text(horoscope.reading)
-                    .font(.system(size: 15))
+                    .font(.system(size: 14))
                     .foregroundStyle(ZodiacPalette.text.opacity(0.94))
                     .multilineTextAlignment(.center)
-                    .lineSpacing(2)
+                    .lineSpacing(1)
                     .fixedSize(horizontal: false, vertical: true)
             }
-            .padding(.horizontal, 28)
-            .padding(.top, 13)
-            .padding(.bottom, 30)
+            .padding(.horizontal, 26)
+            .padding(.top, 10)
+            .padding(.bottom, 22)
         }
         .frame(maxWidth: 330)
         .background {
@@ -138,8 +138,24 @@ struct CelestialArtwork: View {
         case .aquarius:
             [point(0.22, 0.49), point(0.34, 0.40), point(0.46, 0.55), point(0.58, 0.45), point(0.70, 0.58), point(0.79, 0.47)]
         case .pisces:
-            [point(0.27, 0.68), point(0.34, 0.52), point(0.40, 0.61), point(0.49, 0.47), point(0.58, 0.58), point(0.69, 0.42), point(0.78, 0.49)]
+            [
+                point(0.27, 0.69), point(0.30, 0.57), point(0.33, 0.44),
+                point(0.35, 0.31), point(0.42, 0.59), point(0.54, 0.53),
+                point(0.66, 0.47), point(0.76, 0.42), point(0.82, 0.35),
+                point(0.85, 0.41), point(0.82, 0.47)
+            ]
         }
+    }
+
+    private var connections: [(Int, Int)] {
+        if sign == .pisces {
+            return [
+                (0, 1), (1, 2), (2, 3),
+                (0, 4), (4, 5), (5, 6), (6, 7), (7, 8),
+                (8, 9), (9, 10), (10, 7)
+            ]
+        }
+        return Array(zip(constellation.indices, constellation.indices.dropFirst()))
     }
 
     var body: some View {
@@ -163,11 +179,9 @@ struct CelestialArtwork: View {
                     CGPoint(x: $0.x * size.width, y: $0.y * size.height)
                 }
                 var connection = Path()
-                if let first = points.first {
-                    connection.move(to: first)
-                    for point in points.dropFirst() {
-                        connection.addLine(to: point)
-                    }
+                for edge in connections {
+                    connection.move(to: points[edge.0])
+                    connection.addLine(to: points[edge.1])
                 }
                 context.stroke(
                     connection,

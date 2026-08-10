@@ -71,7 +71,7 @@ struct SavedView: View {
                 .accessibilityAddTraits(.isHeader)
 
             if model.savedCards.isEmpty {
-                Text("⌁")
+                Text("∿")
                     .font(.system(size: 22, weight: .light, design: .serif))
                     .foregroundStyle(ZodiacPalette.gold)
                     .padding(.top, 5)
@@ -113,22 +113,21 @@ struct SavedView: View {
     private var emptyState: some View {
         VStack(spacing: 0) {
             EmptyCardBack(sign: model.selectedSign)
-                .frame(maxWidth: 254)
-                .aspectRatio(0.588, contentMode: .fit)
+                .frame(width: 254, height: 380)
                 .padding(.top, 8)
                 .accessibilityHidden(true)
 
             Text("No Cards Yet")
                 .font(.custom("Didot", size: 29, relativeTo: .title))
                 .foregroundStyle(ZodiacPalette.text)
-                .padding(.top, 28)
+                .padding(.top, 18)
                 .accessibilityAddTraits(.isHeader)
 
             Text("Save today’s card to begin your collection.")
                 .font(.system(size: 15.5))
                 .foregroundStyle(ZodiacPalette.mutedText)
                 .multilineTextAlignment(.center)
-                .padding(.top, 10)
+                .padding(.top, 8)
 
             Button(action: onViewToday) {
                 Text("VIEW TODAY’S CARD")
@@ -143,7 +142,7 @@ struct SavedView: View {
                 Capsule().stroke(ZodiacPalette.gold, lineWidth: 1)
             }
             .contentShape(Capsule())
-            .padding(.top, 24)
+            .padding(.top, 20)
             .accessibilityHint("Switches to Today")
         }
     }
@@ -266,7 +265,7 @@ private struct SavedCardPreview: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, 13)
 
-            Text("⌁")
+            Text("∿")
                 .font(.system(size: 25, weight: .light, design: .serif))
                 .foregroundStyle(ZodiacPalette.gold)
                 .padding(.top, 8)
@@ -401,61 +400,72 @@ struct SavedCardDetailView: View {
         ZStack {
             MidnightBackground()
 
-            ScrollView {
-                VStack(spacing: 0) {
-                    Text(formattedDate.uppercased())
-                        .font(.system(size: 14, weight: .medium))
-                        .tracking(3.8)
-                        .foregroundStyle(ZodiacPalette.lavender)
+            VStack(spacing: 0) {
+                detailHeader
 
-                    CelestialDivider(width: 122)
-                        .padding(.top, 12)
-
-                    DailyCardView(horoscope: card.horoscope)
-                        .padding(.top, 22)
-
-                    Button(role: .destructive) {
-                        removeCard()
-                    } label: {
-                        Label("REMOVE FROM SAVED", systemImage: "trash")
-                            .font(.system(size: 13, weight: .semibold))
-                            .tracking(1.8)
-                            .foregroundStyle(Color(red: 1.0, green: 0.27, blue: 0.24))
-                            .frame(maxWidth: 320, minHeight: 55)
-                    }
-                    .buttonStyle(.plain)
-                    .background(
-                        ZodiacPalette.midnight.opacity(0.36),
-                        in: RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    )
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 12, style: .continuous)
-                            .stroke(Color(red: 1.0, green: 0.27, blue: 0.24), lineWidth: 1.2)
-                    }
-                    .padding(.top, 39)
-                    .accessibilityHint("Deletes this card from your collection")
-
-                    if let message = model.persistenceMessage {
-                        Text(message)
-                            .font(.footnote)
+                ScrollView {
+                    VStack(spacing: 0) {
+                        Text(formattedDate.uppercased())
+                            .font(.system(size: 14, weight: .medium))
+                            .tracking(3.8)
                             .foregroundStyle(ZodiacPalette.lavender)
-                            .multilineTextAlignment(.center)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .padding(.top, 14)
+
+                        CelestialDivider(width: 122)
+                            .padding(.top, 10)
+
+                        DailyCardView(horoscope: card.horoscope)
+                            .padding(.top, 18)
+
+                        Button(role: .destructive) {
+                            removeCard()
+                        } label: {
+                            Label("REMOVE FROM SAVED", systemImage: "trash")
+                                .font(.system(size: 13, weight: .semibold))
+                                .tracking(1.8)
+                                .foregroundStyle(Color(red: 1.0, green: 0.27, blue: 0.24))
+                                .frame(maxWidth: 286, minHeight: 50)
+                        }
+                        .buttonStyle(.plain)
+                        .background(
+                            ZodiacPalette.midnight.opacity(0.36),
+                            in: RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        )
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .stroke(Color(red: 1.0, green: 0.27, blue: 0.24), lineWidth: 1.2)
+                        }
+                        .padding(.top, 30)
+                        .accessibilityHint("Deletes this card from your collection")
+
+                        if let message = model.persistenceMessage {
+                            Text(message)
+                                .font(.footnote)
+                                .foregroundStyle(ZodiacPalette.lavender)
+                                .multilineTextAlignment(.center)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .padding(.top, 14)
+                        }
                     }
+                    .padding(.horizontal, 24)
+                    .padding(.top, 26)
+                    .padding(.bottom, 42)
+                    .frame(maxWidth: 650)
+                    .frame(maxWidth: .infinity)
                 }
-                .padding(.horizontal, 24)
-                .padding(.top, 20)
-                .padding(.bottom, 52)
-                .frame(maxWidth: 650)
-                .frame(maxWidth: .infinity)
+                .scrollIndicators(.hidden)
             }
-            .scrollIndicators(.hidden)
         }
         .navigationBarBackButtonHidden(true)
-        .toolbar(.visible, for: .navigationBar)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
+        .toolbar(.hidden, for: .navigationBar)
+    }
+
+    private var detailHeader: some View {
+        ZStack {
+            Text("Saved Card")
+                .font(.custom("Didot", size: 21, relativeTo: .title3))
+                .foregroundStyle(ZodiacPalette.text)
+
+            HStack {
                 Button {
                     dismiss()
                 } label: {
@@ -466,19 +476,16 @@ struct SavedCardDetailView: View {
                             .font(.system(size: 17))
                     }
                     .foregroundStyle(ZodiacPalette.gold)
+                    .frame(minHeight: 44)
+                    .contentShape(Rectangle())
                 }
                 .accessibilityLabel("Back to Saved")
-            }
 
-            ToolbarItem(placement: .principal) {
-                Text("Saved Card")
-                    .font(.custom("Didot", size: 21, relativeTo: .title3))
-                    .foregroundStyle(ZodiacPalette.text)
+                Spacer()
             }
+            .padding(.horizontal, 24)
         }
-        .toolbarBackground(ZodiacPalette.midnight.opacity(0.02), for: .navigationBar)
-        .toolbarBackground(.visible, for: .navigationBar)
-        .toolbarColorScheme(.dark, for: .navigationBar)
+        .frame(height: 48)
     }
 
     private var formattedDate: String {

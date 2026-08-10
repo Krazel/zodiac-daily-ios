@@ -12,10 +12,10 @@ struct SettingsView: View {
         NavigationStack {
             ZStack {
                 MidnightBackground()
-                    .overlay(ZodiacPalette.midnight.opacity(0.18))
+                    .overlay(ZodiacPalette.midnight.opacity(0.38))
 
                 ScrollView {
-                    VStack(spacing: 18) {
+                    VStack(spacing: 13) {
                         header
                         signSection
                         SupportSectionView()
@@ -24,8 +24,8 @@ struct SettingsView: View {
                         aboutSection
                     }
                     .padding(.horizontal, 20)
-                    .padding(.top, 8)
-                    .padding(.bottom, 30)
+                    .padding(.top, 2)
+                    .padding(.bottom, 20)
                     .frame(maxWidth: 620)
                     .frame(maxWidth: .infinity)
                 }
@@ -52,7 +52,7 @@ struct SettingsView: View {
                 settingsTitle
                 doneButton
             }
-            .frame(minHeight: 48)
+            .frame(minHeight: 44)
         }
     }
 
@@ -96,7 +96,7 @@ struct SettingsView: View {
                         .accessibilityHidden(true)
 
                     Text(model.selectedSign?.displayName.uppercased() ?? "CHOOSE SIGN")
-                        .font(.custom("Didot", size: 18, relativeTo: .title3).weight(.medium))
+                        .font(.custom("Didot", size: 18, relativeTo: .title3))
                         .tracking(1.4)
                         .foregroundStyle(ZodiacPalette.text)
                         .lineLimit(1)
@@ -115,7 +115,7 @@ struct SettingsView: View {
                         .accessibilityHidden(true)
                 }
                 .padding(.horizontal, 14)
-                .frame(maxWidth: .infinity, minHeight: 58)
+                .frame(maxWidth: .infinity, minHeight: 52)
                 .background(panelBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                 .overlay {
@@ -190,7 +190,7 @@ struct SettingsView: View {
                 Spacer(minLength: 0)
             }
             .padding(.horizontal, 14)
-            .frame(maxWidth: .infinity, minHeight: 64)
+            .frame(maxWidth: .infinity, minHeight: 54)
             .background(panelBackground)
             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             .overlay {
@@ -205,7 +205,7 @@ struct SettingsView: View {
         title: String,
         @ViewBuilder content: () -> Content
     ) -> some View {
-        VStack(alignment: .leading, spacing: 9) {
+        VStack(alignment: .leading, spacing: 7) {
             Text(title.uppercased())
                 .font(.system(size: 14, weight: .semibold))
                 .tracking(2.8)
@@ -233,7 +233,7 @@ struct SettingsView: View {
             celestialIcon(systemImage)
 
             Text(title)
-                .font(.custom("Didot", size: 17, relativeTo: .headline).weight(.medium))
+                .font(.custom("Didot", size: 17, relativeTo: .headline))
                 .foregroundStyle(ZodiacPalette.text)
 
             Spacer(minLength: 8)
@@ -244,7 +244,7 @@ struct SettingsView: View {
                 .accessibilityHidden(true)
         }
         .padding(.horizontal, 14)
-        .frame(maxWidth: .infinity, minHeight: 58)
+        .frame(maxWidth: .infinity, minHeight: 49)
         .contentShape(Rectangle())
     }
 

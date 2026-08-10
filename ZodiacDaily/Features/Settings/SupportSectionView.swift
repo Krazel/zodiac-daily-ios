@@ -26,7 +26,7 @@ struct SupportSectionView: View {
     }
 
     private var content: some View {
-        VStack(alignment: .leading, spacing: 9) {
+        VStack(alignment: .leading, spacing: 7) {
             Text("SUPPORT THE APP")
                 .font(.system(size: 14, weight: .semibold))
                 .tracking(2.8)
@@ -34,7 +34,7 @@ struct SupportSectionView: View {
                 .padding(.leading, 12)
                 .accessibilityAddTraits(.isHeader)
 
-            VStack(spacing: 8) {
+            VStack(spacing: 6) {
                 supporterHeader
 
                 ForEach(Array(AppConfiguration.supporterProductIDs.enumerated()), id: \.offset) { index, productID in
@@ -57,7 +57,7 @@ struct SupportSectionView: View {
                 restoreButton
                 manageButton
             }
-            .padding(9)
+            .padding(7)
             .background(panelBackground)
             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             .overlay {
@@ -68,22 +68,22 @@ struct SupportSectionView: View {
     }
 
     private var supporterHeader: some View {
-        HStack(spacing: 14) {
-            celestialIcon("sparkle", size: 43)
+        HStack(spacing: 12) {
+            celestialIcon("sparkle", size: 38)
 
             Text(
                 store.isSupporter
                     ? "Thank you for supporting ongoing development and helping keep the app free for everyone."
                     : "Support ongoing development and keep the app free for everyone."
             )
-            .font(.system(size: 15.5))
+            .font(.system(size: 14))
             .foregroundStyle(ZodiacPalette.text)
             .fixedSize(horizontal: false, vertical: true)
 
             Spacer(minLength: 0)
         }
         .padding(.horizontal, 5)
-        .padding(.vertical, 4)
+        .padding(.vertical, 1)
         .accessibilityElement(children: .combine)
     }
 
@@ -102,10 +102,10 @@ struct SupportSectionView: View {
             }
         } label: {
             HStack(spacing: 10) {
-                celestialIcon("sparkle", size: 35)
+                celestialIcon("sparkle", size: 31)
 
                 Text(tierTitle(at: index))
-                    .font(.custom("Didot", size: 16.5, relativeTo: .headline).weight(.medium))
+                    .font(.custom("Didot", size: 15, relativeTo: .headline))
                     .foregroundStyle(ZodiacPalette.text)
                     .lineLimit(1)
                     .minimumScaleFactor(0.72)
@@ -137,7 +137,7 @@ struct SupportSectionView: View {
                     .accessibilityHidden(true)
             }
             .padding(.horizontal, 8)
-            .frame(maxWidth: .infinity, minHeight: 47)
+            .frame(maxWidth: .infinity, minHeight: 42)
             .background(rowBackground)
             .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
             .overlay {
@@ -164,7 +164,7 @@ struct SupportSectionView: View {
 
     private var renewalDisclosure: some View {
         Text("All levels include the same supporter status.\nSubscriptions renew automatically until cancelled.")
-            .font(.system(size: 12.5))
+            .font(.system(size: 11.5))
             .foregroundStyle(ZodiacPalette.mutedText)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 10)
@@ -202,10 +202,10 @@ struct SupportSectionView: View {
 
     private func actionRow(title: String, systemImage: String) -> some View {
         HStack(spacing: 10) {
-            celestialIcon(systemImage, size: 35)
+            celestialIcon(systemImage, size: 31)
 
             Text(title)
-                .font(.custom("Didot", size: 16, relativeTo: .headline).weight(.medium))
+                .font(.custom("Didot", size: 15, relativeTo: .headline))
                 .foregroundStyle(ZodiacPalette.text)
 
             Spacer(minLength: 8)
@@ -216,7 +216,7 @@ struct SupportSectionView: View {
                 .accessibilityHidden(true)
         }
         .padding(.horizontal, 8)
-        .frame(maxWidth: .infinity, minHeight: 43)
+        .frame(maxWidth: .infinity, minHeight: 38)
         .background(rowBackground)
         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
         .overlay {
