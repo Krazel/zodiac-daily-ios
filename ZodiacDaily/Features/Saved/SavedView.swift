@@ -113,7 +113,6 @@ struct SavedView: View {
     private var emptyState: some View {
         VStack(spacing: 0) {
             EmptyCardBack(sign: model.selectedSign)
-                .frame(width: 254, height: 378)
                 .padding(.top, 32)
                 .accessibilityHidden(true)
 
@@ -323,6 +322,7 @@ private struct EmptyCardBack: View {
                 .frame(maxHeight: .infinity, alignment: .bottom)
                 .padding(.bottom, 51)
         }
+        .frame(width: 254, height: 378)
         .clipShape(RoundedRectangle(cornerRadius: 23, style: .continuous))
         .overlay {
             RoundedRectangle(cornerRadius: 23, style: .continuous)
@@ -417,7 +417,12 @@ struct SavedCardDetailView: View {
                         DailyCardView(
                             horoscope: card.horoscope,
                             maxWidth: 345,
-                            artworkHeight: 351
+                            artworkHeight: 351,
+                            contentSpacing: -22,
+                            headlineSize: 33,
+                            readingBottomPadding: 24,
+                            symbolSize: 62,
+                            symbolTopPadding: 16
                         )
                             .padding(.top, 18)
 
@@ -428,7 +433,7 @@ struct SavedCardDetailView: View {
                                 .font(.system(size: 13, weight: .semibold))
                                 .tracking(1.8)
                                 .foregroundStyle(Color(red: 1.0, green: 0.27, blue: 0.24))
-                                .frame(maxWidth: 286, minHeight: 47)
+                                .frame(maxWidth: 286, minHeight: 43)
                         }
                         .buttonStyle(.plain)
                         .background(
@@ -439,7 +444,8 @@ struct SavedCardDetailView: View {
                             RoundedRectangle(cornerRadius: 12, style: .continuous)
                                 .stroke(Color(red: 1.0, green: 0.27, blue: 0.24), lineWidth: 1.2)
                         }
-                        .padding(.top, 21)
+                        .frame(minHeight: 44)
+                        .padding(.top, 33)
                         .accessibilityHint("Deletes this card from your collection")
 
                         if let message = model.persistenceMessage {

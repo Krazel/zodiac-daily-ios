@@ -173,8 +173,8 @@ private struct SignChoiceCard: View {
                     .minimumScaleFactor(0.7)
 
                 Text(sign.displayName.uppercased())
-                    .font(.custom("Didot", size: 11, relativeTo: .caption).weight(.medium))
-                    .tracking(1.2)
+                    .font(.custom("Didot", size: 10, relativeTo: .caption).weight(.medium))
+                    .tracking(1.0)
                     .foregroundStyle(ZodiacPalette.text)
                     .minimumScaleFactor(0.58)
                     .lineLimit(1)

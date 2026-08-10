@@ -4,17 +4,22 @@ import ZodiacDailyCore
 struct DailyCardView: View {
     let horoscope: DailyHoroscope
     var maxWidth: CGFloat = 328
-    var artworkHeight: CGFloat = 316
+    var artworkHeight: CGFloat = 296
+    var contentSpacing: CGFloat = 0
+    var headlineSize: CGFloat = 30
+    var readingBottomPadding: CGFloat = 18
+    var symbolSize: CGFloat = 54
+    var symbolTopPadding: CGFloat = 25
 
     var body: some View {
-        VStack(spacing: -22) {
+        VStack(spacing: contentSpacing) {
             CelestialArtwork(sign: horoscope.sign)
                 .frame(height: artworkHeight)
                 .overlay(alignment: .top) {
                     Text(horoscope.sign.symbol)
-                        .font(.system(size: 62, weight: .ultraLight))
+                        .font(.system(size: symbolSize, weight: .ultraLight))
                         .foregroundStyle(ZodiacPalette.gold)
-                        .padding(.top, 16)
+                        .padding(.top, symbolTopPadding)
                         .accessibilityHidden(true)
                 }
 
@@ -38,7 +43,7 @@ struct DailyCardView: View {
                 .accessibilityHidden(true)
 
                 Text(horoscope.headline)
-                    .font(.custom("Didot", size: 33, relativeTo: .largeTitle))
+                    .font(.custom("Didot", size: headlineSize, relativeTo: .largeTitle))
                     .foregroundStyle(ZodiacPalette.text)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
@@ -55,9 +60,9 @@ struct DailyCardView: View {
                     .lineSpacing(1)
                     .fixedSize(horizontal: false, vertical: true)
             }
-            .padding(.horizontal, 38)
-            .padding(.top, 0)
-            .padding(.bottom, 24)
+            .padding(.horizontal, 28)
+            .padding(.top, 8)
+            .padding(.bottom, readingBottomPadding)
         }
         .frame(maxWidth: maxWidth)
         .background {
@@ -188,28 +193,28 @@ struct CelestialArtwork: View {
                 context.stroke(
                     connection,
                     with: .color(ZodiacPalette.gold.opacity(0.74)),
-                    style: StrokeStyle(lineWidth: 0.55, dash: [1.5, 2.5])
+                    style: StrokeStyle(lineWidth: 0.7, dash: [1.5, 2.5])
                 )
 
                 for point in points {
                     context.fill(
                         Path(ellipseIn: CGRect(
-                            x: point.x - 1.25,
-                            y: point.y - 1.25,
-                            width: 2.5,
-                            height: 2.5
+                            x: point.x - 2,
+                            y: point.y - 2,
+                            width: 4,
+                            height: 4
                         )),
                         with: .color(ZodiacPalette.paleGold)
                     )
                     var rays = Path()
-                    rays.move(to: CGPoint(x: point.x - 4.5, y: point.y))
-                    rays.addLine(to: CGPoint(x: point.x + 4.5, y: point.y))
-                    rays.move(to: CGPoint(x: point.x, y: point.y - 4.5))
-                    rays.addLine(to: CGPoint(x: point.x, y: point.y + 4.5))
+                    rays.move(to: CGPoint(x: point.x - 5.5, y: point.y))
+                    rays.addLine(to: CGPoint(x: point.x + 5.5, y: point.y))
+                    rays.move(to: CGPoint(x: point.x, y: point.y - 5.5))
+                    rays.addLine(to: CGPoint(x: point.x, y: point.y + 5.5))
                     context.stroke(
                         rays,
                         with: .color(ZodiacPalette.paleGold.opacity(0.72)),
-                        lineWidth: 0.45
+                        lineWidth: 0.5
                     )
                 }
             }

@@ -152,7 +152,7 @@ struct TodayView: View {
             .accessibilityElement(children: .contain)
 
         case .loaded(let horoscope):
-            VStack(spacing: 6) {
+            VStack(spacing: 14) {
                 DailyCardView(horoscope: horoscope)
                     .frame(maxWidth: 328)
 
@@ -190,7 +190,7 @@ struct TodayView: View {
                         .accessibilityLabel("Save error: \(message)")
                 }
             }
-            .padding(.top, 21)
+            .padding(.top, 38)
         }
     }
 
