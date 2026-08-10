@@ -137,7 +137,7 @@ struct SupportSectionView: View {
                     .accessibilityHidden(true)
             }
             .padding(.horizontal, 8)
-            .frame(maxWidth: .infinity, minHeight: 42)
+            .frame(maxWidth: .infinity, minHeight: 38)
             .background(rowBackground)
             .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
             .overlay {
@@ -216,7 +216,7 @@ struct SupportSectionView: View {
                 .accessibilityHidden(true)
         }
         .padding(.horizontal, 8)
-        .frame(maxWidth: .infinity, minHeight: 38)
+        .frame(maxWidth: .infinity, minHeight: 35)
         .background(rowBackground)
         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
         .overlay {

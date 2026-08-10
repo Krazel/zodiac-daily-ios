@@ -113,14 +113,14 @@ struct SavedView: View {
     private var emptyState: some View {
         VStack(spacing: 0) {
             EmptyCardBack(sign: model.selectedSign)
-                .frame(width: 254, height: 380)
+                .frame(width: 254, height: 330)
                 .padding(.top, 8)
                 .accessibilityHidden(true)
 
             Text("No Cards Yet")
                 .font(.custom("Didot", size: 29, relativeTo: .title))
                 .foregroundStyle(ZodiacPalette.text)
-                .padding(.top, 18)
+                .padding(.top, 14)
                 .accessibilityAddTraits(.isHeader)
 
             Text("Save today’s card to begin your collection.")
@@ -142,7 +142,7 @@ struct SavedView: View {
                 Capsule().stroke(ZodiacPalette.gold, lineWidth: 1)
             }
             .contentShape(Capsule())
-            .padding(.top, 20)
+            .padding(.top, 16)
             .accessibilityHint("Switches to Today")
         }
     }

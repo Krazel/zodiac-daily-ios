@@ -7,7 +7,7 @@ struct DailyCardView: View {
     var body: some View {
         VStack(spacing: 0) {
             CelestialArtwork(sign: horoscope.sign)
-                .frame(height: 292)
+                .frame(height: 265)
                 .overlay(alignment: .top) {
                     Text(horoscope.sign.symbol)
                         .font(.system(size: 54, weight: .ultraLight))
@@ -16,7 +16,7 @@ struct DailyCardView: View {
                         .accessibilityHidden(true)
                 }
 
-            VStack(spacing: 5) {
+            VStack(spacing: 4) {
                 Text("TODAY’S READING")
                     .font(.system(size: 11, weight: .medium))
                     .tracking(4)
@@ -36,7 +36,7 @@ struct DailyCardView: View {
                 .accessibilityHidden(true)
 
                 Text(horoscope.headline)
-                    .font(.custom("Didot", size: 27))
+                    .font(.custom("Didot", size: 26))
                     .foregroundStyle(ZodiacPalette.text)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
@@ -47,15 +47,15 @@ struct DailyCardView: View {
                     .accessibilityHidden(true)
 
                 Text(horoscope.reading)
-                    .font(.system(size: 14))
+                    .font(.system(size: 13.5))
                     .foregroundStyle(ZodiacPalette.text.opacity(0.94))
                     .multilineTextAlignment(.center)
                     .lineSpacing(1)
                     .fixedSize(horizontal: false, vertical: true)
             }
-            .padding(.horizontal, 26)
-            .padding(.top, 10)
-            .padding(.bottom, 22)
+            .padding(.horizontal, 24)
+            .padding(.top, 8)
+            .padding(.bottom, 18)
         }
         .frame(maxWidth: 330)
         .background {

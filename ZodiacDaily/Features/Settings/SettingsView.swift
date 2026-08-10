@@ -15,7 +15,7 @@ struct SettingsView: View {
                     .overlay(ZodiacPalette.midnight.opacity(0.38))
 
                 ScrollView {
-                    VStack(spacing: 13) {
+                    VStack(spacing: 10) {
                         header
                         signSection
                         SupportSectionView()
@@ -115,7 +115,7 @@ struct SettingsView: View {
                         .accessibilityHidden(true)
                 }
                 .padding(.horizontal, 14)
-                .frame(maxWidth: .infinity, minHeight: 52)
+                .frame(maxWidth: .infinity, minHeight: 48)
                 .background(panelBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                 .overlay {
@@ -190,7 +190,7 @@ struct SettingsView: View {
                 Spacer(minLength: 0)
             }
             .padding(.horizontal, 14)
-            .frame(maxWidth: .infinity, minHeight: 54)
+            .frame(maxWidth: .infinity, minHeight: 50)
             .background(panelBackground)
             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             .overlay {
@@ -244,7 +244,7 @@ struct SettingsView: View {
                 .accessibilityHidden(true)
         }
         .padding(.horizontal, 14)
-        .frame(maxWidth: .infinity, minHeight: 49)
+        .frame(maxWidth: .infinity, minHeight: 45)
         .contentShape(Rectangle())
     }
 
