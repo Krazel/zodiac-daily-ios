@@ -227,9 +227,9 @@ private struct DailyCardBackView: View {
                 .offset(y: 22)
                 .accessibilityHidden(true)
 
-            VStack(spacing: 7) {
+            VStack(spacing: 4) {
                 Text(horoscope.sign.symbol)
-                    .font(.system(size: 31, weight: .ultraLight))
+                    .font(.system(size: 36, weight: .ultraLight))
                     .foregroundStyle(ZodiacPalette.gold)
 
                 Text("DEEPER READING")
@@ -239,9 +239,14 @@ private struct DailyCardBackView: View {
 
                 ornamentalDivider
 
+                guidanceSection("TODAY’S FOCUS", text: horoscope.headline)
+                sectionDivider
                 guidanceSection("LOVE", text: details.love)
+                sectionDivider
                 guidanceSection("WORK", text: details.work)
+                sectionDivider
                 guidanceSection("WELL-BEING", text: details.wellBeing)
+                sectionDivider
 
                 HStack(spacing: 0) {
                     luckyDetail("LUCKY NUMBER", value: String(details.luckyNumber))
@@ -252,6 +257,8 @@ private struct DailyCardBackView: View {
 
                     luckyDetail("LUCKY COLOR", value: details.luckyColor.uppercased())
                 }
+
+                sectionDivider
 
                 VStack(spacing: 2) {
                     Text("\(horoscope.sign.displayName.uppercased()) ESSENCE")
@@ -267,19 +274,22 @@ private struct DailyCardBackView: View {
                         .minimumScaleFactor(0.82)
                 }
 
-                HStack(spacing: 6) {
-                    Image(systemName: "arrow.uturn.backward")
-                    Text("TAP TO TURN THE CARD")
-                }
-                .font(.system(size: 7.5, weight: .medium))
-                .tracking(1.7)
-                .foregroundStyle(ZodiacPalette.gold.opacity(0.75))
-                .padding(.top, 1)
-                .accessibilityHidden(true)
+                Spacer(minLength: 1)
+
+                Image(systemName: "arrow.uturn.backward")
+                    .font(.system(size: 17, weight: .light))
+                    .foregroundStyle(ZodiacPalette.gold)
+
+                Text("TAP TO TURN THE CARD")
+                    .font(.system(size: 7.5, weight: .medium))
+                    .tracking(1.7)
+                    .foregroundStyle(ZodiacPalette.lavender)
+                    .accessibilityHidden(true)
             }
             .padding(.horizontal, 29)
-            .padding(.top, 21)
-            .padding(.bottom, 18)
+            .padding(.top, 24)
+            .padding(.bottom, 17)
+            .frame(maxHeight: .infinity, alignment: .top)
         }
         .clipShape(RoundedRectangle(cornerRadius: 25, style: .continuous))
         .overlay {
@@ -315,6 +325,21 @@ private struct DailyCardBackView: View {
         .accessibilityHidden(true)
     }
 
+    private var sectionDivider: some View {
+        HStack(spacing: 5) {
+            Rectangle()
+                .fill(ZodiacPalette.gold.opacity(0.38))
+                .frame(height: 0.6)
+            Text("✦")
+                .font(.system(size: 5))
+                .foregroundStyle(ZodiacPalette.gold.opacity(0.82))
+            Rectangle()
+                .fill(ZodiacPalette.gold.opacity(0.38))
+                .frame(height: 0.6)
+        }
+        .accessibilityHidden(true)
+    }
+
     private func guidanceSection(_ title: String, text: String) -> some View {
         VStack(spacing: 2) {
             Text(title)
@@ -323,7 +348,7 @@ private struct DailyCardBackView: View {
                 .foregroundStyle(ZodiacPalette.lavender)
 
             Text(text)
-                .font(.custom("Didot", size: 11.5, relativeTo: .caption))
+                .font(.custom("Didot", size: 10.5, relativeTo: .caption))
                 .foregroundStyle(ZodiacPalette.text.opacity(0.96))
                 .multilineTextAlignment(.center)
                 .lineLimit(2)
