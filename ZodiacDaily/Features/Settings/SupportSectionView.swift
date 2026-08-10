@@ -31,7 +31,6 @@ struct SupportSectionView: View {
                             .foregroundStyle(store.isSupporter ? ZodiacPalette.paleGold : ZodiacPalette.lavender)
                             .multilineTextAlignment(.center)
                             .fixedSize(horizontal: false, vertical: true)
-                            .accessibilityLiveRegion(.polite)
                     }
 
                     supportActions
