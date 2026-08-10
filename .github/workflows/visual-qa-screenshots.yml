@@ -59,8 +59,10 @@ jobs:
             -scheme ZodiacDaily \
             -configuration Debug \
             -sdk iphonesimulator \
-            -destination "platform=iOS Simulator,id=${UDID}" \
+            -destination "platform=iOS Simulator,id=${UDID},arch=arm64" \
             -derivedDataPath build/visual-qa \
+            ARCHS=arm64 \
+            ONLY_ACTIVE_ARCH=YES \
             CODE_SIGNING_ALLOWED=NO
 
       - name: Capture approved states
