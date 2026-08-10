@@ -65,7 +65,8 @@ local implementation only, not uploads or external activation.
 
 ## External release blockers
 
-- Mac with Xcode for build, StoreKitTest, simulator, archive, and icon checks.
+- Mac/Xcode or a device for StoreKitTest, simulator, signed archive, and icon
+  checks. The unsigned Release device build already compiles in GitHub Actions.
 - App Store Connect app record, one subscription group, and all three products.
 - Production App Store ID for the write-review URL.
 - Published Privacy Policy, Terms of Use/EULA, and support URLs.
@@ -82,9 +83,11 @@ installable until that tool signs it for the test device.
 
 The workflow validates bundle ID `com.krazel.zodiacdaily`, marketing version
 `0.1.0`, build number, iOS 17 minimum, executable, privacy manifest, compiled
-assets, and bundled horoscope content before packaging. It has not run yet:
-this repository currently has no GitHub remote and the local GitHub CLI session
-must be reauthenticated before a workflow can be pushed or dispatched.
+assets, and bundled horoscope content before packaging. Run `31346457364`
+(workflow run 3) completed successfully and produced the verified unsigned
+Local QA IPA. The private remote is `Krazel/zodiac-daily-ios`; the GitHub
+connector's repo-specific access remains optional because the existing Git
+credential can push and dispatch this workflow.
 
 ## Remaining release checklist
 
@@ -107,8 +110,8 @@ must be reauthenticated before a workflow can be pushed or dispatched.
 - [ ] Validate all StoreKit states with a local configuration and sandbox on Mac.
 - [ ] Validate archive, XCTest, simulator, Dynamic Type, and VoiceOver on Mac.
 - [x] Prepare a manual, no-secret Local QA IPA artifact workflow.
-- [ ] Reauthenticate GitHub, create/select the private remote, push the workflow,
-      and run it to obtain the unsigned IPA artifact.
+- [x] Create the private GitHub remote, push `main`, run the workflow, and
+      obtain the unsigned IPA artifact.
 - [ ] Validate the approved runtime icon and prepare App Store screenshots.
 - [ ] Prepare a protected manual upload workflow; do not add secrets yet.
 - [ ] Obtain explicit authorization before any account/product creation,

@@ -27,9 +27,13 @@ workspace does not have write access to Brain.
   `38a6ee3` (`feat: finalize approved C2 screens`).
 - Commit del pipeline diario gratuito FreeAstroAPI/Cloudflare y cliente iOS:
   `7380fea` (`feat: add free daily horoscope pipeline`).
-- Working tree: contiene trabajo local posterior; no asumir limpio hasta la
-  revision y commit del coordinador.
-- GitHub: pendiente; no se creo repo ni remoto externo.
+- Commits de cierre y build: `040ea32` (experiencia aprobada), `b5813ba`
+  (workflow IPA), `abcec2b` (compatibilidad iOS) y `0cf1d5f` (validacion de
+  contenido empaquetado).
+- Working tree: limpio tras el cierre del build y la descarga verificada.
+- GitHub: repo privado `Krazel/zodiac-daily-ios`, remoto `origin` configurado y
+  rama `main` subida. Actions esta habilitado. El conector GitHub de Codex no
+  tiene acceso a este repo concreto, pero no bloquea el flujo actual.
 - UI: Today, Sign Selection, Saved vacio/poblado y Settings C2 implementadas
   tras sus aprobaciones. `saved-detail-c2`, `settings-support-c3` y el icono C1
   estan aprobados por autorizacion visual anticipada; pueden implementarse y
@@ -77,8 +81,9 @@ workspace does not have write access to Brain.
   XML, JSON, UTF-8, PBX y privacidad validados en Windows.
 - Las referencias visuales restantes anteriores ya estan aprobadas. Capturas de
   tienda y cualquier arte promocional nuevo conservan su propia puerta visual.
-- Bloqueos tecnicos/externos: Mac con Xcode para compilacion, simulador,
-  StoreKitTest, firma y archivo; App Store Connect para productos/grupo;
+- Bloqueos tecnicos/externos: Mac/Xcode o un dispositivo para simulador,
+  StoreKitTest, firma y archivo de distribucion; App Store Connect para
+  productos/grupo;
   App Store ID para review; URLs publicas de privacidad/terminos/soporte; y
   equipo de firma.
 - Nucleo implementado como Swift Package: 12 signos, dia local, catalogo ingles
@@ -136,9 +141,9 @@ workspace does not have write access to Brain.
   suscripcion auto-renovable. Antes de crear productos hay que confirmar que el
   estado supporter/mantenimiento es suficiente o convertir el mismo concepto a
   apoyo de pago unico; esto no bloquea el commit local.
-- Flujo Local QA IPA preparado en
+- Flujo Local QA IPA operativo en
   `.github/workflows/build-ios-local-qa.yml`: manual, owner-only, sin secretos y
   sin upload a Apple. Compila en `macos-latest`, valida bundle/version/iOS 17,
   privacidad, assets y contenido, y publica solo un artifact unsigned para
-  firmar/instalar con Sideloadly. Aun no se ha ejecutado porque Zodiac Daily no
-  tiene remoto GitHub y la sesion local de `gh` esta expirada.
+  firmar/instalar con Sideloadly. La ejecucion 3 (`31346457364`) termino con
+  exito y produjo la IPA Local QA v0.1.0 build 3.

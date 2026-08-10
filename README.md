@@ -26,14 +26,16 @@ Daily endpoint.
 - Support: StoreKit 2 loads three equivalent monthly levels using Apple's live
   localized prices. The app remains fully usable for free and includes verified
   entitlement status, restore, and subscription management.
-- External services: no account, secret, Worker, or remote has been created yet.
-- GitHub: private repository pending explicit authorization.
+- External services: no provider account, secret, Worker, or content endpoint
+  has been activated. A private GitHub repository exists only for source and
+  no-secret build artifacts.
+- GitHub: private repository `Krazel/zodiac-daily-ios`; `main` is current.
 
 Open `ZodiacDaily.xcodeproj` on a Mac with Xcode. The planned bundle identifier
 is `com.krazel.zodiacdaily`; no signing team or App Store Connect products are
-configured. Swift compilation, tests, StoreKit sandbox verification, and
-simulator comparison are still pending because the current environment is
-Windows.
+configured. The unsigned Release device build compiles successfully in GitHub
+Actions. XCTest, StoreKit sandbox verification, signed-device testing, and
+simulator comparison remain pending.
 
 See `docs/MVP.md`, `docs/VISUAL_FIRST.md`, `docs/ASSET_INVENTORY.md`, and
 `docs/TECHNICAL_SETUP.md`.
