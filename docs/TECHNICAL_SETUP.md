@@ -15,7 +15,7 @@ Updated: 2026-08-10
 - XCTest coverage for catalog validity, all 12 signs, deterministic editions,
   local midnight/time zones/DST, content-version snapshots, save/remove,
   ordering, deduplication, JSON relaunch persistence, and corrupt archives.
-- Manual `ZodiacDaily.xcodeproj` for an iPhone-only iOS 17 SwiftUI app with the
+- Manual `ZodiacDaily.xcodeproj` for an iPhone-only iOS 16 SwiftUI app with the
   local package linked and no third-party dependencies.
 - Approved Today C2 implementation: native midnight background, masthead, sign
   selector, complete bordered card, procedural celestial art, daily local
@@ -40,8 +40,9 @@ Updated: 2026-08-10
   twelve-sign normalization outside the cron's 10 ms CPU ceiling.
 
 The JSON catalog, plist, project references, and repository structure have been
-checked on Windows. Swift compilation, XCTest execution, simulator checks, and
-visual comparison remain pending because Swift/Xcode are not installed here.
+checked on Windows. The unsigned Release device app compiles in GitHub Actions
+with an iOS 16.0 minimum. XCTest execution, simulator checks, and visual
+comparison remain pending because Swift/Xcode are not installed locally.
 
 ## StoreKit 2 support
 
@@ -66,7 +67,7 @@ visual comparison remain pending because Swift/Xcode are not installed here.
 ## Recommended architecture
 
 - Native SwiftUI and Swift.
-- Proposed deployment target: iOS 17 or later.
+- Deployment target: iOS 16 or later.
 - No third-party dependencies for the MVP.
 - Pure Swift domain core with repository and store boundaries; no SwiftUI or
   SwiftData types in domain models.
@@ -137,14 +138,13 @@ setup, the provider key stored as a Worker secret, deployment authorization,
 and the resulting public HTTPS base URL added to the Xcode build setting. Exact
 commands and verification steps live in `Backend/freeastro-worker/README.md`.
 
-The intended GitHub repository is a private repository named
-`zodiac-daily-ios`, with branch `main` and remote `origin`. Creating it and
-pushing are deliberately pending explicit authorization because they change an
-external service.
+The GitHub repository is the private `Krazel/zodiac-daily-ios`, with branch
+`main` and remote `origin`. Its manual Local QA workflow uses no signing or
+App Store secrets and performs no external upload.
 
 ## Current project values and decisions still open
 
-- Deployment minimum: iOS 17.
+- Deployment minimum: iOS 16.0.
 - Intended production bundle identifier: `com.krazel.zodiacdaily`.
 - Confirm that identifier and the signing team before device, archive, or
   distribution work.

@@ -70,7 +70,7 @@ workspace does not have write access to Brain.
   manage, review, privacidad y terminos sin bloquear el uso gratuito.
 - El icono runtime esta en `ZodiacDaily/Assets.xcassets/AppIcon.appiconset`;
   publicar el icono o preparar capturas de tienda sigue fuera de alcance.
-- Implementacion actual: `ZodiacDaily.xcodeproj`, SwiftUI iOS 17, Today nativa,
+- Implementacion actual: `ZodiacDaily.xcodeproj`, SwiftUI iOS 16, Today nativa,
   seleccion inicial de 12 signos, Saved vacio/poblado/detalle, Settings/About y
   Support StoreKit 2 local, navegacion Today/Saved, persistencia JSON atomica,
   preferencias locales y manifiesto de privacidad sin tracking ni datos
@@ -143,7 +143,8 @@ workspace does not have write access to Brain.
   apoyo de pago unico; esto no bloquea el commit local.
 - Flujo Local QA IPA operativo en
   `.github/workflows/build-ios-local-qa.yml`: manual, owner-only, sin secretos y
-  sin upload a Apple. Compila en `macos-latest`, valida bundle/version/iOS 17,
+  sin upload a Apple. Compila en `macos-latest`, valida bundle/version/iOS 16,
   privacidad, assets y contenido, y publica solo un artifact unsigned para
-  firmar/instalar con Sideloadly. La ejecucion 3 (`31346457364`) termino con
-  exito y produjo la IPA Local QA v0.1.0 build 3.
+  firmar/instalar con Sideloadly. Tras adaptar las APIs recientes, la ejecucion
+  5 (`31347517648`) termino con exito y produjo la IPA Local QA v0.1.0 build 5,
+  compatible con el dispositivo del propietario en iOS 16.7.16.

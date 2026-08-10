@@ -15,7 +15,7 @@ Daily endpoint.
 - Product: MVP defined for iPhone, English only.
 - Visuals: the complete C2 references, Settings Support C3, and app icon C1 are
   approved under the owner's advance visual authorization.
-- Code: the approved screens are implemented in the iOS 17 SwiftUI project,
+- Code: the approved screens are implemented in the iOS 16 SwiftUI project,
   including final saved-card detail and optional monthly supporter controls.
 - Persistence: saved-card snapshots use an actor-isolated, atomic JSON archive
   in Application Support; the selected sign uses local app preferences.

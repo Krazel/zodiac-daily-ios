@@ -100,7 +100,7 @@ version; Apple may still suppress it.
 ## Xcode handoff
 
 - Open `ZodiacDaily.xcodeproj` on a Mac with Xcode.
-- Target: `ZodiacDaily`, iPhone only, iOS 17.0+.
+- Target: `ZodiacDaily`, iPhone only, iOS 16.0+.
 - Product name: Zodiac Daily.
 - Intended production bundle identifier: `com.krazel.zodiacdaily`.
 - Signing team: unset.

@@ -7,7 +7,7 @@ StoreKit products, uploads, TestFlight, App Review, or publication.
 
 ## Recorded scope
 
-- iPhone / iOS 17+, English only.
+- iPhone / iOS 16+, English only.
 - Intended production bundle identifier: `com.krazel.zodiacdaily`.
 - App category: Lifestyle (provisional).
 - App slug: `zodiac-daily`.
@@ -82,10 +82,10 @@ to a local signing/install tool such as Sideloadly; it is not directly
 installable until that tool signs it for the test device.
 
 The workflow validates bundle ID `com.krazel.zodiacdaily`, marketing version
-`0.1.0`, build number, iOS 17 minimum, executable, privacy manifest, compiled
-assets, and bundled horoscope content before packaging. Run `31346457364`
-(workflow run 3) completed successfully and produced the verified unsigned
-Local QA IPA. The private remote is `Krazel/zodiac-daily-ios`; the GitHub
+`0.1.0`, build number, iOS 16 minimum, executable, privacy manifest, compiled
+assets, and bundled horoscope content before packaging. Run `31347517648`
+(workflow run 5) completed successfully and produced the verified unsigned
+iOS 16 Local QA IPA. The private remote is `Krazel/zodiac-daily-ios`; the GitHub
 connector's repo-specific access remains optional because the existing Git
 credential can push and dispatch this workflow.
 
