@@ -7,6 +7,7 @@ final class AppModel: ObservableObject {
     enum VisualQAState: String {
         case signSelection = "sign-selection"
         case today
+        case todayBack = "today-back"
         case savedEmpty = "saved-empty"
         case savedPopulated = "saved-populated"
         case savedDetail = "saved-detail"
@@ -190,7 +191,9 @@ final class AppModel: ObservableObject {
         let generation = refreshGeneration
 
         #if DEBUG
-        if Self.visualQAState == .today || Self.visualQAState == .settings {
+        if Self.visualQAState == .today
+            || Self.visualQAState == .todayBack
+            || Self.visualQAState == .settings {
             dailyState = .loaded(Self.visualQAPiscesCard())
             return
         }

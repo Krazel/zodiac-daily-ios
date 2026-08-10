@@ -50,6 +50,45 @@ final class FileBackedSavedCardStoreTests: XCTestCase {
         XCTAssertTrue(recreatedCards.isEmpty)
     }
 
+    func testLegacyArchiveWithoutDetailsRemainsReadable() async throws {
+        let fileURL = temporaryArchiveURL()
+        try FileManager.default.createDirectory(
+            at: fileURL.deletingLastPathComponent(),
+            withIntermediateDirectories: true
+        )
+        let legacyArchive = Data(
+            """
+            {
+              "version": 1,
+              "cards": [
+                {
+                  "horoscope": {
+                    "sign": "pisces",
+                    "day": "2026-08-09",
+                    "headline": "Legacy headline",
+                    "reading": "Legacy reading",
+                    "contentVersion": 1
+                  },
+                  "savedAt": "1970-01-01T00:01:40Z"
+                }
+              ]
+            }
+            """.utf8
+        )
+        try legacyArchive.write(to: fileURL)
+
+        let store = FileBackedSavedCardStore(fileURL: fileURL)
+        let cards = try await store.allCards()
+        let card = try XCTUnwrap(cards.first)
+        let day = try XCTUnwrap(LocalDayKey(rawValue: "2026-08-09"))
+
+        XCTAssertEqual(card.horoscope.headline, "Legacy headline")
+        XCTAssertEqual(
+            card.horoscope.details,
+            DailyCardDetails.deterministicFallback(for: .pisces, day: day)
+        )
+    }
+
     func testCorruptArchiveReturnsAStableDomainError() async throws {
         let fileURL = temporaryArchiveURL()
         try FileManager.default.createDirectory(

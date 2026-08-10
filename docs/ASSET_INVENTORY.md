@@ -37,6 +37,20 @@ Symbols, Unicode zodiac glyphs, SwiftUI shapes, and procedural celestial art.
 - Shipped icon artwork: `ZodiacDaily/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png`,
   opaque RGB, 1024×1024, with no pre-rounded corners.
 
+## Today card reverse
+
+- Visual reference: `Design/Concepts/today-card-back-c1.png`.
+- Runtime bitmap assets: no additional bitmap. The approved screen image is a
+  specification and is not shipped in the app.
+- Background and card material: reuse the approved cosmic background, card
+  navy gradient, gold double frame, corner ornaments, shadow, and Didot/system
+  typography already present in Today.
+- Sign watermark: native Unicode zodiac glyph with low opacity.
+- Dividers, category labels, and turn indicator: native SwiftUI shapes and an
+  SF Symbol where appropriate.
+- Motion: native SwiftUI 3D Y-axis rotation; a short opacity transition replaces
+  it when Reduce Motion is enabled.
+
 ## Still gated
 
 - App Store screenshots, previews, and promotional artwork.

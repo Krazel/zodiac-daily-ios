@@ -106,6 +106,248 @@ struct DailyCardView: View {
     }
 }
 
+/// A Today-only wrapper that keeps the approved collectible-card frame while
+/// revealing a structured reverse. Saved detail continues to use DailyCardView
+/// directly and is therefore unaffected by the interaction.
+struct FlippableDailyCard: View {
+    private enum Metrics {
+        static let width: CGFloat = 328
+        static let height: CGFloat = 478
+        static let cornerRadius: CGFloat = 25
+    }
+
+    let horoscope: DailyHoroscope
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var isShowingBack: Bool
+    @State private var isAnimating = false
+
+    init(horoscope: DailyHoroscope, initiallyShowingBack: Bool = false) {
+        self.horoscope = horoscope
+        _isShowingBack = State(initialValue: initiallyShowingBack)
+    }
+
+    var body: some View {
+        Button(action: turnCard) {
+            ZStack {
+                DailyCardView(horoscope: horoscope)
+                    .frame(width: Metrics.width, height: Metrics.height)
+                    .opacity(isShowingBack ? 0 : 1)
+                    .rotation3DEffect(
+                        .degrees(isShowingBack ? -180 : 0),
+                        axis: (x: 0, y: 1, z: 0),
+                        perspective: 0.65
+                    )
+                    .allowsHitTesting(!isShowingBack)
+                    .accessibilityHidden(isShowingBack)
+
+                DailyCardBackView(horoscope: horoscope)
+                    .frame(width: Metrics.width, height: Metrics.height)
+                    .opacity(isShowingBack ? 1 : 0)
+                    .rotation3DEffect(
+                        .degrees(isShowingBack ? 0 : 180),
+                        axis: (x: 0, y: 1, z: 0),
+                        perspective: 0.65
+                    )
+                    .allowsHitTesting(isShowingBack)
+                    .accessibilityHidden(!isShowingBack)
+            }
+            .frame(width: Metrics.width, height: Metrics.height)
+            .contentShape(RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .disabled(isAnimating)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(horoscope.sign.displayName) daily card")
+        .accessibilityValue(isShowingBack ? backAccessibilityValue : frontAccessibilityValue)
+        .accessibilityHint(
+            isShowingBack
+                ? "Double-tap to return to the illustrated reading"
+                : "Double-tap to reveal the deeper reading"
+        )
+        .onChange(of: horoscope.archiveKey) { _ in
+            isShowingBack = false
+            isAnimating = false
+        }
+    }
+
+    private var frontAccessibilityValue: String {
+        "Front. \(horoscope.headline). \(horoscope.reading)"
+    }
+
+    private var backAccessibilityValue: String {
+        let details = horoscope.details
+        return "Back. Love: \(details.love) Work: \(details.work) "
+            + "Well-being: \(details.wellBeing) Lucky number: \(details.luckyNumber). "
+            + "Lucky color: \(details.luckyColor). \(horoscope.sign.displayName) essence: "
+            + details.signEssence
+    }
+
+    private func turnCard() {
+        guard !isAnimating else { return }
+
+        if reduceMotion {
+            withAnimation(.easeOut(duration: 0.12)) {
+                isShowingBack.toggle()
+            }
+            return
+        }
+
+        isAnimating = true
+        withAnimation(.easeInOut(duration: 0.46)) {
+            isShowingBack.toggle()
+        }
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 470_000_000)
+            isAnimating = false
+        }
+    }
+}
+
+private struct DailyCardBackView: View {
+    let horoscope: DailyHoroscope
+
+    private var details: DailyCardDetails { horoscope.details }
+
+    var body: some View {
+        ZStack {
+            LinearGradient(
+                colors: [
+                    ZodiacPalette.cardNavy,
+                    ZodiacPalette.deepIndigo.opacity(0.90),
+                    ZodiacPalette.midnight
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+
+            Text(horoscope.sign.symbol)
+                .font(.system(size: 210, weight: .ultraLight))
+                .foregroundStyle(ZodiacPalette.gold.opacity(0.035))
+                .offset(y: 22)
+                .accessibilityHidden(true)
+
+            VStack(spacing: 7) {
+                Text(horoscope.sign.symbol)
+                    .font(.system(size: 31, weight: .ultraLight))
+                    .foregroundStyle(ZodiacPalette.gold)
+
+                Text("DEEPER READING")
+                    .font(.system(size: 9, weight: .semibold))
+                    .tracking(3.1)
+                    .foregroundStyle(ZodiacPalette.lavender)
+
+                ornamentalDivider
+
+                guidanceSection("LOVE", text: details.love)
+                guidanceSection("WORK", text: details.work)
+                guidanceSection("WELL-BEING", text: details.wellBeing)
+
+                HStack(spacing: 0) {
+                    luckyDetail("LUCKY NUMBER", value: String(details.luckyNumber))
+
+                    Rectangle()
+                        .fill(ZodiacPalette.gold.opacity(0.38))
+                        .frame(width: 0.75, height: 32)
+
+                    luckyDetail("LUCKY COLOR", value: details.luckyColor.uppercased())
+                }
+
+                VStack(spacing: 2) {
+                    Text("\(horoscope.sign.displayName.uppercased()) ESSENCE")
+                        .font(.system(size: 8, weight: .semibold))
+                        .tracking(2.2)
+                        .foregroundStyle(ZodiacPalette.lavender)
+
+                    Text(details.signEssence)
+                        .font(.custom("Didot", size: 12, relativeTo: .caption))
+                        .foregroundStyle(ZodiacPalette.paleGold)
+                        .multilineTextAlignment(.center)
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.82)
+                }
+
+                HStack(spacing: 6) {
+                    Image(systemName: "arrow.uturn.backward")
+                    Text("TAP TO TURN THE CARD")
+                }
+                .font(.system(size: 7.5, weight: .medium))
+                .tracking(1.7)
+                .foregroundStyle(ZodiacPalette.gold.opacity(0.75))
+                .padding(.top, 1)
+                .accessibilityHidden(true)
+            }
+            .padding(.horizontal, 29)
+            .padding(.top, 21)
+            .padding(.bottom, 18)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 25, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 25, style: .continuous)
+                .stroke(Color.white.opacity(0.22), lineWidth: 3)
+        }
+        .overlay {
+            RoundedRectangle(cornerRadius: 19, style: .continuous)
+                .inset(by: 10)
+                .stroke(ZodiacPalette.gold, lineWidth: 1.2)
+        }
+        .overlay {
+            RoundedRectangle(cornerRadius: 15, style: .continuous)
+                .inset(by: 15)
+                .stroke(ZodiacPalette.gold.opacity(0.65), lineWidth: 0.7)
+        }
+        .overlay { OrnateCardCorners() }
+        .shadow(color: .black.opacity(0.75), radius: 18, y: 12)
+    }
+
+    private var ornamentalDivider: some View {
+        HStack(spacing: 9) {
+            Rectangle()
+                .fill(ZodiacPalette.gold.opacity(0.42))
+                .frame(height: 0.75)
+            Text("✦")
+                .font(.caption2)
+                .foregroundStyle(ZodiacPalette.gold)
+            Rectangle()
+                .fill(ZodiacPalette.gold.opacity(0.42))
+                .frame(height: 0.75)
+        }
+        .accessibilityHidden(true)
+    }
+
+    private func guidanceSection(_ title: String, text: String) -> some View {
+        VStack(spacing: 2) {
+            Text(title)
+                .font(.system(size: 8, weight: .semibold))
+                .tracking(2.4)
+                .foregroundStyle(ZodiacPalette.lavender)
+
+            Text(text)
+                .font(.custom("Didot", size: 11.5, relativeTo: .caption))
+                .foregroundStyle(ZodiacPalette.text.opacity(0.96))
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+                .minimumScaleFactor(0.76)
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private func luckyDetail(_ title: String, value: String) -> some View {
+        VStack(spacing: 2) {
+            Text(title)
+                .font(.system(size: 7.5, weight: .semibold))
+                .tracking(1.8)
+                .foregroundStyle(ZodiacPalette.lavender)
+            Text(value)
+                .font(.custom("Didot", size: 14, relativeTo: .subheadline))
+                .foregroundStyle(ZodiacPalette.paleGold)
+                .minimumScaleFactor(0.72)
+                .lineLimit(1)
+        }
+        .frame(maxWidth: .infinity)
+    }
+}
+
 /// Production artwork shared by Today, Saved previews, and Saved detail.
 struct CelestialArtwork: View {
     let sign: ZodiacSign

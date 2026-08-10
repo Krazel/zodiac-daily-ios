@@ -23,6 +23,10 @@ final class RemoteHoroscopeRepositoryTests: XCTestCase {
             horoscope.reading,
             "A considered Scorpio reading with enough detail for a complete daily card."
         )
+        XCTAssertEqual(
+            horoscope.details,
+            DailyCardDetails.deterministicFallback(for: .scorpio, day: day)
+        )
         XCTAssertEqual(horoscope.contentVersion, 20_260_809)
 
         let recordedRequest = await transport.lastRequest()

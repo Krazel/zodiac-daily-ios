@@ -97,3 +97,20 @@ provisional until it receives its own complete image approval.
 - This authorization covers local product and visual decisions. It does not
   supply external credentials or remove the separate no-upload/no-publication
   boundary.
+
+## 2026-08-10 — Interactive daily-card reverse
+
+- The owner requested a direct sign-change action, a complete Today composition
+  without required scrolling on the reference iPhone, and a tappable card that
+  flips to reveal a deeper daily reading.
+- `Design/Concepts/today-card-back-c1.png` is approved under the owner's advance
+  visual authorization and is the final reference for the reverse state.
+- The reverse contains concise, non-personal guidance for Love, Work, and
+  Well-being, plus a lucky number, lucky color, and the selected sign's essence.
+- The same sign/day always produces the same reverse. Saving a card preserves
+  the exact reverse as part of the immutable local snapshot.
+- The front and reverse share one card frame. Standard motion uses a short
+  horizontal 3D turn; Reduce Motion uses a brief fade instead.
+- The reference iPhone at default text size must show the complete Today card
+  and Save action without required scrolling. Compact screens and accessibility
+  text sizes retain scrolling so no content is lost.

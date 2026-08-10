@@ -5,6 +5,7 @@ import ZodiacDailyCore
 struct TodayView: View {
     @EnvironmentObject private var model: AppModel
     @State private var showsSettings: Bool
+    @State private var showsSignSelection = false
 
     init() {
         _showsSettings = State(initialValue: AppModel.visualQAState == .settings)
@@ -38,6 +39,9 @@ struct TodayView: View {
         }
         .sheet(isPresented: $showsSettings) {
             SettingsView()
+        }
+        .fullScreenCover(isPresented: $showsSignSelection) {
+            SignSelectionView(requiresSelection: false)
         }
     }
 
@@ -111,10 +115,15 @@ struct TodayView: View {
                     Capsule().stroke(ZodiacPalette.gold, lineWidth: 1)
                 }
                 .contentShape(Capsule())
+            } primaryAction: {
+                showsSignSelection = true
             }
             .padding(.top, 22)
             .accessibilityLabel("Selected sign, \(selectedSign.displayName)")
-            .accessibilityHint("Double-tap to choose another sign or open settings")
+            .accessibilityHint("Double-tap to choose another sign")
+            .accessibilityAction(named: "Open Settings") {
+                showsSettings = true
+            }
         }
     }
 
@@ -152,9 +161,11 @@ struct TodayView: View {
             .accessibilityElement(children: .contain)
 
         case .loaded(let horoscope):
-            VStack(spacing: 14) {
-                DailyCardView(horoscope: horoscope)
-                    .frame(maxWidth: 328)
+            VStack(spacing: 10) {
+                FlippableDailyCard(
+                    horoscope: horoscope,
+                    initiallyShowingBack: AppModel.visualQAState == .todayBack
+                )
 
                 Button {
                     Task { await model.toggleCurrentCardSaved() }
@@ -190,7 +201,7 @@ struct TodayView: View {
                         .accessibilityLabel("Save error: \(message)")
                 }
             }
-            .padding(.top, 28)
+            .padding(.top, 24)
         }
     }
 

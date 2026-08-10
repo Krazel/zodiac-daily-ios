@@ -1,6 +1,6 @@
 # Visual-first gate
 
-Updated: 2026-08-09
+Updated: 2026-08-10
 
 Explicit owner approval blocks only the final visual implementation. While a
 screen is awaiting approval, work may continue on non-visual engine logic,
@@ -15,6 +15,7 @@ experience.
 | Screen / state | Candidate images | Status | Approval date | Requested changes |
 |---|---|---|---|---|
 | Today / daily card available | `Design/Concepts/today-c2-collectible-card.png` | **Approved for final visual implementation** | 2026-08-09 | Preserve the complete saveable-card object with all four corners visible and keep Save Card outside it. Native accessibility adaptations are allowed. |
+| Today / daily card reverse | `Design/Concepts/today-card-back-c1.png` | **Approved for final visual implementation by owner's advance authorization** | 2026-08-10 | Preserve the existing card frame and Today composition. Tap flips the card to Love, Work, Well-being, lucky details, and sign essence. Reduce Motion receives a short fade. |
 | Welcome / no sign selected | `Design/Concepts/sign-selection-c2.png` | **Approved for final visual implementation** | 2026-08-09 | All 12 signs, no personal data, Pisces shown selected as an example. Native accessibility adaptations are allowed. |
 | Saved / populated | `Design/Concepts/saved-populated-c2.png` | **Approved for final visual implementation** | 2026-08-09 | Personal archive of clearly separate card thumbnails. Native accessibility adaptations are allowed. |
 | Saved / empty | `Design/Concepts/saved-empty-c2.png` | **Approved for final visual implementation** | 2026-08-09 | Empty collectible-card outline and route back to Today. Native accessibility adaptations are allowed. |
