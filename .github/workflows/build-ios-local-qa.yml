@@ -73,7 +73,7 @@ jobs:
           echo "Validating ${BUNDLE_ID} v${VERSION} (${BUILD}), minimum iOS ${MINIMUM_IOS}"
           require_value "$BUNDLE_ID" "com.krazel.zodiacdaily" "bundle identifier"
           require_value "$VERSION" "0.1.0" "marketing version"
-          require_value "$MINIMUM_IOS" "17.0" "minimum iOS version"
+          require_value "$MINIMUM_IOS" "16.0" "minimum iOS version"
           require_file "$APP_PATH/ZodiacDaily"
           require_file "$APP_PATH/PrivacyInfo.xcprivacy"
           require_file "$APP_PATH/Assets.car"

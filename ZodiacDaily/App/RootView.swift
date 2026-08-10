@@ -37,13 +37,13 @@ struct RootView: View {
         .task {
             await model.start()
         }
-        .onChange(of: model.selectedSign) { _, _ in
+        .onChange(of: model.selectedSign) { _ in
             Task { await model.refreshDailyCard() }
         }
-        .onChange(of: model.successfulSaveEvent) { _, _ in
+        .onChange(of: model.successfulSaveEvent) { _ in
             requestReviewAfterMeaningfulUseIfEligible()
         }
-        .onChange(of: scenePhase) { _, phase in
+        .onChange(of: scenePhase) { phase in
             guard phase == .active else { return }
             Task { await model.refreshDailyCard() }
         }
@@ -82,7 +82,7 @@ struct RootView: View {
 
         reviewPromptedVersion = currentVersion
         Task {
-            try? await Task.sleep(for: .milliseconds(800))
+            try? await Task.sleep(nanoseconds: 800_000_000)
             guard !Task.isCancelled else { return }
             requestReview()
         }

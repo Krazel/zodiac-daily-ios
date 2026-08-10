@@ -7,6 +7,20 @@ struct SupportSectionView: View {
     @State private var showsManageSubscriptions = false
 
     var body: some View {
+        subscriptionManagementContent
+    }
+
+    @ViewBuilder
+    private var subscriptionManagementContent: some View {
+        if #available(iOS 17.0, *) {
+            content
+                .manageSubscriptionsSheet(isPresented: $showsManageSubscriptions)
+        } else {
+            content
+        }
+    }
+
+    private var content: some View {
         VStack(spacing: 12) {
             ZodiacSectionTitle(title: "Support the App")
 
@@ -38,7 +52,6 @@ struct SupportSectionView: View {
                 }
             }
         }
-        .manageSubscriptionsSheet(isPresented: $showsManageSubscriptions)
     }
 
     private var supporterHeader: some View {
@@ -198,7 +211,13 @@ struct SupportSectionView: View {
 
     private var manageButton: some View {
         Button {
-            showsManageSubscriptions = true
+            if #available(iOS 17.0, *) {
+                showsManageSubscriptions = true
+            } else if let subscriptionsURL = URL(
+                string: "https://apps.apple.com/account/subscriptions"
+            ) {
+                openURL(subscriptionsURL)
+            }
         } label: {
             Label("Manage", systemImage: "slider.horizontal.3")
                 .frame(maxWidth: .infinity, minHeight: 44)

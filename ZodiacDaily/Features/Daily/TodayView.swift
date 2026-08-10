@@ -119,11 +119,16 @@ struct TodayView: View {
                 .frame(minHeight: 360)
 
         case .failed(let message):
-            ContentUnavailableView {
-                Label("Card unavailable", systemImage: "sparkles")
-            } description: {
+            VStack(spacing: 16) {
+                Image(systemName: "sparkles")
+                    .font(.largeTitle)
+                    .foregroundStyle(ZodiacPalette.gold)
+                    .accessibilityHidden(true)
+                Text("Card unavailable")
+                    .font(.headline)
                 Text(message)
-            } actions: {
+                    .font(.subheadline)
+                    .multilineTextAlignment(.center)
                 Button("Try Again") {
                     Task { await model.refreshDailyCard() }
                 }
@@ -131,7 +136,9 @@ struct TodayView: View {
                 .tint(ZodiacPalette.gold)
             }
             .foregroundStyle(ZodiacPalette.text)
+            .padding(.horizontal, 24)
             .frame(minHeight: 360)
+            .accessibilityElement(children: .contain)
 
         case .loaded(let horoscope):
             VStack(spacing: 20) {
