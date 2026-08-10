@@ -19,6 +19,9 @@ jobs:
       - name: Select Xcode
         run: sudo xcode-select -s /Applications/Xcode.app
 
+      - name: Test core package
+        run: swift test --parallel
+
       - name: Create visual QA simulator
         id: simulator
         run: |

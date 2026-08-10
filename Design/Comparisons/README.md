@@ -29,3 +29,18 @@ rendering and illustration differences):
 - Settings: 14.647
 
 The six captures compiled and rendered successfully in the same workflow run.
+
+## Interactive card reverse validation
+
+- Approved reference: `Design/Concepts/today-card-back-c1.png`
+- Comparison sheet: `Design/Comparisons/today-back-comparison.png`
+- Workflow run: `31418716587`
+- Captured commit: `7132a57`
+- Simulator: iPhone 15 Pro
+- Resolution: 1179 x 2556
+- Mean absolute RGB error: 15.184
+
+The final capture shows the complete front or reverse card, Save Card action,
+and custom tab bar in the first viewport at default text size. The reverse uses
+the approved hierarchy from top to bottom: sign, deeper reading, today's focus,
+Love, Work, Well-being, lucky details, sign essence, and turn affordance.
