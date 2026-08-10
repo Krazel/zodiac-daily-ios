@@ -1,7 +1,7 @@
 import StoreKit
 import SwiftUI
 
-/// StoreKit-backed implementation of the owner-approved support panel.
+/// StoreKit-backed measured candidate for the approved support panel.
 struct SupportSectionView: View {
     @EnvironmentObject private var store: SupportStore
     @Environment(\.openURL) private var openURL
@@ -30,11 +30,11 @@ struct SupportSectionView: View {
             Text("SUPPORT THE APP")
                 .font(.system(size: 14, weight: .semibold))
                 .tracking(2.8)
-                .foregroundStyle(ZodiacPalette.lavender)
+                .foregroundStyle(ZodiacPalette.settingsLavender)
                 .padding(.leading, 12)
                 .accessibilityAddTraits(.isHeader)
 
-            VStack(spacing: 6) {
+            VStack(spacing: 7) {
                 supporterHeader
 
                 ForEach(Array(AppConfiguration.supporterProductIDs.enumerated()), id: \.offset) { index, productID in
@@ -46,7 +46,7 @@ struct SupportSectionView: View {
                 if let message = store.statusMessage {
                     Text(message)
                         .font(.system(size: 12, weight: .medium))
-                        .foregroundStyle(store.isSupporter ? ZodiacPalette.paleGold : ZodiacPalette.lavender)
+                        .foregroundStyle(store.isSupporter ? ZodiacPalette.settingsText : ZodiacPalette.settingsLavender)
                         .multilineTextAlignment(.leading)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, 10)
@@ -57,33 +57,34 @@ struct SupportSectionView: View {
                 restoreButton
                 manageButton
             }
-            .padding(7)
+            .padding(10)
             .background(panelBackground)
             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             .overlay {
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .stroke(ZodiacPalette.gold.opacity(0.72), lineWidth: 0.8)
+                    .stroke(ZodiacPalette.settingsGold.opacity(0.72), lineWidth: 0.8)
             }
         }
+        .padding(.top, 5)
     }
 
     private var supporterHeader: some View {
-        HStack(spacing: 12) {
-            celestialIcon("sparkle", size: 38)
+        HStack(spacing: 14) {
+            celestialIcon("sparkle", size: 43)
 
             Text(
                 store.isSupporter
                     ? "Thank you for supporting ongoing development and helping keep the app free for everyone."
                     : "Support ongoing development and keep the app free for everyone."
             )
-            .font(.system(size: 14))
-            .foregroundStyle(ZodiacPalette.text)
+            .font(.system(size: 15))
+            .foregroundStyle(ZodiacPalette.settingsText)
             .fixedSize(horizontal: false, vertical: true)
 
             Spacer(minLength: 0)
         }
         .padding(.horizontal, 5)
-        .padding(.vertical, 1)
+        .padding(.vertical, 2)
         .accessibilityElement(children: .combine)
     }
 
@@ -105,8 +106,8 @@ struct SupportSectionView: View {
                 celestialIcon("sparkle", size: 31)
 
                 Text(tierTitle(at: index))
-                    .font(.custom("Didot", size: 15, relativeTo: .headline))
-                    .foregroundStyle(ZodiacPalette.text)
+                    .font(.custom("Didot", size: 16, relativeTo: .headline))
+                    .foregroundStyle(ZodiacPalette.settingsText)
                     .lineLimit(1)
                     .minimumScaleFactor(0.72)
 
@@ -114,7 +115,7 @@ struct SupportSectionView: View {
 
                 if isPurchasing {
                     ProgressView()
-                        .tint(ZodiacPalette.gold)
+                        .tint(ZodiacPalette.settingsGold)
                 } else {
                     Text(isActive ? "ACTIVE" : displayPrice(for: product, index: index))
                         .font(
@@ -123,26 +124,28 @@ struct SupportSectionView: View {
                                 size: isActive ? 12 : 14,
                                 relativeTo: .subheadline
                             )
-                            .weight(.medium)
                         )
                         .tracking(isActive ? 1.2 : 0)
-                        .foregroundStyle(ZodiacPalette.gold)
+                        .foregroundStyle(ZodiacPalette.settingsGold)
                         .lineLimit(1)
                         .minimumScaleFactor(0.75)
                 }
 
                 Image(systemName: "chevron.right")
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(ZodiacPalette.gold)
+                    .foregroundStyle(ZodiacPalette.settingsGold)
                     .accessibilityHidden(true)
             }
             .padding(.horizontal, 8)
-            .frame(maxWidth: .infinity, minHeight: 38)
+            .frame(maxWidth: .infinity, minHeight: 42)
             .background(rowBackground)
             .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
             .overlay {
                 RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .stroke(isActive ? ZodiacPalette.gold : ZodiacPalette.gold.opacity(0.58), lineWidth: 0.7)
+                    .stroke(
+                        isActive ? ZodiacPalette.settingsGold : ZodiacPalette.settingsGold.opacity(0.58),
+                        lineWidth: 0.7
+                    )
             }
             .contentShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
         }
@@ -164,8 +167,8 @@ struct SupportSectionView: View {
 
     private var renewalDisclosure: some View {
         Text("All levels include the same supporter status.\nSubscriptions renew automatically until cancelled.")
-            .font(.system(size: 11.5))
-            .foregroundStyle(ZodiacPalette.mutedText)
+            .font(.system(size: 12))
+            .foregroundStyle(ZodiacPalette.settingsMuted)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 10)
             .padding(.vertical, 1)
@@ -205,14 +208,14 @@ struct SupportSectionView: View {
             celestialIcon(systemImage, size: 31)
 
             Text(title)
-                .font(.custom("Didot", size: 15, relativeTo: .headline))
-                .foregroundStyle(ZodiacPalette.text)
+                .font(.custom("Didot", size: 16, relativeTo: .headline))
+                .foregroundStyle(ZodiacPalette.settingsText)
 
             Spacer(minLength: 8)
 
             Image(systemName: "chevron.right")
                 .font(.system(size: 14, weight: .semibold))
-                .foregroundStyle(ZodiacPalette.gold)
+                .foregroundStyle(ZodiacPalette.settingsGold)
                 .accessibilityHidden(true)
         }
         .padding(.horizontal, 8)
@@ -221,7 +224,7 @@ struct SupportSectionView: View {
         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
         .overlay {
             RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .stroke(ZodiacPalette.gold.opacity(0.58), lineWidth: 0.7)
+                .stroke(ZodiacPalette.settingsGold.opacity(0.58), lineWidth: 0.7)
         }
         .contentShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
     }
@@ -229,17 +232,17 @@ struct SupportSectionView: View {
     private func celestialIcon(_ systemName: String, size: CGFloat) -> some View {
         Image(systemName: systemName)
             .font(.system(size: size * 0.43, weight: .light))
-            .foregroundStyle(ZodiacPalette.gold)
+            .foregroundStyle(ZodiacPalette.settingsGold)
             .frame(width: size, height: size)
             .overlay {
-                Circle().stroke(ZodiacPalette.gold.opacity(0.72), lineWidth: 0.7)
+                Circle().stroke(ZodiacPalette.settingsGold.opacity(0.72), lineWidth: 0.7)
             }
             .accessibilityHidden(true)
     }
 
     private var panelBackground: some View {
         LinearGradient(
-            colors: [ZodiacPalette.cardNavy.opacity(0.92), ZodiacPalette.deepIndigo.opacity(0.70)],
+            colors: [ZodiacPalette.settingsPanel.opacity(0.92), ZodiacPalette.settingsDeep.opacity(0.70)],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
@@ -247,7 +250,7 @@ struct SupportSectionView: View {
 
     private var rowBackground: some View {
         LinearGradient(
-            colors: [ZodiacPalette.deepIndigo.opacity(0.62), ZodiacPalette.cardNavy.opacity(0.60)],
+            colors: [ZodiacPalette.settingsDeep.opacity(0.62), ZodiacPalette.settingsPanel.opacity(0.60)],
             startPoint: .leading,
             endPoint: .trailing
         )

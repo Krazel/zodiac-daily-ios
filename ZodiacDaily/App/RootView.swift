@@ -95,7 +95,7 @@ struct RootView: View {
             tabButton(title: "TODAY", systemImage: "sparkle", tab: 0)
             tabButton(title: "SAVED", systemImage: selectedTab == 1 ? "bookmark.fill" : "bookmark", tab: 1)
         }
-        .frame(height: 76)
+        .frame(height: 53)
         .background {
             LinearGradient(
                 colors: [ZodiacPalette.deepIndigo.opacity(0.97), ZodiacPalette.midnight.opacity(0.99)],
@@ -117,14 +117,14 @@ struct RootView: View {
         return Button {
             selectedTab = tab
         } label: {
-            VStack(spacing: 7) {
+            VStack(spacing: 4) {
                 Image(systemName: systemImage)
-                    .font(.system(size: 25, weight: .light))
-                    .frame(height: 29)
+                    .font(.system(size: 20, weight: .light))
+                    .frame(height: 22)
 
                 Text(title)
-                    .font(.system(size: 12, weight: .medium))
-                    .tracking(2.2)
+                    .font(.system(size: 11, weight: .medium))
+                    .tracking(2.0)
                     .lineLimit(1)
             }
             .foregroundStyle(isSelected ? ZodiacPalette.paleGold : ZodiacPalette.lavender.opacity(0.72))
@@ -133,7 +133,7 @@ struct RootView: View {
             .overlay(alignment: .top) {
                 Rectangle()
                     .fill(isSelected ? ZodiacPalette.gold : Color.clear)
-                    .frame(width: 74, height: 2)
+                    .frame(width: 83, height: 2)
             }
         }
         .buttonStyle(.plain)

@@ -1,7 +1,7 @@
 import SwiftUI
 import ZodiacDailyCore
 
-/// Owner-approved final visual implementation of the C2 sign-selection reference.
+/// Measured implementation candidate for the approved C2 sign-selection reference.
 struct SignSelectionView: View {
     @EnvironmentObject private var model: AppModel
     @Environment(\.dismiss) private var dismiss
@@ -12,7 +12,7 @@ struct SignSelectionView: View {
 
     private var columns: [GridItem] {
         let count = dynamicTypeSize.isAccessibilitySize ? 2 : 3
-        return Array(repeating: GridItem(.flexible(), spacing: 8), count: count)
+        return Array(repeating: GridItem(.flexible(), spacing: 11), count: count)
     }
 
     var body: some View {
@@ -23,11 +23,11 @@ struct SignSelectionView: View {
                 ScrollView {
                     VStack(spacing: 0) {
                         selectionMasthead
-                            .padding(.bottom, 32)
+                            .padding(.bottom, 29)
 
-                        VStack(spacing: 8) {
+                        VStack(spacing: 10) {
                             Text(requiresSelection ? "Choose Your Sign" : "Change Your Sign")
-                                .font(.custom("Didot", size: 32, relativeTo: .largeTitle))
+                                .font(.custom("Didot", size: 30, relativeTo: .largeTitle))
                                 .foregroundStyle(ZodiacPalette.text)
                                 .multilineTextAlignment(.center)
                                 .minimumScaleFactor(0.8)
@@ -35,13 +35,13 @@ struct SignSelectionView: View {
                                 .accessibilityAddTraits(.isHeader)
 
                             Text("Your daily card will be written for this sign.")
-                                .font(.body)
+                                .font(.system(size: 16))
                                 .foregroundStyle(ZodiacPalette.mutedText)
                                 .multilineTextAlignment(.center)
                         }
                         .padding(.bottom, 24)
 
-                        LazyVGrid(columns: columns, spacing: 8) {
+                        LazyVGrid(columns: columns, spacing: 11) {
                             ForEach(ZodiacSign.allCases, id: \.self) { sign in
                                 SignChoiceCard(
                                     sign: sign,
@@ -52,8 +52,8 @@ struct SignSelectionView: View {
                                 }
                             }
                         }
-                        .frame(maxWidth: dynamicTypeSize.isAccessibilitySize ? 354 : 305)
-                        .padding(.bottom, 22)
+                        .frame(maxWidth: dynamicTypeSize.isAccessibilitySize ? 354 : 322)
+                        .padding(.bottom, 24)
 
                         Button(action: confirmSelection) {
                             HStack(spacing: 16) {
@@ -64,10 +64,9 @@ struct SignSelectionView: View {
                                 Text("✦")
                                     .accessibilityHidden(true)
                             }
-                            .font(.custom("Didot", size: 16, relativeTo: .headline).weight(.semibold))
-                            .tracking(3.2)
-                            .frame(width: 264)
-                            .frame(minHeight: 52)
+                            .font(.custom("Didot", size: 15, relativeTo: .headline).weight(.semibold))
+                            .tracking(3)
+                            .frame(width: 272, height: 49)
                         }
                         .buttonStyle(.plain)
                         .foregroundStyle(ZodiacPalette.gold)
@@ -81,7 +80,7 @@ struct SignSelectionView: View {
                         .accessibilityHint("Confirms your selected zodiac sign")
                     }
                     .padding(.horizontal, 16)
-                    .padding(.top, 22)
+                    .padding(.top, 5)
                     .padding(.bottom, 24)
                     .frame(maxWidth: 430)
                     .frame(maxWidth: .infinity)
@@ -134,7 +133,7 @@ struct SignSelectionView: View {
     }
 
     private var selectionMasthead: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 4) {
             HStack(spacing: 11) {
                 Rectangle()
                     .fill(ZodiacPalette.gold.opacity(0.42))
@@ -149,8 +148,8 @@ struct SignSelectionView: View {
             .accessibilityHidden(true)
 
             Text("ZODIAC DAILY")
-                .font(.custom("Didot", size: 25, relativeTo: .title2))
-                .tracking(2.8)
+                .font(.custom("Didot", size: 22, relativeTo: .title2))
+                .tracking(1.8)
                 .foregroundStyle(ZodiacPalette.paleGold)
                 .minimumScaleFactor(0.72)
                 .lineLimit(1)
@@ -167,21 +166,21 @@ private struct SignChoiceCard: View {
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 16) {
+            VStack(spacing: 14) {
                 Text(sign.symbol)
-                    .font(.system(size: 39, weight: .ultraLight))
+                    .font(.system(size: 52, weight: .ultraLight))
                     .foregroundStyle(ZodiacPalette.gold)
                     .minimumScaleFactor(0.7)
 
                 Text(sign.displayName.uppercased())
-                    .font(.custom("Didot", size: 12, relativeTo: .caption).weight(.medium))
-                    .tracking(1.6)
+                    .font(.custom("Didot", size: 11, relativeTo: .caption).weight(.medium))
+                    .tracking(1.2)
                     .foregroundStyle(ZodiacPalette.text)
                     .minimumScaleFactor(0.58)
                     .lineLimit(1)
             }
-            .padding(.horizontal, 4)
-            .frame(maxWidth: .infinity, minHeight: usesAccessibleHeight ? 132 : 116)
+            .padding(.horizontal, 8)
+            .frame(maxWidth: .infinity, minHeight: usesAccessibleHeight ? 132 : 110)
             .background {
                 LinearGradient(
                     colors: [
@@ -208,7 +207,7 @@ private struct SignChoiceCard: View {
             .overlay { SignCardOrnaments() }
             .shadow(
                 color: isSelected ? ZodiacPalette.gold.opacity(0.85) : .black.opacity(0.72),
-                radius: isSelected ? 8 : 5,
+                radius: isSelected ? 6 : 5,
                 y: 3
             )
             .contentShape(RoundedRectangle(cornerRadius: 10, style: .continuous))

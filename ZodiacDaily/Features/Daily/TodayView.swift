@@ -1,7 +1,7 @@
 import SwiftUI
 import ZodiacDailyCore
 
-/// Final visual implementation of the owner-approved C2 Today reference.
+/// Measured implementation candidate for the owner-approved C2 Today reference.
 struct TodayView: View {
     @EnvironmentObject private var model: AppModel
     @State private var showsSettings: Bool
@@ -24,7 +24,7 @@ struct TodayView: View {
                         dailyContent
                     }
                     .padding(.horizontal, 16)
-                    .padding(.top, 18)
+                    .padding(.top, 0)
                     .padding(.bottom, 24)
                     .frame(maxWidth: 430)
                     .frame(maxWidth: .infinity)
@@ -42,7 +42,7 @@ struct TodayView: View {
     }
 
     private var masthead: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 5) {
             HStack(spacing: 11) {
                 Rectangle()
                     .fill(ZodiacPalette.gold.opacity(0.45))
@@ -57,15 +57,15 @@ struct TodayView: View {
             }
 
             Text("ZODIAC DAILY")
-                .font(.custom("Didot", size: 28, relativeTo: .title))
-                .tracking(2.8)
+                .font(.custom("Didot", size: 22, relativeTo: .title2))
+                .tracking(1.8)
                 .foregroundStyle(ZodiacPalette.paleGold)
                 .minimumScaleFactor(0.72)
                 .lineLimit(1)
 
             Text(formattedDay)
-                .font(.system(size: 13, weight: .medium))
-                .tracking(3.6)
+                .font(.system(size: 12, weight: .medium))
+                .tracking(3.2)
                 .foregroundStyle(ZodiacPalette.lavender)
                 .minimumScaleFactor(0.72)
                 .lineLimit(1)
@@ -91,12 +91,12 @@ struct TodayView: View {
                     showsSettings = true
                 }
             } label: {
-                HStack(spacing: 18) {
+                HStack(spacing: 14) {
                     Text(selectedSign.symbol)
-                        .font(.system(size: 34, weight: .ultraLight))
+                        .font(.system(size: 40, weight: .ultraLight))
                     Text(selectedSign.displayName.uppercased())
-                        .font(.custom("Didot", size: 20, relativeTo: .title3).weight(.semibold))
-                        .tracking(2.2)
+                        .font(.custom("Didot", size: 18, relativeTo: .title3).weight(.semibold))
+                        .tracking(2)
                         .minimumScaleFactor(0.62)
                         .lineLimit(1)
                         .frame(maxWidth: .infinity)
@@ -104,9 +104,8 @@ struct TodayView: View {
                         .font(.system(size: 14, weight: .medium))
                 }
                 .foregroundStyle(ZodiacPalette.paleGold)
-                .padding(.horizontal, 22)
-                .frame(width: 232)
-                .frame(minHeight: 52)
+                .padding(.horizontal, 20)
+                .frame(width: 216, height: 51)
                 .background(ZodiacPalette.midnight.opacity(0.72), in: Capsule())
                 .overlay {
                     Capsule().stroke(ZodiacPalette.gold, lineWidth: 1)
@@ -126,8 +125,8 @@ struct TodayView: View {
             ProgressView("Preparing today’s card…")
                 .tint(ZodiacPalette.gold)
                 .foregroundStyle(ZodiacPalette.text)
-                .frame(maxWidth: 330, minHeight: 420)
-                .padding(.top, 24)
+                .frame(maxWidth: 314, minHeight: 456)
+                .padding(.top, 39)
 
         case .failed(let message):
             VStack(spacing: 10) {
@@ -148,14 +147,14 @@ struct TodayView: View {
             }
             .foregroundStyle(ZodiacPalette.text)
             .padding(.horizontal, 24)
-            .frame(maxWidth: 330, minHeight: 420)
-            .padding(.top, 24)
+            .frame(maxWidth: 314, minHeight: 456)
+            .padding(.top, 39)
             .accessibilityElement(children: .contain)
 
         case .loaded(let horoscope):
             VStack(spacing: 6) {
                 DailyCardView(horoscope: horoscope)
-                    .frame(maxWidth: 330)
+                    .frame(maxWidth: 314)
 
                 Button {
                     Task { await model.toggleCurrentCardSaved() }
@@ -164,11 +163,10 @@ struct TodayView: View {
                         model.isCurrentCardSaved ? "Saved" : "Save Card",
                         systemImage: model.isCurrentCardSaved ? "bookmark.fill" : "bookmark"
                     )
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.system(size: 13, weight: .semibold))
                     .textCase(.uppercase)
-                    .tracking(2.5)
-                    .frame(width: 176)
-                    .frame(minHeight: 45)
+                    .tracking(2.2)
+                    .frame(width: 172, height: 40)
                 }
                 .buttonStyle(.plain)
                 .foregroundStyle(ZodiacPalette.gold)
@@ -177,6 +175,7 @@ struct TodayView: View {
                     Capsule().stroke(ZodiacPalette.gold, lineWidth: 1)
                 }
                 .contentShape(Capsule())
+                .frame(minHeight: 44)
                 .accessibilityHint(
                     model.isCurrentCardSaved
                         ? "Removes this card from Saved"
@@ -191,7 +190,7 @@ struct TodayView: View {
                         .accessibilityLabel("Save error: \(message)")
                 }
             }
-            .padding(.top, 6)
+            .padding(.top, 21)
         }
     }
 

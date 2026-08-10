@@ -3,16 +3,18 @@ import ZodiacDailyCore
 
 struct DailyCardView: View {
     let horoscope: DailyHoroscope
+    var maxWidth: CGFloat = 314
+    var artworkHeight: CGFloat = 316
 
     var body: some View {
-        VStack(spacing: 0) {
+        VStack(spacing: -22) {
             CelestialArtwork(sign: horoscope.sign)
-                .frame(height: 265)
+                .frame(height: artworkHeight)
                 .overlay(alignment: .top) {
                     Text(horoscope.sign.symbol)
-                        .font(.system(size: 54, weight: .ultraLight))
+                        .font(.system(size: 62, weight: .ultraLight))
                         .foregroundStyle(ZodiacPalette.gold)
-                        .padding(.top, 25)
+                        .padding(.top, 16)
                         .accessibilityHidden(true)
                 }
 
@@ -36,7 +38,7 @@ struct DailyCardView: View {
                 .accessibilityHidden(true)
 
                 Text(horoscope.headline)
-                    .font(.custom("Didot", size: 26))
+                    .font(.custom("Didot", size: 33, relativeTo: .largeTitle))
                     .foregroundStyle(ZodiacPalette.text)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
@@ -53,11 +55,11 @@ struct DailyCardView: View {
                     .lineSpacing(1)
                     .fixedSize(horizontal: false, vertical: true)
             }
-            .padding(.horizontal, 24)
-            .padding(.top, 8)
-            .padding(.bottom, 18)
+            .padding(.horizontal, 38)
+            .padding(.top, 0)
+            .padding(.bottom, 24)
         }
-        .frame(maxWidth: 330)
+        .frame(maxWidth: maxWidth)
         .background {
             LinearGradient(
                 colors: [ZodiacPalette.cardNavy, ZodiacPalette.deepIndigo.opacity(0.85), ZodiacPalette.midnight],
@@ -186,28 +188,28 @@ struct CelestialArtwork: View {
                 context.stroke(
                     connection,
                     with: .color(ZodiacPalette.gold.opacity(0.74)),
-                    style: StrokeStyle(lineWidth: 0.9, dash: [2, 3])
+                    style: StrokeStyle(lineWidth: 0.55, dash: [1.5, 2.5])
                 )
 
                 for point in points {
                     context.fill(
                         Path(ellipseIn: CGRect(
-                            x: point.x - 3,
-                            y: point.y - 3,
-                            width: 6,
-                            height: 6
+                            x: point.x - 1.25,
+                            y: point.y - 1.25,
+                            width: 2.5,
+                            height: 2.5
                         )),
                         with: .color(ZodiacPalette.paleGold)
                     )
                     var rays = Path()
-                    rays.move(to: CGPoint(x: point.x - 7, y: point.y))
-                    rays.addLine(to: CGPoint(x: point.x + 7, y: point.y))
-                    rays.move(to: CGPoint(x: point.x, y: point.y - 7))
-                    rays.addLine(to: CGPoint(x: point.x, y: point.y + 7))
+                    rays.move(to: CGPoint(x: point.x - 4.5, y: point.y))
+                    rays.addLine(to: CGPoint(x: point.x + 4.5, y: point.y))
+                    rays.move(to: CGPoint(x: point.x, y: point.y - 4.5))
+                    rays.addLine(to: CGPoint(x: point.x, y: point.y + 4.5))
                     context.stroke(
                         rays,
                         with: .color(ZodiacPalette.paleGold.opacity(0.72)),
-                        lineWidth: 0.55
+                        lineWidth: 0.45
                     )
                 }
             }

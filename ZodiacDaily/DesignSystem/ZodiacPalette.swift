@@ -1,15 +1,27 @@
 import SwiftUI
 
 enum ZodiacPalette {
-    static let midnight = Color(red: 0.012, green: 0.024, blue: 0.075)
-    static let cardNavy = Color(red: 0.035, green: 0.058, blue: 0.145)
-    static let deepIndigo = Color(red: 0.065, green: 0.070, blue: 0.165)
-    static let gold = Color(red: 0.90, green: 0.66, blue: 0.34)
-    static let paleGold = Color(red: 0.98, green: 0.88, blue: 0.70)
-    static let lavender = Color(red: 0.70, green: 0.62, blue: 0.88)
-    static let text = Color(red: 0.97, green: 0.95, blue: 0.91)
-    static let panelBorder = Color(red: 0.55, green: 0.38, blue: 0.22)
-    static let mutedText = Color(red: 0.75, green: 0.71, blue: 0.82)
+    // Measured from the approved C2/C3 screen references. Keep these values as
+    // the shared source of truth so every screen renders the same ink palette.
+    static let midnight = Color(red: 0.016, green: 0.035, blue: 0.086) // #040916
+    static let backgroundWash = Color(red: 0.027, green: 0.059, blue: 0.133) // #070F22
+    static let cardNavy = Color(red: 0.051, green: 0.075, blue: 0.157) // #0D1328
+    static let deepIndigo = Color(red: 0.067, green: 0.078, blue: 0.165) // #11142A
+    static let gold = Color(red: 0.839, green: 0.639, blue: 0.400) // #D6A366
+    static let paleGold = Color(red: 0.941, green: 0.855, blue: 0.733) // #F0DABB
+    static let lavender = Color(red: 0.612, green: 0.569, blue: 0.745) // #9C91BE
+    static let text = Color(red: 0.929, green: 0.898, blue: 0.859) // #EDE5DB
+    static let panelBorder = Color(red: 0.463, green: 0.345, blue: 0.235) // #76583C
+    static let mutedText = Color(red: 0.714, green: 0.682, blue: 0.761) // #B6AEC2
+
+    // The approved Settings sheet uses a deliberately brighter print palette
+    // than the darker collectible-card screens.
+    static let settingsGold = Color(red: 0.894, green: 0.706, blue: 0.435) // #E4B46F
+    static let settingsText = Color(red: 0.973, green: 0.969, blue: 0.945) // #F8F7F1
+    static let settingsLavender = Color(red: 0.635, green: 0.604, blue: 0.784) // #A29AC8
+    static let settingsMuted = Color(red: 0.714, green: 0.690, blue: 0.808) // #B6B0CE
+    static let settingsPanel = Color(red: 0.075, green: 0.106, blue: 0.169) // #131B2B
+    static let settingsDeep = Color(red: 0.067, green: 0.094, blue: 0.157) // #111828
 }
 
 struct MidnightBackground: View {
@@ -20,12 +32,13 @@ struct MidnightBackground: View {
                 .scaledToFill()
                 .frame(width: geometry.size.width, height: geometry.size.height)
                 .clipped()
+                .overlay(ZodiacPalette.backgroundWash.opacity(0.42))
                 .overlay {
                     LinearGradient(
                         colors: [
-                            ZodiacPalette.midnight.opacity(0.10),
+                            ZodiacPalette.midnight.opacity(0.06),
                             .clear,
-                            Color.black.opacity(0.18)
+                            Color.black.opacity(0.08)
                         ],
                         startPoint: .top,
                         endPoint: .bottom

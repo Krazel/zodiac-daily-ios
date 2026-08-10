@@ -1,7 +1,7 @@
 import SwiftUI
 import ZodiacDailyCore
 
-/// Final C2 Saved implementation. The approved empty, populated, and detail
+/// Measured C2 Saved implementation candidate. The approved empty, populated, and detail
 /// references are the visual specification for the regular-size-class layout.
 struct SavedView: View {
     @EnvironmentObject private var model: AppModel
@@ -23,7 +23,7 @@ struct SavedView: View {
                         }
                     }
                     .padding(.horizontal, 20)
-                    .padding(.top, model.savedCards.isEmpty ? 34 : 8)
+                    .padding(.top, model.savedCards.isEmpty ? 34 : 0)
                     .padding(.bottom, 34)
                     .frame(maxWidth: 650)
                     .frame(maxWidth: .infinity)
@@ -67,7 +67,7 @@ struct SavedView: View {
                 .multilineTextAlignment(.center)
                 .minimumScaleFactor(0.78)
                 .lineLimit(1)
-                .padding(.top, model.savedCards.isEmpty ? 25 : 12)
+                .padding(.top, model.savedCards.isEmpty ? 25 : 6)
                 .accessibilityAddTraits(.isHeader)
 
             if model.savedCards.isEmpty {
@@ -88,7 +88,7 @@ struct SavedView: View {
     }
 
     private var populatedState: some View {
-        LazyVStack(spacing: 17) {
+        LazyVStack(spacing: 13) {
             ForEach(model.savedCards) { card in
                 NavigationLink {
                     SavedCardDetailView(card: card)
@@ -107,14 +107,14 @@ struct SavedView: View {
                 }
             }
         }
-        .padding(.top, 10)
+        .padding(.top, 0)
     }
 
     private var emptyState: some View {
         VStack(spacing: 0) {
             EmptyCardBack(sign: model.selectedSign)
-                .frame(width: 254, height: 330)
-                .padding(.top, 8)
+                .frame(width: 254, height: 378)
+                .padding(.top, 32)
                 .accessibilityHidden(true)
 
             Text("No Cards Yet")
@@ -131,9 +131,9 @@ struct SavedView: View {
 
             Button(action: onViewToday) {
                 Text("VIEW TODAY’S CARD")
-                    .font(.system(size: 13, weight: .semibold))
-                    .tracking(2.35)
-                    .frame(maxWidth: 282, minHeight: 47)
+                    .font(.system(size: 12, weight: .semibold))
+                    .tracking(2.2)
+                    .frame(width: 214, height: 38)
             }
             .buttonStyle(.plain)
             .foregroundStyle(ZodiacPalette.gold)
@@ -142,7 +142,8 @@ struct SavedView: View {
                 Capsule().stroke(ZodiacPalette.gold, lineWidth: 1)
             }
             .contentShape(Capsule())
-            .padding(.top, 16)
+            .frame(minHeight: 44)
+            .padding(.top, 21)
             .accessibilityHint("Switches to Today")
         }
     }
@@ -161,8 +162,8 @@ private struct SavedCardPreview: View {
         Group {
             if dynamicTypeSize.isAccessibilitySize {
                 VStack(spacing: 0) {
-                    artwork
-                        .frame(height: 210)
+                        artwork
+                            .frame(height: 213)
                     details
                         .padding(.horizontal, 24)
                         .padding(.vertical, 22)
@@ -171,15 +172,15 @@ private struct SavedCardPreview: View {
                 GeometryReader { geometry in
                     HStack(spacing: 0) {
                         artwork
-                            .frame(width: geometry.size.width * 0.515, height: 242)
+                            .frame(width: geometry.size.width * 0.515, height: 213)
 
                         details
                             .padding(.horizontal, 10)
                             .padding(.vertical, 17)
-                            .frame(maxWidth: .infinity, minHeight: 242)
+                            .frame(maxWidth: .infinity, minHeight: 213)
                     }
                 }
-                .frame(height: 242)
+                .frame(height: 213)
             }
         }
         .background {
@@ -390,7 +391,7 @@ private struct RadialConstellation: View {
     }
 }
 
-/// Final implementation of the approved C2 saved-card detail reference.
+/// Measured implementation candidate for the approved C2 saved-card detail reference.
 struct SavedCardDetailView: View {
     @EnvironmentObject private var model: AppModel
     @Environment(\.dismiss) private var dismiss
@@ -413,7 +414,11 @@ struct SavedCardDetailView: View {
                         CelestialDivider(width: 122)
                             .padding(.top, 10)
 
-                        DailyCardView(horoscope: card.horoscope)
+                        DailyCardView(
+                            horoscope: card.horoscope,
+                            maxWidth: 345,
+                            artworkHeight: 351
+                        )
                             .padding(.top, 18)
 
                         Button(role: .destructive) {
@@ -423,7 +428,7 @@ struct SavedCardDetailView: View {
                                 .font(.system(size: 13, weight: .semibold))
                                 .tracking(1.8)
                                 .foregroundStyle(Color(red: 1.0, green: 0.27, blue: 0.24))
-                                .frame(maxWidth: 286, minHeight: 50)
+                                .frame(maxWidth: 286, minHeight: 47)
                         }
                         .buttonStyle(.plain)
                         .background(
@@ -434,7 +439,7 @@ struct SavedCardDetailView: View {
                             RoundedRectangle(cornerRadius: 12, style: .continuous)
                                 .stroke(Color(red: 1.0, green: 0.27, blue: 0.24), lineWidth: 1.2)
                         }
-                        .padding(.top, 30)
+                        .padding(.top, 21)
                         .accessibilityHint("Deletes this card from your collection")
 
                         if let message = model.persistenceMessage {
@@ -447,7 +452,7 @@ struct SavedCardDetailView: View {
                         }
                     }
                     .padding(.horizontal, 24)
-                    .padding(.top, 26)
+                    .padding(.top, 0)
                     .padding(.bottom, 42)
                     .frame(maxWidth: 650)
                     .frame(maxWidth: .infinity)

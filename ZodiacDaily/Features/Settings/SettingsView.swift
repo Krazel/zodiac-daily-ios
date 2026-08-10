@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Owner-approved final visual implementation of the C3 Settings sheet.
+/// Measured implementation candidate for the approved C3 Settings sheet.
 struct SettingsView: View {
     @EnvironmentObject private var model: AppModel
     @Environment(\.dismiss) private var dismiss
@@ -12,7 +12,7 @@ struct SettingsView: View {
         NavigationStack {
             ZStack {
                 MidnightBackground()
-                    .overlay(ZodiacPalette.midnight.opacity(0.38))
+                    .overlay(ZodiacPalette.settingsDeep.opacity(0.78))
 
                 ScrollView {
                     VStack(spacing: 10) {
@@ -23,8 +23,8 @@ struct SettingsView: View {
                         privacyAndTermsSection
                         aboutSection
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 2)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 11)
                     .padding(.bottom, 20)
                     .frame(maxWidth: 620)
                     .frame(maxWidth: .infinity)
@@ -62,14 +62,14 @@ struct SettingsView: View {
                 .font(.system(size: 18, weight: .light))
                 .accessibilityHidden(true)
             Text("Settings")
-                .font(.custom("Didot", size: 29, relativeTo: .largeTitle).weight(.medium))
-                .foregroundStyle(ZodiacPalette.text)
+                .font(.custom("Didot", size: 29, relativeTo: .largeTitle))
+                .foregroundStyle(ZodiacPalette.settingsText)
                 .accessibilityAddTraits(.isHeader)
             Text("✦")
                 .font(.system(size: 18, weight: .light))
                 .accessibilityHidden(true)
         }
-        .foregroundStyle(ZodiacPalette.gold)
+        .foregroundStyle(ZodiacPalette.settingsGold)
         .frame(maxWidth: .infinity)
     }
 
@@ -77,9 +77,9 @@ struct SettingsView: View {
         Button("DONE") {
             dismiss()
         }
-        .font(.system(size: 14, weight: .semibold))
+        .font(.system(size: 14, weight: .medium))
         .tracking(1.8)
-        .foregroundStyle(ZodiacPalette.gold)
+        .foregroundStyle(ZodiacPalette.settingsGold)
         .frame(minWidth: 58, minHeight: 44)
     }
 
@@ -91,14 +91,14 @@ struct SettingsView: View {
                 HStack(spacing: 14) {
                     Text(model.selectedSign?.symbol ?? "?")
                         .font(.system(size: 37, weight: .ultraLight))
-                        .foregroundStyle(ZodiacPalette.gold)
+                        .foregroundStyle(ZodiacPalette.settingsGold)
                         .frame(width: 46)
                         .accessibilityHidden(true)
 
                     Text(model.selectedSign?.displayName.uppercased() ?? "CHOOSE SIGN")
                         .font(.custom("Didot", size: 18, relativeTo: .title3))
                         .tracking(1.4)
-                        .foregroundStyle(ZodiacPalette.text)
+                        .foregroundStyle(ZodiacPalette.settingsText)
                         .lineLimit(1)
                         .minimumScaleFactor(0.72)
 
@@ -106,21 +106,21 @@ struct SettingsView: View {
 
                     Text("Change Sign")
                         .font(.system(size: 14))
-                        .foregroundStyle(ZodiacPalette.gold)
+                        .foregroundStyle(ZodiacPalette.settingsGold)
                         .lineLimit(1)
 
                     Image(systemName: "chevron.right")
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(ZodiacPalette.gold)
+                        .foregroundStyle(ZodiacPalette.settingsGold)
                         .accessibilityHidden(true)
                 }
                 .padding(.horizontal, 14)
-                .frame(maxWidth: .infinity, minHeight: 48)
+                .frame(maxWidth: .infinity, minHeight: 51)
                 .background(panelBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                 .overlay {
                     RoundedRectangle(cornerRadius: 10, style: .continuous)
-                        .stroke(ZodiacPalette.gold.opacity(0.72), lineWidth: 0.8)
+                        .stroke(ZodiacPalette.settingsGold.opacity(0.72), lineWidth: 0.8)
                 }
                 .contentShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             }
@@ -136,7 +136,7 @@ struct SettingsView: View {
                 guard let url = AppConfiguration.writeReviewURL else { return }
                 openURL(url)
             } label: {
-                framedActionRow(title: "Rate Zodiac Daily", systemImage: "star")
+                framedActionRow(title: "Rate Zodiac Daily", systemImage: "star", minHeight: 43)
             }
             .buttonStyle(.plain)
             .accessibilityHint(
@@ -158,7 +158,7 @@ struct SettingsView: View {
                 .buttonStyle(.plain)
 
                 Rectangle()
-                    .fill(ZodiacPalette.gold.opacity(0.50))
+                    .fill(ZodiacPalette.settingsGold.opacity(0.50))
                     .frame(height: 0.7)
 
                 Button {
@@ -172,7 +172,7 @@ struct SettingsView: View {
             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             .overlay {
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .stroke(ZodiacPalette.gold.opacity(0.72), lineWidth: 0.8)
+                    .stroke(ZodiacPalette.settingsGold.opacity(0.72), lineWidth: 0.8)
             }
         }
     }
@@ -184,18 +184,18 @@ struct SettingsView: View {
 
                 Text("Daily readings are for reflection and entertainment.")
                     .font(.system(size: 15))
-                    .foregroundStyle(ZodiacPalette.text)
+                    .foregroundStyle(ZodiacPalette.settingsText)
                     .fixedSize(horizontal: false, vertical: true)
 
                 Spacer(minLength: 0)
             }
             .padding(.horizontal, 14)
-            .frame(maxWidth: .infinity, minHeight: 50)
+            .frame(maxWidth: .infinity, minHeight: 48)
             .background(panelBackground)
             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             .overlay {
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .stroke(ZodiacPalette.gold.opacity(0.72), lineWidth: 0.8)
+                    .stroke(ZodiacPalette.settingsGold.opacity(0.72), lineWidth: 0.8)
             }
             .accessibilityElement(children: .combine)
         }
@@ -209,7 +209,7 @@ struct SettingsView: View {
             Text(title.uppercased())
                 .font(.system(size: 14, weight: .semibold))
                 .tracking(2.8)
-                .foregroundStyle(ZodiacPalette.lavender)
+                .foregroundStyle(ZodiacPalette.settingsLavender)
                 .padding(.leading, 12)
                 .accessibilityAddTraits(.isHeader)
 
@@ -217,51 +217,59 @@ struct SettingsView: View {
         }
     }
 
-    private func framedActionRow(title: String, systemImage: String) -> some View {
-        settingsActionRowContent(title: title, systemImage: systemImage)
+    private func framedActionRow(
+        title: String,
+        systemImage: String,
+        minHeight: CGFloat
+    ) -> some View {
+        settingsActionRowContent(title: title, systemImage: systemImage, minHeight: minHeight)
             .background(panelBackground)
             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             .overlay {
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .stroke(ZodiacPalette.gold.opacity(0.72), lineWidth: 0.8)
+                    .stroke(ZodiacPalette.settingsGold.opacity(0.72), lineWidth: 0.8)
             }
             .contentShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 
-    private func settingsActionRowContent(title: String, systemImage: String) -> some View {
+    private func settingsActionRowContent(
+        title: String,
+        systemImage: String,
+        minHeight: CGFloat = 37
+    ) -> some View {
         HStack(spacing: 12) {
             celestialIcon(systemImage)
 
             Text(title)
                 .font(.custom("Didot", size: 17, relativeTo: .headline))
-                .foregroundStyle(ZodiacPalette.text)
+                .foregroundStyle(ZodiacPalette.settingsText)
 
             Spacer(minLength: 8)
 
             Image(systemName: "chevron.right")
                 .font(.system(size: 14, weight: .semibold))
-                .foregroundStyle(ZodiacPalette.gold)
+                .foregroundStyle(ZodiacPalette.settingsGold)
                 .accessibilityHidden(true)
         }
         .padding(.horizontal, 14)
-        .frame(maxWidth: .infinity, minHeight: 45)
+        .frame(maxWidth: .infinity, minHeight: minHeight)
         .contentShape(Rectangle())
     }
 
     private func celestialIcon(_ systemName: String) -> some View {
         Image(systemName: systemName)
             .font(.system(size: 19, weight: .light))
-            .foregroundStyle(ZodiacPalette.gold)
-            .frame(width: 40, height: 40)
+            .foregroundStyle(ZodiacPalette.settingsGold)
+            .frame(width: 31, height: 31)
             .overlay {
-                Circle().stroke(ZodiacPalette.gold.opacity(0.72), lineWidth: 0.7)
+                Circle().stroke(ZodiacPalette.settingsGold.opacity(0.72), lineWidth: 0.7)
             }
             .accessibilityHidden(true)
     }
 
     private var panelBackground: some View {
         LinearGradient(
-            colors: [ZodiacPalette.cardNavy.opacity(0.90), ZodiacPalette.deepIndigo.opacity(0.68)],
+            colors: [ZodiacPalette.settingsPanel.opacity(0.90), ZodiacPalette.settingsDeep.opacity(0.68)],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
