@@ -85,8 +85,11 @@ jobs:
                   "$UDID" com.krazel.zodiacdaily
             )"
             echo "$LAUNCH_OUTPUT"
+            APP_PID="${LAUNCH_OUTPUT##*: }"
+            test -n "$APP_PID"
+            test "$APP_PID" -gt 0
             sleep 6
-            xcrun simctl spawn "$UDID" ps -A | grep -q ZodiacDaily
+            kill -0 "$APP_PID"
             ACTUAL_STATE="$(
               xcrun simctl spawn "$UDID" defaults read \
                 com.krazel.zodiacdaily visual-qa-rendered-state
