@@ -25,7 +25,19 @@ final class RemoteHoroscopeRepositoryTests: XCTestCase {
         )
         XCTAssertEqual(
             horoscope.details,
-            DailyCardDetails.deterministicFallback(for: .scorpio, day: day)
+            DailyCardDetails.provider(
+                focus: "Scorpio focus",
+                keywords: ["Empathy", "Flow", "Imagination"],
+                loveScore: 83,
+                careerScore: 89,
+                moneyScore: 85,
+                healthScore: 78,
+                luckyColor: "Silver",
+                luckyNumber: 61,
+                moonSign: "Capricorn",
+                moonPhase: "Last Quarter",
+                sign: .scorpio
+            )
         )
         XCTAssertEqual(horoscope.contentVersion, 20_260_809)
 
@@ -72,6 +84,37 @@ final class RemoteHoroscopeRepositoryTests: XCTestCase {
 
         await assertThrows(.invalidPayload) {
             try await repository.horoscope(for: .aries, day: day)
+        }
+    }
+
+    func testSchemaOneWithoutDetailsUsesHonestOfflineFallback() async throws {
+        let day = try XCTUnwrap(LocalDayKey(rawValue: "2026-08-09"))
+        let repository = try makeRepository(
+            data: makePayload(schemaVersion: 1, horoscopes: makeHoroscopes(includeDetails: false))
+        )
+
+        let horoscope = try await repository.horoscope(for: .pisces, day: day)
+
+        XCTAssertEqual(horoscope.details, DailyCardDetails.offlineFallback(for: .pisces))
+        XCTAssertFalse(horoscope.details.hasProviderData)
+    }
+
+    func testSchemaTwoRejectsMissingOrMalformedProviderDetails() async throws {
+        let day = try XCTUnwrap(LocalDayKey(rawValue: "2026-08-09"))
+        let missingRepository = try makeRepository(
+            data: makePayload(horoscopes: makeHoroscopes(includeDetails: false))
+        )
+        await assertThrows(.invalidPayload) {
+            try await missingRepository.horoscope(for: .aries, day: day)
+        }
+
+        var malformed = makeHoroscopes()
+        var details = malformed[0]["details"] as! [String: Any]
+        details["love_score"] = 101
+        malformed[0]["details"] = details
+        let malformedRepository = try makeRepository(data: makePayload(horoscopes: malformed))
+        await assertThrows(.invalidPayload) {
+            try await malformedRepository.horoscope(for: .aries, day: day)
         }
     }
 
@@ -161,13 +204,14 @@ final class RemoteHoroscopeRepositoryTests: XCTestCase {
     }
 
     private func makePayload(
+        schemaVersion: Int = 2,
         requestedDate: String = "2026-08-09",
         contentDate: String = "2026-08-09",
         stale: Bool = false,
         horoscopes: [[String: Any]]? = nil
     ) -> Data {
         let object: [String: Any] = [
-            "schema_version": 1,
+            "schema_version": schemaVersion,
             "requested_date": requestedDate,
             "content_date": contentDate,
             "generated_at": "2026-08-09T00:15:00.000Z",
@@ -178,14 +222,30 @@ final class RemoteHoroscopeRepositoryTests: XCTestCase {
         return try! JSONSerialization.data(withJSONObject: object, options: [.sortedKeys])
     }
 
-    private func makeHoroscopes() -> [[String: Any]] {
+    private func makeHoroscopes(includeDetails: Bool = true) -> [[String: Any]] {
         ZodiacSign.allCases.map { sign in
-            [
+            var horoscope: [String: Any] = [
                 "sign": sign.rawValue,
                 "headline": "\(sign.displayName) headline",
                 "reading": "A considered \(sign.displayName) reading with enough detail for a complete daily card.",
                 "content_version": 20_260_809
             ]
+            if includeDetails {
+                horoscope["details"] = [
+                    "source": "freeastroapi-v2",
+                    "focus": "\(sign.displayName) focus",
+                    "keywords": ["Empathy", "Flow", "Imagination"],
+                    "love_score": 83,
+                    "career_score": 89,
+                    "money_score": 85,
+                    "health_score": 78,
+                    "lucky_color": "Silver",
+                    "lucky_number": 61,
+                    "moon_sign": "Capricorn",
+                    "moon_phase": "Last Quarter"
+                ]
+            }
+            return horoscope
         }
     }
 

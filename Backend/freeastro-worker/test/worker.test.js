@@ -35,11 +35,22 @@ function providerBody(sign, date, text = null) {
     data: {
       sign,
       date,
+      scores: { overall: 86, love: 83, career: 89, money: 85, health: 78 },
+      lucky: {
+        color: { name: "silver", label: "Silver" },
+        number: 61,
+        time_window: "08:00-10:00",
+      },
       content: {
         theme: `${sign} theme`,
+        keywords: ["Empathy", "Flow", "Imagination"],
         text:
           text ??
           `A considered ${sign} reading for ${date} with enough useful detail to form a complete daily card.`,
+      },
+      astro: {
+        moon_sign: { name: "capricorn", label: "Capricorn" },
+        moon_phase: { name: "last_quarter", label: "Last Quarter" },
       },
     },
   };
@@ -47,7 +58,7 @@ function providerBody(sign, date, text = null) {
 
 function validBundle(date) {
   return {
-    schema_version: 1,
+    schema_version: 2,
     requested_date: date,
     content_date: date,
     generated_at: `${date}T00:15:00.000Z`,
@@ -57,6 +68,19 @@ function validBundle(date) {
       sign,
       headline: `${sign} theme`,
       reading: `A complete reading for ${sign} with enough useful detail to remain a valid daily card.`,
+      details: {
+        source: "freeastroapi-v2",
+        focus: `${sign} theme`,
+        keywords: ["Empathy", "Flow", "Imagination"],
+        love_score: 83,
+        career_score: 89,
+        money_score: 85,
+        health_score: 78,
+        lucky_color: "Silver",
+        lucky_number: 61,
+        moon_sign: "Capricorn",
+        moon_phase: "Last Quarter",
+      },
       content_version: Number(date.replaceAll("-", "")),
     })),
   };
@@ -64,9 +88,22 @@ function validBundle(date) {
 
 test("provider responses normalize to the exact app item contract", () => {
   const item = normalizeProviderResponse(providerBody("aries", "2026-08-09"), "aries", "2026-08-09");
-  assert.deepEqual(Object.keys(item), ["sign", "headline", "reading", "content_version"]);
+  assert.deepEqual(Object.keys(item), ["sign", "headline", "reading", "details", "content_version"]);
   assert.equal(item.sign, "aries");
   assert.equal(item.headline, "aries theme");
+  assert.deepEqual(item.details, {
+    source: "freeastroapi-v2",
+    focus: "aries theme",
+    keywords: ["Empathy", "Flow", "Imagination"],
+    love_score: 83,
+    career_score: 89,
+    money_score: 85,
+    health_score: 78,
+    lucky_color: "Silver",
+    lucky_number: 61,
+    moon_sign: "Capricorn",
+    moon_phase: "Last Quarter",
+  });
   assert.equal(item.content_version, 20260809);
 });
 
@@ -83,13 +120,29 @@ test("cron only enqueues warm-up work and never calls the provider", async () =>
     { WARMUP_QUEUE: { send: async (message) => messages.push(message) } },
   );
 
-  assert.deepEqual(messages, [{ schema_version: 1, date: "2026-08-10" }]);
+  assert.deepEqual(messages, [{ schema_version: 2, date: "2026-08-10" }]);
 });
 
 test("a provider sign mismatch is rejected", () => {
   assert.throws(
     () => normalizeProviderResponse(providerBody("taurus", "2026-08-09"), "aries", "2026-08-09"),
     /provider_sign_mismatch/,
+  );
+});
+
+test("provider metadata must be complete and within documented ranges", () => {
+  const missingMoon = providerBody("aries", "2026-08-09");
+  delete missingMoon.data.astro.moon_phase;
+  assert.throws(
+    () => normalizeProviderResponse(missingMoon, "aries", "2026-08-09"),
+    /provider_invalid_moon_data/,
+  );
+
+  const invalidScore = providerBody("aries", "2026-08-09");
+  invalidScore.data.scores.love = 101;
+  assert.throws(
+    () => normalizeProviderResponse(invalidScore, "aries", "2026-08-09"),
+    /provider_invalid_scores/,
   );
 });
 
@@ -122,7 +175,7 @@ test("queue consumer warm-up writes one exact-date bulk document", async () => {
   const env = { FREEASTRO_API_KEY: "secret-value", DAILY_CACHE: kv };
 
   await handleQueue({ messages: [{
-    body: { schema_version: 1, date: "2026-08-09" },
+    body: { schema_version: 2, date: "2026-08-09" },
     ack: () => { acknowledged = true; },
   }] }, env, {
     now: () => new Date("2026-08-08T10:15:00Z"),
@@ -145,7 +198,7 @@ test("queue consumer warm-up writes one exact-date bulk document", async () => {
 
 test("a second scheduled check uses KV and spends no provider quota", async () => {
   const cached = validBundle("2026-08-09");
-  const kv = new MemoryKV({ "daily:v1:2026-08-09": JSON.stringify(cached) });
+  const kv = new MemoryKV({ "daily:v2:2026-08-09": JSON.stringify(cached) });
   let calls = 0;
   const result = await warmDate(
     "2026-08-09",
@@ -159,7 +212,7 @@ test("a second scheduled check uses KV and spends no provider quota", async () =
 
 test("public cache miss never contacts provider or serves another date", async () => {
   const prior = validBundle("2026-08-08");
-  const kv = new MemoryKV({ "last-valid:v1": JSON.stringify(prior) });
+  const kv = new MemoryKV({ "last-valid:v2": JSON.stringify(prior) });
   let calls = 0;
   const response = await handleRequest(
     new Request("https://example.test/v1/daily/2026-08-09"),
@@ -174,13 +227,13 @@ test("public cache miss never contacts provider or serves another date", async (
   assert.equal(response.status, 503);
   assert.equal(body.error.code, "daily_content_unavailable");
   assert.equal(calls, 0);
-  assert.equal(await kv.get("last-valid:v1"), JSON.stringify(prior));
+  assert.equal(await kv.get("last-valid:v2"), JSON.stringify(prior));
   assert.doesNotMatch(JSON.stringify(body), /never-expose-this/);
 });
 
 test("scheduled provider failure cools down and preserves only diagnostic last-valid", async () => {
   const prior = validBundle("2026-08-08");
-  const kv = new MemoryKV({ "last-valid:v1": JSON.stringify(prior) });
+  const kv = new MemoryKV({ "last-valid:v2": JSON.stringify(prior) });
 
   await assert.rejects(
     warmDate(
@@ -195,8 +248,8 @@ test("scheduled provider failure cools down and preserves only diagnostic last-v
     /provider_refresh_failed/,
   );
 
-  assert.equal(await kv.get("failure:v1:2026-08-09"), "1");
-  assert.equal(await kv.get("last-valid:v1"), JSON.stringify(prior));
+  assert.equal(await kv.get("failure:v2:2026-08-09"), "1");
+  assert.equal(await kv.get("last-valid:v2"), JSON.stringify(prior));
   await assert.rejects(getCachedDaily("2026-08-09", { DAILY_CACHE: kv }), /daily_cache_miss/);
 });
 
@@ -217,7 +270,7 @@ test("invalid, impossible, and distant dates cannot consume provider quota", asy
 
 test("canonical and compatibility routes return the exact array contract", async () => {
   const cached = validBundle("2026-08-09");
-  const kv = new MemoryKV({ "daily:v1:2026-08-09": JSON.stringify(cached) });
+  const kv = new MemoryKV({ "daily:v2:2026-08-09": JSON.stringify(cached) });
   const env = { FREEASTRO_API_KEY: "secret", DAILY_CACHE: kv };
   const options = { now: () => new Date("2026-08-09T12:00:00Z") };
 

@@ -39,7 +39,8 @@ Symbols, Unicode zodiac glyphs, SwiftUI shapes, and procedural celestial art.
 
 ## Today card reverse
 
-- Visual reference: `Design/Concepts/today-card-back-c1.png`.
+- Current visual reference: `Design/Concepts/today-card-back-provider-c2.png`.
+- Superseded reference retained for history: `Design/Concepts/today-card-back-c1.png`.
 - Runtime bitmap assets: no additional bitmap. The approved screen image is a
   specification and is not shipped in the app.
 - Background and card material: reuse the approved cosmic background, card
@@ -48,6 +49,7 @@ Symbols, Unicode zodiac glyphs, SwiftUI shapes, and procedural celestial art.
 - Sign watermark: native Unicode zodiac glyph with low opacity.
 - Dividers, category labels, and turn indicator: native SwiftUI shapes and an
   SF Symbol where appropriate.
+- Daily score meters: native SwiftUI capsules; values come from the provider.
 - Motion: native SwiftUI 3D Y-axis rotation; a short opacity transition replaces
   it when Reduce Motion is enabled.
 

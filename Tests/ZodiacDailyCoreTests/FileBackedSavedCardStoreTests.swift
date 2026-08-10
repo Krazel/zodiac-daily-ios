@@ -80,12 +80,10 @@ final class FileBackedSavedCardStoreTests: XCTestCase {
         let store = FileBackedSavedCardStore(fileURL: fileURL)
         let cards = try await store.allCards()
         let card = try XCTUnwrap(cards.first)
-        let day = try XCTUnwrap(LocalDayKey(rawValue: "2026-08-09"))
-
         XCTAssertEqual(card.horoscope.headline, "Legacy headline")
         XCTAssertEqual(
             card.horoscope.details,
-            DailyCardDetails.deterministicFallback(for: .pisces, day: day)
+            DailyCardDetails.offlineFallback(for: .pisces)
         )
     }
 

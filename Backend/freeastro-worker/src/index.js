@@ -14,7 +14,7 @@ const SIGNS = Object.freeze([
 ]);
 
 const UPSTREAM_URL = "https://api.freeastroapi.com/api/v2/horoscope/daily/sign";
-const CACHE_SCHEMA_VERSION = 1;
+const CACHE_SCHEMA_VERSION = 2;
 const DAILY_TTL_SECONDS = 400 * 24 * 60 * 60;
 const FAILURE_COOLDOWN_SECONDS = 5 * 60;
 const PROVIDER_INTERVAL_MS = 1_050;
@@ -265,17 +265,47 @@ export function normalizeProviderResponse(body, expectedSign, expectedDate) {
   const date = cleanString(data?.date);
   const reading = cleanString(data?.content?.text ?? data?.text ?? data?.horoscope);
   const theme = cleanString(data?.content?.theme ?? data?.theme);
+  const keywords = cleanStringArray(data?.content?.keywords);
+  const scores = data?.scores;
+  const luckyColor = cleanString(data?.lucky?.color?.label);
+  const luckyNumber = data?.lucky?.number;
+  const moonSign = cleanString(data?.astro?.moon_sign?.label);
+  const moonPhase = cleanString(data?.astro?.moon_phase?.label);
 
   if (sign !== expectedSign) throw new Error("provider_sign_mismatch");
   if (date !== expectedDate) throw new Error("provider_date_mismatch");
   if (!reading || reading.length < 40 || reading.length > 2_000) {
     throw new Error("provider_invalid_text");
   }
+  if (!theme || theme.length > 100) throw new Error("provider_invalid_theme");
+  if (!isValidKeywordList(keywords)) throw new Error("provider_invalid_keywords");
+  if (![scores?.love, scores?.career, scores?.money, scores?.health].every(isScore)) {
+    throw new Error("provider_invalid_scores");
+  }
+  if (!luckyColor || luckyColor.length > 32 || !isIntegerInRange(luckyNumber, 1, 99)) {
+    throw new Error("provider_invalid_lucky_values");
+  }
+  if (!moonSign || moonSign.length > 40 || !moonPhase || moonPhase.length > 40) {
+    throw new Error("provider_invalid_moon_data");
+  }
 
   return {
     sign,
-    headline: theme && theme.length <= 100 ? theme : "Your Daily Focus",
+    headline: theme,
     reading,
+    details: {
+      source: "freeastroapi-v2",
+      focus: theme,
+      keywords,
+      love_score: scores.love,
+      career_score: scores.career,
+      money_score: scores.money,
+      health_score: scores.health,
+      lucky_color: luckyColor,
+      lucky_number: luckyNumber,
+      moon_sign: moonSign,
+      moon_phase: moonPhase,
+    },
     content_version: Number(expectedDate.replaceAll("-", "")),
   };
 }
@@ -293,6 +323,7 @@ export function isValidBundle(value, expectedContentDate) {
     if (!cleanString(horoscope.headline) || !cleanString(horoscope.reading)) return false;
     if (horoscope.headline.length > 160) return false;
     if (horoscope.reading.length < 40 || horoscope.reading.length > 2_000) return false;
+    if (!isValidProviderDetails(horoscope.details)) return false;
     if (horoscope.content_version !== Number(expectedContentDate.replaceAll("-", ""))) return false;
     signs.add(horoscope.sign);
   }
@@ -324,6 +355,37 @@ function failureCacheKey(date) {
 
 function cleanString(value) {
   return typeof value === "string" ? value.trim() : null;
+}
+
+function cleanStringArray(value) {
+  return Array.isArray(value) ? value.map(cleanString).filter(Boolean) : null;
+}
+
+function isIntegerInRange(value, minimum, maximum) {
+  return Number.isInteger(value) && value >= minimum && value <= maximum;
+}
+
+function isScore(value) {
+  return isIntegerInRange(value, 0, 100);
+}
+
+function isValidKeywordList(value) {
+  if (!Array.isArray(value) || value.length < 1 || value.length > 8) return false;
+  if (value.some((keyword) => !keyword || keyword.length > 40)) return false;
+  return new Set(value.map((keyword) => keyword.toLowerCase())).size === value.length;
+}
+
+function isValidProviderDetails(details) {
+  if (!details || details.source !== "freeastroapi-v2") return false;
+  if (!cleanString(details.focus) || details.focus.length > 100) return false;
+  if (!isValidKeywordList(details.keywords)) return false;
+  if (![details.love_score, details.career_score, details.money_score, details.health_score].every(isScore)) {
+    return false;
+  }
+  if (!cleanString(details.lucky_color) || details.lucky_color.length > 32) return false;
+  if (!isIntegerInRange(details.lucky_number, 1, 99)) return false;
+  if (!cleanString(details.moon_sign) || details.moon_sign.length > 40) return false;
+  return Boolean(cleanString(details.moon_phase) && details.moon_phase.length <= 40);
 }
 
 function isISODate(value) {

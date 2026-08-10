@@ -3,7 +3,7 @@ import XCTest
 @testable import ZodiacDailyCore
 
 final class DailyHoroscopeCodableTests: XCTestCase {
-    func testLegacyEditionWithoutDetailsDecodesDeterministicFallback() throws {
+    func testLegacyEditionWithoutDetailsDecodesOfflineFallback() throws {
         let data = Data(
             """
             {
@@ -23,19 +23,24 @@ final class DailyHoroscopeCodableTests: XCTestCase {
         XCTAssertEqual(decoded.day, day)
         XCTAssertEqual(
             decoded.details,
-            DailyCardDetails.deterministicFallback(for: .pisces, day: day)
+            DailyCardDetails.offlineFallback(for: .pisces)
         )
     }
 
     func testCurrentEditionRoundTripPreservesExactDetailsSnapshot() throws {
         let day = try XCTUnwrap(LocalDayKey(rawValue: "2026-08-09"))
-        let details = DailyCardDetails(
-            love: "Keep this exact love snapshot.",
-            work: "Keep this exact work snapshot.",
-            wellBeing: "Keep this exact well-being snapshot.",
-            luckyColor: "Ocean Teal",
-            luckyNumber: 27,
-            signEssence: "Keep this exact essence."
+        let details = DailyCardDetails.provider(
+            focus: "Intuition",
+            keywords: ["Empathy", "Flow", "Imagination"],
+            loveScore: 83,
+            careerScore: 89,
+            moneyScore: 85,
+            healthScore: 78,
+            luckyColor: "Silver",
+            luckyNumber: 61,
+            moonSign: "Capricorn",
+            moonPhase: "Last Quarter",
+            sign: .pisces
         )
         let edition = DailyHoroscope(
             sign: .pisces,
@@ -53,7 +58,7 @@ final class DailyHoroscopeCodableTests: XCTestCase {
         XCTAssertEqual(decoded.details, details)
     }
 
-    func testExistingInitializerAutomaticallyAddsFallbackDetails() throws {
+    func testExistingInitializerAutomaticallyAddsOfflineDetails() throws {
         let day = try XCTUnwrap(LocalDayKey(rawValue: "2026-08-09"))
         let edition = DailyHoroscope(
             sign: .scorpio,
@@ -65,7 +70,7 @@ final class DailyHoroscopeCodableTests: XCTestCase {
 
         XCTAssertEqual(
             edition.details,
-            DailyCardDetails.deterministicFallback(for: .scorpio, day: day)
+            DailyCardDetails.offlineFallback(for: .scorpio)
         )
     }
 }

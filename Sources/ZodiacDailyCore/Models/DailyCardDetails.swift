@@ -1,112 +1,112 @@
 import Foundation
 
-/// The structured, non-personal guidance shown on the reverse of a daily card.
+/// Provider-authored daily metadata shown on the reverse of a card.
 ///
-/// Values are part of the immutable daily edition, so saving a card also saves
-/// the exact reverse shown that day. No birth time, location, account, or
-/// device identifier participates in the fallback.
+/// Daily values are optional so a bundled/offline edition can remain honest:
+/// when FreeAstroAPI is unavailable the app preserves the reading, but does not
+/// manufacture scores, lucky values, keywords, or lunar data.
 public struct DailyCardDetails: Codable, Hashable, Sendable {
-    public let love: String
-    public let work: String
-    public let wellBeing: String
-    public let luckyColor: String
-    public let luckyNumber: Int
+    public enum Source: String, Codable, Hashable, Sendable {
+        case freeAstroAPIV2 = "freeastroapi-v2"
+        case offline
+    }
+
+    public let source: Source
+    public let focus: String
+    public let keywords: [String]
+    public let loveScore: Int?
+    public let careerScore: Int?
+    public let moneyScore: Int?
+    public let healthScore: Int?
+    public let luckyColor: String?
+    public let luckyNumber: Int?
+    public let moonSign: String?
+    public let moonPhase: String?
     public let signEssence: String
 
     public init(
-        love: String,
-        work: String,
-        wellBeing: String,
-        luckyColor: String,
-        luckyNumber: Int,
+        source: Source,
+        focus: String,
+        keywords: [String],
+        loveScore: Int?,
+        careerScore: Int?,
+        moneyScore: Int?,
+        healthScore: Int?,
+        luckyColor: String?,
+        luckyNumber: Int?,
+        moonSign: String?,
+        moonPhase: String?,
         signEssence: String
     ) {
-        self.love = love
-        self.work = work
-        self.wellBeing = wellBeing
+        self.source = source
+        self.focus = focus
+        self.keywords = keywords
+        self.loveScore = loveScore
+        self.careerScore = careerScore
+        self.moneyScore = moneyScore
+        self.healthScore = healthScore
         self.luckyColor = luckyColor
         self.luckyNumber = luckyNumber
+        self.moonSign = moonSign
+        self.moonPhase = moonPhase
         self.signEssence = signEssence
     }
 
-    private enum CodingKeys: String, CodingKey {
-        case love
-        case work
-        case wellBeing = "well_being"
-        case luckyColor = "lucky_color"
-        case luckyNumber = "lucky_number"
-        case signEssence = "sign_essence"
-    }
-
-    /// Versioned and stable across app launches and Swift processes.
-    /// Used by current remote v1 editions and legacy saved-card archives.
-    public static func deterministicFallback(
-        for sign: ZodiacSign,
-        day: LocalDayKey
+    public static func provider(
+        focus: String,
+        keywords: [String],
+        loveScore: Int,
+        careerScore: Int,
+        moneyScore: Int,
+        healthScore: Int,
+        luckyColor: String,
+        luckyNumber: Int,
+        moonSign: String,
+        moonPhase: String,
+        sign: ZodiacSign
     ) -> DailyCardDetails {
-        let baseSeed = "daily-card-details:v1|\(sign.rawValue)|\(day.rawValue)"
-
-        return DailyCardDetails(
-            love: loveOptions[StableDailyDetailsSelector.index(seed: baseSeed + "|love", count: loveOptions.count)],
-            work: workOptions[StableDailyDetailsSelector.index(seed: baseSeed + "|work", count: workOptions.count)],
-            wellBeing: wellBeingOptions[
-                StableDailyDetailsSelector.index(seed: baseSeed + "|well-being", count: wellBeingOptions.count)
-            ],
-            luckyColor: luckyColors[
-                StableDailyDetailsSelector.index(seed: baseSeed + "|lucky-color", count: luckyColors.count)
-            ],
-            luckyNumber: StableDailyDetailsSelector.index(seed: baseSeed + "|lucky-number", count: 99) + 1,
-            signEssence: essence(for: sign)
+        DailyCardDetails(
+            source: .freeAstroAPIV2,
+            focus: focus,
+            keywords: keywords,
+            loveScore: loveScore,
+            careerScore: careerScore,
+            moneyScore: moneyScore,
+            healthScore: healthScore,
+            luckyColor: luckyColor,
+            luckyNumber: luckyNumber,
+            moonSign: moonSign,
+            moonPhase: moonPhase,
+            signEssence: signEssence(for: sign)
         )
     }
 
-    private static let loveOptions = [
-        "Lead with warmth and let an honest answer arrive in its own time.",
-        "A small gesture of attention says more than a perfectly chosen speech.",
-        "Make room for reciprocity; care should be able to travel both ways.",
-        "Say what you need gently and listen for the need beneath the reply.",
-        "Connection grows when you choose curiosity over a quick conclusion.",
-        "Protect the bond that feels calm, clear, and generous rather than urgent.",
-        "Let affection be practical today: notice, remember, and follow through.",
-        "A sincere boundary can bring more closeness than another silent compromise."
-    ]
+    public static func offlineFallback(for sign: ZodiacSign) -> DailyCardDetails {
+        DailyCardDetails(
+            source: .offline,
+            focus: "Offline Edition",
+            keywords: [],
+            loveScore: nil,
+            careerScore: nil,
+            moneyScore: nil,
+            healthScore: nil,
+            luckyColor: nil,
+            luckyNumber: nil,
+            moonSign: nil,
+            moonPhase: nil,
+            signEssence: signEssence(for: sign)
+        )
+    }
 
-    private static let workOptions = [
-        "Give the most valuable task one uninterrupted stretch of attention.",
-        "Clarify the next deliverable before adding anything else to the plan.",
-        "A useful conversation can remove the obstacle that effort alone cannot.",
-        "Finish the smallest meaningful piece and let visible progress build momentum.",
-        "Choose durable work over busy work; the difference will be clear by evening.",
-        "Review one assumption before committing more energy to the current route.",
-        "Your steady judgment matters more today than speed or a dramatic gesture.",
-        "Share the idea in a concrete form so others can help it become stronger."
-    ]
+    public var hasProviderData: Bool {
+        source == .freeAstroAPIV2 &&
+            !focus.isEmpty &&
+            !keywords.isEmpty &&
+            loveScore != nil && careerScore != nil && moneyScore != nil && healthScore != nil &&
+            luckyColor != nil && luckyNumber != nil && moonSign != nil && moonPhase != nil
+    }
 
-    private static let wellBeingOptions = [
-        "Create a quiet pause between obligations and let your body reset the pace.",
-        "A simple meal, fresh air, and an earlier finish will restore more than pushing through.",
-        "Protect your attention from unnecessary noise and return to one grounding ritual.",
-        "Move gently enough to notice where tension is asking for care rather than force.",
-        "Balance effort with something sensory and calm: music, water, warmth, or open sky.",
-        "Keep one promise to your future self by making rest part of today’s plan.",
-        "Name what is draining you, then reduce one avoidable demand without guilt.",
-        "A slower transition between tasks will help your energy last through the day."
-    ]
-
-    private static let luckyColors = [
-        "Amber",
-        "Celestial Blue",
-        "Deep Violet",
-        "Forest Green",
-        "Moon Silver",
-        "Ocean Teal",
-        "Rose Quartz",
-        "Saffron",
-        "Soft Ivory",
-        "Terracotta"
-    ]
-
-    private static func essence(for sign: ZodiacSign) -> String {
+    public static func signEssence(for sign: ZodiacSign) -> String {
         switch sign {
         case .aries:
             "Courageous beginnings guided by direct, vital energy."
@@ -134,17 +134,73 @@ public struct DailyCardDetails: Codable, Hashable, Sendable {
             "Compassionate imagination attuned to intuition, feeling, and wonder."
         }
     }
-}
 
-private enum StableDailyDetailsSelector {
-    /// FNV-1a avoids Swift Hasher's intentionally process-random seed.
-    static func index(seed: String, count: Int) -> Int {
-        precondition(count > 0)
-        var hash: UInt64 = 14_695_981_039_346_656_037
-        for byte in seed.utf8 {
-            hash ^= UInt64(byte)
-            hash &*= 1_099_511_628_211
+    private enum CodingKeys: String, CodingKey {
+        case source
+        case focus
+        case keywords
+        case loveScore = "love_score"
+        case careerScore = "career_score"
+        case moneyScore = "money_score"
+        case healthScore = "health_score"
+        case luckyColor = "lucky_color"
+        case luckyNumber = "lucky_number"
+        case moonSign = "moon_sign"
+        case moonPhase = "moon_phase"
+        case signEssence = "sign_essence"
+
+        // Legacy v1 keys. Their generated daily prose is deliberately ignored.
+        case love
+        case work
+        case wellBeing = "well_being"
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let decodedSource = try container.decodeIfPresent(Source.self, forKey: .source)
+
+        if decodedSource == .freeAstroAPIV2 {
+            source = .freeAstroAPIV2
+            focus = try container.decode(String.self, forKey: .focus)
+            keywords = try container.decode([String].self, forKey: .keywords)
+            loveScore = try container.decode(Int.self, forKey: .loveScore)
+            careerScore = try container.decode(Int.self, forKey: .careerScore)
+            moneyScore = try container.decode(Int.self, forKey: .moneyScore)
+            healthScore = try container.decode(Int.self, forKey: .healthScore)
+            luckyColor = try container.decode(String.self, forKey: .luckyColor)
+            luckyNumber = try container.decode(Int.self, forKey: .luckyNumber)
+            moonSign = try container.decode(String.self, forKey: .moonSign)
+            moonPhase = try container.decode(String.self, forKey: .moonPhase)
+            signEssence = try container.decode(String.self, forKey: .signEssence)
+        } else {
+            source = .offline
+            focus = "Offline Edition"
+            keywords = []
+            loveScore = nil
+            careerScore = nil
+            moneyScore = nil
+            healthScore = nil
+            luckyColor = nil
+            luckyNumber = nil
+            moonSign = nil
+            moonPhase = nil
+            signEssence = try container.decodeIfPresent(String.self, forKey: .signEssence) ?? ""
         }
-        return Int(hash % UInt64(count))
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(source, forKey: .source)
+        try container.encode(focus, forKey: .focus)
+        try container.encode(keywords, forKey: .keywords)
+        try container.encodeIfPresent(loveScore, forKey: .loveScore)
+        try container.encodeIfPresent(careerScore, forKey: .careerScore)
+        try container.encodeIfPresent(moneyScore, forKey: .moneyScore)
+        try container.encodeIfPresent(healthScore, forKey: .healthScore)
+        try container.encodeIfPresent(luckyColor, forKey: .luckyColor)
+        try container.encodeIfPresent(luckyNumber, forKey: .luckyNumber)
+        try container.encodeIfPresent(moonSign, forKey: .moonSign)
+        try container.encodeIfPresent(moonPhase, forKey: .moonPhase)
+        try container.encode(signEssence, forKey: .signEssence)
     }
 }

@@ -177,9 +177,22 @@ struct FlippableDailyCard: View {
 
     private var backAccessibilityValue: String {
         let details = horoscope.details
-        return "Back. Love: \(details.love) Work: \(details.work) "
-            + "Well-being: \(details.wellBeing) Lucky number: \(details.luckyNumber). "
-            + "Lucky color: \(details.luckyColor). \(horoscope.sign.displayName) essence: "
+        guard details.hasProviderData,
+              let love = details.loveScore,
+              let career = details.careerScore,
+              let money = details.moneyScore,
+              let health = details.healthScore,
+              let luckyNumber = details.luckyNumber,
+              let luckyColor = details.luckyColor,
+              let moonSign = details.moonSign,
+              let moonPhase = details.moonPhase else {
+            return "Back. Offline edition. Provider daily details are unavailable. "
+                + "\(horoscope.sign.displayName) essence: \(details.signEssence)"
+        }
+        return "Back. Today's focus: \(details.focus). Keywords: \(details.keywords.joined(separator: ", ")). "
+            + "Scores. Love \(love), career \(career), money \(money), health \(health). "
+            + "Lucky number \(luckyNumber), lucky color \(luckyColor). "
+            + "Moon in \(moonSign), \(moonPhase). \(horoscope.sign.displayName) essence: "
             + details.signEssence
     }
 
@@ -232,46 +245,34 @@ private struct DailyCardBackView: View {
                     .font(.system(size: 36, weight: .ultraLight))
                     .foregroundStyle(ZodiacPalette.gold)
 
-                Text("DEEPER READING")
+                Text("DAILY DETAILS")
                     .font(.system(size: 9, weight: .semibold))
                     .tracking(3.1)
                     .foregroundStyle(ZodiacPalette.lavender)
 
                 ornamentalDivider
 
-                guidanceSection("TODAY’S FOCUS", text: horoscope.headline)
-                sectionDivider
-                guidanceSection("LOVE", text: details.love)
-                sectionDivider
-                guidanceSection("WORK", text: details.work)
-                sectionDivider
-                guidanceSection("WELL-BEING", text: details.wellBeing)
-                sectionDivider
-
-                HStack(spacing: 0) {
-                    luckyDetail("LUCKY NUMBER", value: String(details.luckyNumber))
-
-                    Rectangle()
-                        .fill(ZodiacPalette.gold.opacity(0.38))
-                        .frame(width: 0.75, height: 32)
-
-                    luckyDetail("LUCKY COLOR", value: details.luckyColor.uppercased())
-                }
-
-                sectionDivider
-
-                VStack(spacing: 2) {
-                    Text("\(horoscope.sign.displayName.uppercased()) ESSENCE")
-                        .font(.system(size: 8, weight: .semibold))
-                        .tracking(2.2)
-                        .foregroundStyle(ZodiacPalette.lavender)
-
-                    Text(details.signEssence)
-                        .font(.custom("Didot", size: 12, relativeTo: .caption))
-                        .foregroundStyle(ZodiacPalette.paleGold)
-                        .multilineTextAlignment(.center)
-                        .lineLimit(2)
-                        .minimumScaleFactor(0.82)
+                if details.hasProviderData,
+                   let loveScore = details.loveScore,
+                   let careerScore = details.careerScore,
+                   let moneyScore = details.moneyScore,
+                   let healthScore = details.healthScore,
+                   let luckyColor = details.luckyColor,
+                   let luckyNumber = details.luckyNumber,
+                   let moonSign = details.moonSign,
+                   let moonPhase = details.moonPhase {
+                    providerContent(
+                        loveScore: loveScore,
+                        careerScore: careerScore,
+                        moneyScore: moneyScore,
+                        healthScore: healthScore,
+                        luckyColor: luckyColor,
+                        luckyNumber: luckyNumber,
+                        moonSign: moonSign,
+                        moonPhase: moonPhase
+                    )
+                } else {
+                    offlineContent
                 }
 
                 Spacer(minLength: 1)
@@ -340,21 +341,122 @@ private struct DailyCardBackView: View {
         .accessibilityHidden(true)
     }
 
-    private func guidanceSection(_ title: String, text: String) -> some View {
-        VStack(spacing: 2) {
-            Text(title)
+    private func providerContent(
+        loveScore: Int,
+        careerScore: Int,
+        moneyScore: Int,
+        healthScore: Int,
+        luckyColor: String,
+        luckyNumber: Int,
+        moonSign: String,
+        moonPhase: String
+    ) -> some View {
+        Group {
+            detailText("TODAY'S FOCUS", value: details.focus.uppercased(), size: 16)
+            detailText("KEYWORDS", value: details.keywords.joined(separator: " · ").uppercased(), size: 11)
+            sectionDivider
+
+            Text("DAILY SCORES")
                 .font(.system(size: 8, weight: .semibold))
                 .tracking(2.4)
                 .foregroundStyle(ZodiacPalette.lavender)
 
-            Text(text)
-                .font(.custom("Didot", size: 10.5, relativeTo: .caption))
+            LazyVGrid(
+                columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 2),
+                spacing: 7
+            ) {
+                scoreCell("LOVE", value: loveScore)
+                scoreCell("CAREER", value: careerScore)
+                scoreCell("MONEY", value: moneyScore)
+                scoreCell("HEALTH", value: healthScore)
+            }
+
+            sectionDivider
+
+            HStack(spacing: 0) {
+                luckyDetail("LUCKY NUMBER", value: String(luckyNumber))
+                Rectangle()
+                    .fill(ZodiacPalette.gold.opacity(0.38))
+                    .frame(width: 0.75, height: 28)
+                luckyDetail("LUCKY COLOR", value: luckyColor.uppercased())
+            }
+
+            sectionDivider
+            detailText("MOON", value: "\(moonSign.uppercased()) · \(moonPhase.uppercased())", size: 11)
+            essenceSection
+        }
+    }
+
+    private var offlineContent: some View {
+        Group {
+            detailText("TODAY'S FOCUS", value: "OFFLINE EDITION", size: 16)
+            sectionDivider
+            Text("Provider daily scores and lucky details are unavailable.")
+                .font(.custom("Didot", size: 15, relativeTo: .body))
                 .foregroundStyle(ZodiacPalette.text.opacity(0.96))
                 .multilineTextAlignment(.center)
+                .padding(.vertical, 28)
+            sectionDivider
+            essenceSection
+        }
+    }
+
+    private var essenceSection: some View {
+        VStack(spacing: 2) {
+            Text("\(horoscope.sign.displayName.uppercased()) ESSENCE")
+                .font(.system(size: 8, weight: .semibold))
+                .tracking(2.2)
+                .foregroundStyle(ZodiacPalette.lavender)
+
+            Text(details.signEssence)
+                .font(.custom("Didot", size: 12, relativeTo: .caption))
+                .foregroundStyle(ZodiacPalette.paleGold)
+                .multilineTextAlignment(.center)
                 .lineLimit(2)
-                .minimumScaleFactor(0.76)
+                .minimumScaleFactor(0.82)
+        }
+    }
+
+    private func detailText(_ title: String, value: String, size: CGFloat) -> some View {
+        VStack(spacing: 2) {
+            Text(title)
+                .font(.system(size: 8, weight: .semibold))
+                .tracking(2.3)
+                .foregroundStyle(ZodiacPalette.lavender)
+            Text(value)
+                .font(.custom("Didot", size: size, relativeTo: .caption))
+                .foregroundStyle(ZodiacPalette.paleGold)
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+                .minimumScaleFactor(0.72)
         }
         .frame(maxWidth: .infinity)
+    }
+
+    private func scoreCell(_ title: String, value: Int) -> some View {
+        VStack(spacing: 2) {
+            HStack {
+                Text(title)
+                    .font(.system(size: 7.5, weight: .semibold))
+                    .tracking(1.6)
+                    .foregroundStyle(ZodiacPalette.lavender)
+                Spacer(minLength: 3)
+                Text(String(value))
+                    .font(.custom("Didot", size: 13, relativeTo: .caption))
+                    .foregroundStyle(ZodiacPalette.paleGold)
+            }
+            GeometryReader { proxy in
+                ZStack(alignment: .leading) {
+                    Capsule().fill(ZodiacPalette.lavender.opacity(0.18))
+                    Capsule()
+                        .fill(ZodiacPalette.gold)
+                        .frame(width: proxy.size.width * CGFloat(value) / 100)
+                }
+            }
+            .frame(height: 3)
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(title.capitalized) score \(value) out of 100")
     }
 
     private func luckyDetail(_ title: String, value: String) -> some View {

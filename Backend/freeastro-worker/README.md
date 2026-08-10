@@ -36,7 +36,7 @@ editions are populated.
 
 ```json
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "requested_date": "2026-08-09",
   "content_date": "2026-08-09",
   "generated_at": "2026-08-08T10:15:12.000Z",
@@ -47,6 +47,19 @@ editions are populated.
       "sign": "aries",
       "headline": "Initiative",
       "reading": "The complete English daily reading.",
+      "details": {
+        "source": "freeastroapi-v2",
+        "focus": "Initiative",
+        "keywords": ["Courage", "Momentum", "Clarity"],
+        "love_score": 83,
+        "career_score": 89,
+        "money_score": 85,
+        "health_score": 78,
+        "lucky_color": "Silver",
+        "lucky_number": 61,
+        "moon_sign": "Capricorn",
+        "moon_phase": "Last Quarter"
+      },
       "content_version": 20260809
     }
   ]
@@ -56,7 +69,9 @@ editions are populated.
 Production responses contain all twelve unique lowercase signs.
 `requested_date` and `content_date` must equal the requested date. Each headline
 is nonblank and at most 160 characters; each reading is 40-2,000 characters.
-Any incomplete, mismatched, stale, or invalid provider result is rejected as a
+Each item also preserves the validated V2 focus, keywords, four 0-100 scores,
+lucky color/number, and Moon sign/phase returned by FreeAstroAPI. Any
+incomplete, mismatched, stale, or invalid provider result is rejected as a
 whole and is never stored under the daily key.
 
 ## Offline tests

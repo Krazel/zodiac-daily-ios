@@ -12,7 +12,9 @@ validated for accessibility after approval.
 - `today-c2-collectible-card.png` — revised C direction after owner feedback;
   the reading is a complete collectible card with a separate Save Card action.
 - `today-card-back-c1.png` — approved reverse of the collectible Today card;
-  adds structured daily and sign guidance while preserving the same frame.
+  retained as the superseded locally generated-content reference.
+- `today-card-back-provider-c2.png` — current approved reverse; uses only
+  FreeAstroAPI V2 focus, keywords, scores, lucky attributes, and Moon data.
 - `sign-selection-c2.png` — first-launch choice of all twelve signs in the
   approved C2 language; approved 2026-08-09.
 - `saved-populated-c2.png` — populated personal card archive; approved

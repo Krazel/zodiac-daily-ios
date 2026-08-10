@@ -107,11 +107,11 @@ public struct RemoteHoroscopeRepository: HoroscopeRepository {
             throw RemoteHoroscopeRepositoryError.invalidPayload
         }
 
-        guard payload.schemaVersion == 1,
+        guard (1...2).contains(payload.schemaVersion),
               !payload.generatedAt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
               !payload.provider.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
               payload.horoscopes.count == ZodiacSign.allCases.count,
-              payload.horoscopes.allSatisfy(\.isValid)
+              payload.horoscopes.allSatisfy({ $0.isValid(schemaVersion: payload.schemaVersion) })
         else {
             throw RemoteHoroscopeRepositoryError.invalidPayload
         }
@@ -134,11 +134,28 @@ public struct RemoteHoroscopeRepository: HoroscopeRepository {
             throw RemoteHoroscopeRepositoryError.missingContent(sign)
         }
 
+        let details = content.details.map {
+            DailyCardDetails.provider(
+                focus: $0.focus.trimmingCharacters(in: .whitespacesAndNewlines),
+                keywords: $0.keywords.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) },
+                loveScore: $0.loveScore,
+                careerScore: $0.careerScore,
+                moneyScore: $0.moneyScore,
+                healthScore: $0.healthScore,
+                luckyColor: $0.luckyColor.trimmingCharacters(in: .whitespacesAndNewlines),
+                luckyNumber: $0.luckyNumber,
+                moonSign: $0.moonSign.trimmingCharacters(in: .whitespacesAndNewlines),
+                moonPhase: $0.moonPhase.trimmingCharacters(in: .whitespacesAndNewlines),
+                sign: sign
+            )
+        }
+
         return DailyHoroscope(
             sign: sign,
             day: day,
             headline: content.headline.trimmingCharacters(in: .whitespacesAndNewlines),
             reading: content.reading.trimmingCharacters(in: .whitespacesAndNewlines),
+            details: details,
             contentVersion: content.contentVersion
         )
     }
@@ -193,22 +210,73 @@ private struct RemoteSignContent: Decodable, Sendable {
     let sign: ZodiacSign
     let headline: String
     let reading: String
+    let details: RemoteProviderDetails?
     let contentVersion: Int
 
     private enum CodingKeys: String, CodingKey {
         case sign
         case headline
         case reading
+        case details
         case contentVersion = "content_version"
     }
 
-    var isValid: Bool {
+    func isValid(schemaVersion: Int) -> Bool {
         let trimmedHeadline = headline.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedReading = reading.trimmingCharacters(in: .whitespacesAndNewlines)
-        return !trimmedHeadline.isEmpty &&
+        let baseIsValid = !trimmedHeadline.isEmpty &&
             trimmedReading.count >= 40 &&
             trimmedHeadline.count <= 160 &&
             trimmedReading.count <= 2_000 &&
             contentVersion > 0
+        if schemaVersion == 2 {
+            return baseIsValid && details?.isValid == true
+        }
+        return baseIsValid
+    }
+}
+
+private struct RemoteProviderDetails: Decodable, Sendable {
+    let source: String
+    let focus: String
+    let keywords: [String]
+    let loveScore: Int
+    let careerScore: Int
+    let moneyScore: Int
+    let healthScore: Int
+    let luckyColor: String
+    let luckyNumber: Int
+    let moonSign: String
+    let moonPhase: String
+
+    private enum CodingKeys: String, CodingKey {
+        case source
+        case focus
+        case keywords
+        case loveScore = "love_score"
+        case careerScore = "career_score"
+        case moneyScore = "money_score"
+        case healthScore = "health_score"
+        case luckyColor = "lucky_color"
+        case luckyNumber = "lucky_number"
+        case moonSign = "moon_sign"
+        case moonPhase = "moon_phase"
+    }
+
+    var isValid: Bool {
+        let strings = [focus, luckyColor, moonSign, moonPhase]
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+        let cleanedKeywords = keywords.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+        let scores = [loveScore, careerScore, moneyScore, healthScore]
+
+        return source == DailyCardDetails.Source.freeAstroAPIV2.rawValue &&
+            strings.allSatisfy { !$0.isEmpty } &&
+            focus.count <= 100 && luckyColor.count <= 32 &&
+            moonSign.count <= 40 && moonPhase.count <= 40 &&
+            (1...8).contains(cleanedKeywords.count) &&
+            cleanedKeywords.allSatisfy { !$0.isEmpty && $0.count <= 40 } &&
+            Set(cleanedKeywords.map { $0.lowercased() }).count == cleanedKeywords.count &&
+            scores.allSatisfy { (0...100).contains($0) } &&
+            (1...99).contains(luckyNumber)
     }
 }

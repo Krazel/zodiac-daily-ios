@@ -167,6 +167,19 @@ final class AppModel: ObservableObject {
             day: LocalDayKey(rawValue: "2026-08-09")!,
             headline: "Let the Tide Turn",
             reading: "You do not need to force the next step. Listen for the rhythm beneath the noise, then move with it.",
+            details: .provider(
+                focus: "Intuition",
+                keywords: ["Empathy", "Flow", "Imagination"],
+                loveScore: 83,
+                careerScore: 89,
+                moneyScore: 85,
+                healthScore: 78,
+                luckyColor: "Silver",
+                luckyNumber: 61,
+                moonSign: "Capricorn",
+                moonPhase: "Last Quarter",
+                sign: .pisces
+            ),
             contentVersion: 1
         )
     }

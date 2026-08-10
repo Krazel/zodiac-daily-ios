@@ -109,8 +109,14 @@ workspace does not have write access to Brain.
 - Los Cron Triggers solo encolan fechas. Un Cloudflare Queue consumer gratuito
   procesa las 12 llamadas secuenciales; lote 1, concurrencia 1 y un solo retry.
   La precarga de manana es a las 09:45 UTC, antes de medianoche en UTC+14.
-- Validacion: Worker 12/12 pruebas, sintaxis/JSON/XML/UTF-8/diff correctos, sin
-  secretos y QA final sin P0/P1. Build y XCTest Swift siguen pendientes de Mac.
+- El contrato Worker/app subio a schema 2 para conservar datos V2 que antes se
+  descartaban: focus, keywords, cuatro scores, suerte y Luna. Schema 1 se acepta
+  durante la transicion, pero su reverso se identifica como Offline Edition y
+  no inventa campos diarios ausentes. Sign essence es copy estatico del signo.
+- Referencia aprobada actual del reverso:
+  `Design/Concepts/today-card-back-provider-c2.png`; C1 queda supersedida.
+- Validacion local del nuevo Worker: 13/13 pruebas y sintaxis correctas, sin
+  secretos. Build/XCTest/visual QA del schema 2 deben cerrarse en GitHub/macOS.
 - No se creo cuenta, secreto, KV, Queue, Worker publico ni despliegue. Activar
   requiere autorizacion explicita y comprobar en vivo fecha de manana, CPU y
   consumo del plan gratuito.

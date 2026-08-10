@@ -29,7 +29,7 @@ public struct DailyHoroscope: Codable, Hashable, Identifiable, Sendable {
         self.day = day
         self.headline = headline
         self.reading = reading
-        self.details = details ?? .deterministicFallback(for: sign, day: day)
+        self.details = details ?? .offlineFallback(for: sign)
         self.contentVersion = contentVersion
     }
 
@@ -52,7 +52,7 @@ public struct DailyHoroscope: Codable, Hashable, Identifiable, Sendable {
         headline = try container.decode(String.self, forKey: .headline)
         reading = try container.decode(String.self, forKey: .reading)
         details = try container.decodeIfPresent(DailyCardDetails.self, forKey: .details)
-            ?? .deterministicFallback(for: sign, day: day)
+            ?? .offlineFallback(for: sign)
         contentVersion = try container.decode(Int.self, forKey: .contentVersion)
     }
 

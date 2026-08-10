@@ -103,10 +103,12 @@ provisional until it receives its own complete image approval.
 - The owner requested a direct sign-change action, a complete Today composition
   without required scrolling on the reference iPhone, and a tappable card that
   flips to reveal a deeper daily reading.
-- `Design/Concepts/today-card-back-c1.png` is approved under the owner's advance
-  visual authorization and is the final reference for the reverse state.
-- The reverse contains concise, non-personal guidance for Love, Work, and
-  Well-being, plus a lucky number, lucky color, and the selected sign's essence.
+- `Design/Concepts/today-card-back-c1.png` was approved under the owner's advance
+  visual authorization; it was superseded by the provider-data C2 reference
+  below.
+- This first design used locally generated Love, Work, Well-being, and lucky
+  fields. Those fields are retained here only as historical context and are no
+  longer part of the production data contract.
 - The same sign/day always produces the same reverse. Saving a card preserves
   the exact reverse as part of the immutable local snapshot.
 - The front and reverse share one card frame. Standard motion uses a short
@@ -114,3 +116,18 @@ provisional until it receives its own complete image approval.
 - The reference iPhone at default text size must show the complete Today card
   and Save action without required scrolling. Compact screens and accessibility
   text sizes retain scrolling so no content is lost.
+
+## 2026-08-10 — Provider-authored reverse data
+
+- The owner rejected locally invented daily Love, Work, Well-being, lucky, and
+  similar guidance. New daily values must be attributable to the provider.
+- FreeAstroAPI V2 remains free at 80 requests per day and one request per
+  second, with commercial use allowed and hard throttling instead of automatic
+  overage charges. Zodiac Daily uses twelve provider requests per edition.
+- `Design/Concepts/today-card-back-provider-c2.png` supersedes
+  `today-card-back-c1.png` as the reverse-state visual reference.
+- The Worker retains V2 focus, keywords, Love/Career/Money/Health scores,
+  lucky number/color, and Moon sign/phase instead of discarding them.
+- The app does not synthesize substitute scores or lucky data. Offline bundled
+  editions identify themselves as offline and leave provider-only fields absent.
+- Sign essence is static descriptive product copy, not a daily prediction.

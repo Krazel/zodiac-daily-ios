@@ -3,52 +3,80 @@ import XCTest
 @testable import ZodiacDailyCore
 
 final class DailyCardDetailsTests: XCTestCase {
-    func testDeterministicFallbackIsStableAndComplete() throws {
-        let day = try XCTUnwrap(LocalDayKey(rawValue: "2026-08-09"))
+    func testProviderDetailsAreCompleteAndUseStableSnakeCaseKeys() throws {
+        let details = makeProviderDetails()
 
+        XCTAssertTrue(details.hasProviderData)
+        XCTAssertEqual(details.source, .freeAstroAPIV2)
+        XCTAssertEqual(details.loveScore, 83)
+        XCTAssertEqual(details.luckyNumber, 61)
+
+        let data = try JSONEncoder().encode(details)
+        let object = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        XCTAssertEqual(object["source"] as? String, "freeastroapi-v2")
+        XCTAssertEqual(object["love_score"] as? Int, 83)
+        XCTAssertEqual(object["lucky_color"] as? String, "Silver")
+        XCTAssertEqual(object["moon_phase"] as? String, "Last Quarter")
+        XCTAssertEqual(try JSONDecoder().decode(DailyCardDetails.self, from: data), details)
+    }
+
+    func testOfflineFallbackNeverInventsDailyValues() {
         for sign in ZodiacSign.allCases {
-            let first = DailyCardDetails.deterministicFallback(for: sign, day: day)
-            let repeated = DailyCardDetails.deterministicFallback(for: sign, day: day)
+            let details = DailyCardDetails.offlineFallback(for: sign)
 
-            XCTAssertEqual(first, repeated)
-            XCTAssertFalse(first.love.isEmpty)
-            XCTAssertFalse(first.work.isEmpty)
-            XCTAssertFalse(first.wellBeing.isEmpty)
-            XCTAssertFalse(first.luckyColor.isEmpty)
-            XCTAssertTrue((1...99).contains(first.luckyNumber))
-            XCTAssertFalse(first.signEssence.isEmpty)
+            XCTAssertEqual(details.source, .offline)
+            XCTAssertEqual(details.focus, "Offline Edition")
+            XCTAssertTrue(details.keywords.isEmpty)
+            XCTAssertNil(details.loveScore)
+            XCTAssertNil(details.careerScore)
+            XCTAssertNil(details.moneyScore)
+            XCTAssertNil(details.healthScore)
+            XCTAssertNil(details.luckyColor)
+            XCTAssertNil(details.luckyNumber)
+            XCTAssertNil(details.moonSign)
+            XCTAssertNil(details.moonPhase)
+            XCTAssertFalse(details.signEssence.isEmpty)
+            XCTAssertFalse(details.hasProviderData)
         }
     }
 
-    func testFallbackRespondsToSignAndDayWithoutPersonalData() throws {
-        let firstDay = try XCTUnwrap(LocalDayKey(rawValue: "2026-08-09"))
-        let nextDay = try XCTUnwrap(LocalDayKey(rawValue: "2026-08-10"))
-        let pisces = DailyCardDetails.deterministicFallback(for: .pisces, day: firstDay)
-        let nextPisces = DailyCardDetails.deterministicFallback(for: .pisces, day: nextDay)
-        let scorpio = DailyCardDetails.deterministicFallback(for: .scorpio, day: firstDay)
+    func testLegacyGeneratedDetailsDecodeAsHonestOfflineEdition() throws {
+        let data = Data(
+            """
+            {
+              "love": "Invented legacy love text.",
+              "work": "Invented legacy work text.",
+              "well_being": "Invented legacy well-being text.",
+              "lucky_color": "Amber",
+              "lucky_number": 7,
+              "sign_essence": "Preserved essence."
+            }
+            """.utf8
+        )
 
-        XCTAssertNotEqual(pisces, nextPisces)
-        XCTAssertNotEqual(pisces.signEssence, scorpio.signEssence)
+        let decoded = try JSONDecoder().decode(DailyCardDetails.self, from: data)
+
+        XCTAssertEqual(decoded.source, .offline)
+        XCTAssertEqual(decoded.focus, "Offline Edition")
+        XCTAssertTrue(decoded.keywords.isEmpty)
+        XCTAssertNil(decoded.luckyColor)
+        XCTAssertNil(decoded.luckyNumber)
+        XCTAssertEqual(decoded.signEssence, "Preserved essence.")
     }
 
-    func testCodableRoundTripUsesStableSnakeCaseKeys() throws {
-        let details = DailyCardDetails(
-            love: "Love",
-            work: "Work",
-            wellBeing: "Well-being",
-            luckyColor: "Amber",
-            luckyNumber: 7,
-            signEssence: "Essence"
+    private func makeProviderDetails() -> DailyCardDetails {
+        .provider(
+            focus: "Intuition",
+            keywords: ["Empathy", "Flow", "Imagination"],
+            loveScore: 83,
+            careerScore: 89,
+            moneyScore: 85,
+            healthScore: 78,
+            luckyColor: "Silver",
+            luckyNumber: 61,
+            moonSign: "Capricorn",
+            moonPhase: "Last Quarter",
+            sign: .pisces
         )
-
-        let data = try JSONEncoder().encode(details)
-        let object = try XCTUnwrap(
-            JSONSerialization.jsonObject(with: data) as? [String: Any]
-        )
-        XCTAssertEqual(object["well_being"] as? String, "Well-being")
-        XCTAssertEqual(object["lucky_color"] as? String, "Amber")
-        XCTAssertEqual(object["lucky_number"] as? Int, 7)
-        XCTAssertEqual(object["sign_essence"] as? String, "Essence")
-        XCTAssertEqual(try JSONDecoder().decode(DailyCardDetails.self, from: data), details)
     }
 }

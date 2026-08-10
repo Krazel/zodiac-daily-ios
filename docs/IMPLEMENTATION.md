@@ -12,7 +12,8 @@ The native Today view implements the approved
 - one complete, separately bounded collectible card with all corners visible;
 - native procedural stars, twelve distinct constellation point sets, crescent,
   and waves;
-- local deterministic headline and reading;
+- provider-authored headline and reading when configured, with bundled offline
+  reading fallback;
 - Save Card action outside the card with saved/unsaved feedback; and
 - Today/Saved native tab navigation.
 
@@ -32,6 +33,10 @@ app requests one normalized document containing all twelve signs for the local
 date. It sends neither a FreeAstroAPI key nor the user's selected sign. The
 response must contain twelve unique, validated readings for the exact requested
 date; otherwise the bundled repository supplies the card automatically.
+Schema 2 also carries provider-authored focus, keywords, four daily scores,
+lucky values, and Moon data for the approved card reverse. The app never
+manufactures replacements for those fields: bundled fallback is explicitly
+shown as an offline edition with provider-only values absent.
 `PinnedHoroscopeRepository` stores the first resolved card for each sign/day in
 `Application Support/ZodiacDaily/daily-editions.json`, so a network transition
 cannot change the visible card later that day or after relaunch. This derived

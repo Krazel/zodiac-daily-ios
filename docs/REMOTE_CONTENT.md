@@ -1,6 +1,6 @@
 # Remote daily content
 
-Updated: 2026-08-09
+Updated: 2026-08-10
 
 The app can load a fresh daily edition from a Zodiac Daily-owned HTTPS endpoint
 and falls back automatically to `BundledHoroscopeRepository` on connectivity,
@@ -36,7 +36,7 @@ Accept: application/json
 
 ```json
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "requested_date": "2026-08-09",
   "content_date": "2026-08-09",
   "generated_at": "2026-08-09T00:15:12.000Z",
@@ -47,7 +47,20 @@ Accept: application/json
       "sign": "aries",
       "headline": "A concise editorial headline",
       "reading": "The complete English daily reading with enough useful detail.",
-      "content_version": 1
+      "details": {
+        "source": "freeastroapi-v2",
+        "focus": "Initiative",
+        "keywords": ["Courage", "Momentum", "Clarity"],
+        "love_score": 83,
+        "career_score": 89,
+        "money_score": 85,
+        "health_score": 78,
+        "lucky_color": "Silver",
+        "lucky_number": 61,
+        "moon_sign": "Capricorn",
+        "moon_phase": "Last Quarter"
+      },
+      "content_version": 20260809
     }
   ]
 }
@@ -56,7 +69,11 @@ Accept: application/json
 The example abbreviates `horoscopes`; production responses must contain exactly
 all twelve unique lowercase `ZodiacSign` values. Headlines must be nonblank and
 no longer than 160 characters; readings must contain 40 to 2,000 characters.
-Each `content_version` must be a positive integer. `requested_date` must exactly
+Schema 2 requires complete FreeAstroAPI V2 details: four integer scores from 0
+to 100, one to eight unique keywords, lucky number/color, and Moon sign/phase.
+The app also accepts schema 1 during rollout, but identifies its reverse as an
+offline edition instead of synthesizing missing provider values. Each
+`content_version` must be a positive integer. `requested_date` must exactly
 match the requested local Gregorian day, and `content_date` must always equal
 `requested_date`. A last-valid payload from another date is deliberately
 rejected so the app falls back to its date-correct bundled card. The server
