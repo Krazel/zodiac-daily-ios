@@ -5,7 +5,8 @@ import PackageDescription
 let package = Package(
     name: "ZodiacDailyCore",
     platforms: [
-        .iOS(.v16)
+        .iOS(.v16),
+        .macOS(.v12)
     ],
     products: [
         .library(
