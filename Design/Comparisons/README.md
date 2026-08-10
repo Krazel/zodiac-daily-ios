@@ -44,3 +44,18 @@ The final capture shows the complete front or reverse card, Save Card action,
 and custom tab bar in the first viewport at default text size. The reverse uses
 the approved hierarchy from top to bottom: sign, deeper reading, today's focus,
 Love, Work, Well-being, lucky details, sign essence, and turn affordance.
+
+## Provider-authored reverse validation
+
+- Approved reference: `Design/Concepts/today-card-back-provider-c2.png`
+- Comparison sheet: `Design/Comparisons/today-back-provider-comparison.png`
+- Workflow run: `31426176026`
+- Captured commit: `1f5e8c0`
+- Simulator: iPhone 15 Pro
+- Resolution: 1179 x 2556
+- Mean absolute RGB error: 6.189%
+
+The validated reverse preserves the approved frame, cosmic material, score
+grid, lucky and Moon sections, static sign essence, Save Card action, and tab
+bar in one viewport. All changing values in this state are sourced from the
+FreeAstroAPI V2 contract; the app does not synthesize missing daily scores.
