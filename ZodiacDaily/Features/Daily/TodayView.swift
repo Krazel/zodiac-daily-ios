@@ -113,7 +113,7 @@ struct TodayView: View {
                 }
                 .contentShape(Capsule())
             }
-            .padding(.top, 20)
+            .padding(.top, 12)
             .accessibilityLabel("Selected sign, \(selectedSign.displayName)")
             .accessibilityHint("Double-tap to choose another sign or open settings")
         }
@@ -130,7 +130,7 @@ struct TodayView: View {
                 .padding(.top, 24)
 
         case .failed(let message):
-            VStack(spacing: 10) {
+            VStack(spacing: 6) {
                 Image(systemName: "sparkles")
                     .font(.largeTitle)
                     .foregroundStyle(ZodiacPalette.gold)
@@ -191,7 +191,7 @@ struct TodayView: View {
                         .accessibilityLabel("Save error: \(message)")
                 }
             }
-            .padding(.top, 12)
+            .padding(.top, 6)
         }
     }
 
