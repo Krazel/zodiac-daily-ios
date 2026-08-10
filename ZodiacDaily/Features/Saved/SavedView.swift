@@ -10,7 +10,7 @@ struct SavedView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                MidnightBackground()
+                MidnightBackground(dimming: 0.40)
 
                 ScrollView {
                     VStack(spacing: 0) {
@@ -60,7 +60,7 @@ struct SavedView: View {
     private var savedHeader: some View {
         VStack(spacing: 0) {
             ZodiacMasthead(compact: true)
-                .offset(y: -11)
+                .offset(y: model.savedCards.isEmpty ? -11 : -3)
                 .padding(.bottom, 5)
 
             Text("Your Saved Cards")
@@ -76,7 +76,7 @@ struct SavedView: View {
                 .minimumScaleFactor(0.78)
                 .lineLimit(1)
                 .padding(.top, 0)
-                .offset(y: model.savedCards.isEmpty ? 0 : -11)
+                .offset(y: model.savedCards.isEmpty ? 0 : -3)
                 .accessibilityAddTraits(.isHeader)
 
             if model.savedCards.isEmpty {
@@ -91,7 +91,7 @@ struct SavedView: View {
                     .tracking(0.45)
                     .foregroundStyle(ZodiacPalette.lavender)
                     .padding(.top, 3)
-                    .offset(y: -11)
+                    .offset(y: -3)
                     .accessibilityLabel(collectionSummary)
             }
         }
@@ -409,7 +409,7 @@ struct SavedCardDetailView: View {
 
     var body: some View {
         ZStack {
-            MidnightBackground()
+            MidnightBackground(dimming: 0.45)
 
             VStack(spacing: 0) {
                 detailHeader

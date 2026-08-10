@@ -13,7 +13,7 @@ struct TodayView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                MidnightBackground()
+                MidnightBackground(dimming: 0.35)
 
                 ScrollView {
                     VStack(spacing: 0) {

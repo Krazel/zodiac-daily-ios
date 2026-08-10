@@ -25,6 +25,8 @@ enum ZodiacPalette {
 }
 
 struct MidnightBackground: View {
+    var dimming: Double = 0
+
     var body: some View {
         GeometryReader { geometry in
             Image("CelestialBackground")
@@ -44,6 +46,7 @@ struct MidnightBackground: View {
                         endPoint: .bottom
                     )
                 }
+                .overlay(Color.black.opacity(dimming))
         }
         .ignoresSafeArea()
     }
