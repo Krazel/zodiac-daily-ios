@@ -112,7 +112,7 @@ struct TodayView: View {
                 }
                 .contentShape(Capsule())
             }
-            .padding(.top, 12)
+            .padding(.top, 22)
             .accessibilityLabel("Selected sign, \(selectedSign.displayName)")
             .accessibilityHint("Double-tap to choose another sign or open settings")
         }
@@ -190,7 +190,7 @@ struct TodayView: View {
                         .accessibilityLabel("Save error: \(message)")
                 }
             }
-            .padding(.top, 38)
+            .padding(.top, 28)
         }
     }
 

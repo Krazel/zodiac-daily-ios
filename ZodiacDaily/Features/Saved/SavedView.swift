@@ -23,7 +23,7 @@ struct SavedView: View {
                         }
                     }
                     .padding(.horizontal, 20)
-                    .padding(.top, model.savedCards.isEmpty ? 34 : 0)
+                    .padding(.top, model.savedCards.isEmpty ? 18 : -20)
                     .padding(.bottom, 34)
                     .frame(maxWidth: 650)
                     .frame(maxWidth: .infinity)
@@ -67,7 +67,7 @@ struct SavedView: View {
                 .multilineTextAlignment(.center)
                 .minimumScaleFactor(0.78)
                 .lineLimit(1)
-                .padding(.top, model.savedCards.isEmpty ? 25 : 6)
+                .padding(.top, model.savedCards.isEmpty ? 0 : 6)
                 .accessibilityAddTraits(.isHeader)
 
             if model.savedCards.isEmpty {
@@ -107,13 +107,13 @@ struct SavedView: View {
                 }
             }
         }
-        .padding(.top, 0)
+        .padding(.top, 14)
     }
 
     private var emptyState: some View {
         VStack(spacing: 0) {
             EmptyCardBack(sign: model.selectedSign)
-                .padding(.top, 32)
+                .padding(.top, 0)
                 .accessibilityHidden(true)
 
             Text("No Cards Yet")
@@ -419,10 +419,10 @@ struct SavedCardDetailView: View {
                             maxWidth: 345,
                             artworkHeight: 351,
                             contentSpacing: -22,
-                            headlineSize: 33,
+                            headlineSize: 30,
                             readingBottomPadding: 24,
-                            symbolSize: 62,
-                            symbolTopPadding: 16
+                            symbolSize: 56,
+                            symbolTopPadding: 27
                         )
                             .padding(.top, 18)
 
