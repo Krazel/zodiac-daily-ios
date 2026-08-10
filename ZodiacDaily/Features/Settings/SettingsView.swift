@@ -62,7 +62,6 @@ struct SettingsView: View {
         }
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
-        .presentationBackground(ZodiacPalette.cardNavy)
         .sheet(isPresented: $showsSignSelection) {
             SignSelectionView(requiresSelection: false)
         }
