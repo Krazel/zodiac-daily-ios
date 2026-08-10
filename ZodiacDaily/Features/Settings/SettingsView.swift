@@ -207,10 +207,11 @@ struct SettingsView: View {
     ) -> some View {
         VStack(alignment: .leading, spacing: 7) {
             Text(title.uppercased())
-                .font(.system(size: 14, weight: .semibold))
-                .tracking(2.8)
+                .font(.system(size: 12, weight: .semibold))
+                .tracking(2.5)
                 .foregroundStyle(ZodiacPalette.settingsLavender)
                 .padding(.leading, 12)
+                .frame(minHeight: 17)
                 .accessibilityAddTraits(.isHeader)
 
             content()
@@ -241,7 +242,7 @@ struct SettingsView: View {
             celestialIcon(systemImage)
 
             Text(title)
-                .font(.custom("Didot", size: 17, relativeTo: .headline))
+                .font(.custom("Didot", size: 14, relativeTo: .headline))
                 .foregroundStyle(ZodiacPalette.settingsText)
 
             Spacer(minLength: 8)
@@ -251,7 +252,7 @@ struct SettingsView: View {
                 .foregroundStyle(ZodiacPalette.settingsGold)
                 .accessibilityHidden(true)
         }
-        .padding(.horizontal, 14)
+        .padding(.horizontal, 17)
         .frame(maxWidth: .infinity, minHeight: minHeight)
         .contentShape(Rectangle())
     }

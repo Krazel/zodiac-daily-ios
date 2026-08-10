@@ -23,7 +23,7 @@ struct SavedView: View {
                         }
                     }
                     .padding(.horizontal, 20)
-                    .padding(.top, model.savedCards.isEmpty ? 18 : -20)
+                    .padding(.top, model.savedCards.isEmpty ? 26 : 0)
                     .padding(.bottom, 34)
                     .frame(maxWidth: 650)
                     .frame(maxWidth: .infinity)
@@ -62,12 +62,18 @@ struct SavedView: View {
             ZodiacMasthead(compact: true)
 
             Text("Your Saved Cards")
-                .font(.custom("Didot", size: 35, relativeTo: .largeTitle))
+                .font(
+                    .custom(
+                        "Didot",
+                        size: model.savedCards.isEmpty ? 35 : 33,
+                        relativeTo: .largeTitle
+                    )
+                )
                 .foregroundStyle(ZodiacPalette.text)
                 .multilineTextAlignment(.center)
                 .minimumScaleFactor(0.78)
                 .lineLimit(1)
-                .padding(.top, model.savedCards.isEmpty ? 0 : 6)
+                .padding(.top, 0)
                 .accessibilityAddTraits(.isHeader)
 
             if model.savedCards.isEmpty {
@@ -81,7 +87,7 @@ struct SavedView: View {
                     .font(.system(size: 16, weight: .regular))
                     .tracking(0.45)
                     .foregroundStyle(ZodiacPalette.lavender)
-                    .padding(.top, 7)
+                    .padding(.top, 3)
                     .accessibilityLabel(collectionSummary)
             }
         }
@@ -107,19 +113,19 @@ struct SavedView: View {
                 }
             }
         }
-        .padding(.top, 14)
+        .padding(.top, 4)
     }
 
     private var emptyState: some View {
         VStack(spacing: 0) {
             EmptyCardBack(sign: model.selectedSign)
-                .padding(.top, 0)
+                .padding(.top, 6)
                 .accessibilityHidden(true)
 
             Text("No Cards Yet")
                 .font(.custom("Didot", size: 29, relativeTo: .title))
                 .foregroundStyle(ZodiacPalette.text)
-                .padding(.top, 14)
+                .padding(.top, 20)
                 .accessibilityAddTraits(.isHeader)
 
             Text("Save today’s card to begin your collection.")
@@ -239,7 +245,7 @@ private struct SavedCardPreview: View {
             Spacer(minLength: 0)
 
             Text(card.horoscope.sign.displayName.uppercased())
-                .font(.custom("Didot", size: 21, relativeTo: .title2))
+                .font(.custom("Didot", size: 20, relativeTo: .title2))
                 .tracking(1.25)
                 .foregroundStyle(ZodiacPalette.text)
                 .lineLimit(1)
@@ -257,7 +263,7 @@ private struct SavedCardPreview: View {
                 .padding(.top, 12)
 
             Text(card.horoscope.headline)
-                .font(.custom("Didot", size: 23, relativeTo: .title2))
+                .font(.custom("Didot", size: 21, relativeTo: .title2))
                 .foregroundStyle(ZodiacPalette.text)
                 .multilineTextAlignment(.center)
                 .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 3)
@@ -418,9 +424,9 @@ struct SavedCardDetailView: View {
                             horoscope: card.horoscope,
                             maxWidth: 345,
                             artworkHeight: 351,
-                            contentSpacing: -22,
+                            contentSpacing: -44,
                             headlineSize: 30,
-                            readingBottomPadding: 24,
+                            readingBottomPadding: 46,
                             symbolSize: 56,
                             symbolTopPadding: 27
                         )

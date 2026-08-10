@@ -28,10 +28,11 @@ struct SupportSectionView: View {
     private var content: some View {
         VStack(alignment: .leading, spacing: 7) {
             Text("SUPPORT THE APP")
-                .font(.system(size: 14, weight: .semibold))
-                .tracking(2.8)
+                .font(.system(size: 12, weight: .semibold))
+                .tracking(2.5)
                 .foregroundStyle(ZodiacPalette.settingsLavender)
                 .padding(.leading, 12)
+                .frame(minHeight: 17)
                 .accessibilityAddTraits(.isHeader)
 
             VStack(spacing: 7) {
@@ -77,7 +78,7 @@ struct SupportSectionView: View {
                     ? "Thank you for supporting ongoing development and helping keep the app free for everyone."
                     : "Support ongoing development and keep the app free for everyone."
             )
-            .font(.system(size: 15))
+            .font(.system(size: 14))
             .foregroundStyle(ZodiacPalette.settingsText)
             .fixedSize(horizontal: false, vertical: true)
 
@@ -106,7 +107,7 @@ struct SupportSectionView: View {
                 celestialIcon("sparkle", size: 31)
 
                 Text(tierTitle(at: index))
-                    .font(.custom("Didot", size: 16, relativeTo: .headline))
+                    .font(.custom("Didot", size: 14, relativeTo: .headline))
                     .foregroundStyle(ZodiacPalette.settingsText)
                     .lineLimit(1)
                     .minimumScaleFactor(0.72)
@@ -208,7 +209,7 @@ struct SupportSectionView: View {
             celestialIcon(systemImage, size: 31)
 
             Text(title)
-                .font(.custom("Didot", size: 16, relativeTo: .headline))
+                .font(.custom("Didot", size: 13.5, relativeTo: .headline))
                 .foregroundStyle(ZodiacPalette.settingsText)
 
             Spacer(minLength: 8)

@@ -41,7 +41,7 @@ struct SignSelectionView: View {
                         }
                         .padding(.bottom, 24)
 
-                        LazyVGrid(columns: columns, spacing: 8) {
+                        LazyVGrid(columns: columns, spacing: 13) {
                             ForEach(ZodiacSign.allCases, id: \.self) { sign in
                                 SignChoiceCard(
                                     sign: sign,
@@ -53,7 +53,7 @@ struct SignSelectionView: View {
                             }
                         }
                         .frame(maxWidth: dynamicTypeSize.isAccessibilitySize ? 354 : 330)
-                        .padding(.bottom, 24)
+                        .padding(.bottom, 28)
 
                         Button(action: confirmSelection) {
                             HStack(spacing: 16) {
@@ -180,7 +180,7 @@ private struct SignChoiceCard: View {
                     .lineLimit(1)
             }
             .padding(.horizontal, 8)
-            .frame(maxWidth: .infinity, minHeight: usesAccessibleHeight ? 132 : 110)
+            .frame(maxWidth: .infinity, minHeight: usesAccessibleHeight ? 136 : 114)
             .background {
                 LinearGradient(
                     colors: [

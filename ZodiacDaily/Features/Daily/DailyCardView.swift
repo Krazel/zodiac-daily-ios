@@ -5,9 +5,9 @@ struct DailyCardView: View {
     let horoscope: DailyHoroscope
     var maxWidth: CGFloat = 328
     var artworkHeight: CGFloat = 296
-    var contentSpacing: CGFloat = 0
+    var contentSpacing: CGFloat = -28
     var headlineSize: CGFloat = 30
-    var readingBottomPadding: CGFloat = 18
+    var readingBottomPadding: CGFloat = 46
     var symbolSize: CGFloat = 54
     var symbolTopPadding: CGFloat = 25
 
