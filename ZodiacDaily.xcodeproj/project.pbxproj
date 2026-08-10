@@ -221,7 +221,7 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 				ZODIAC_DAILY_API_BASE_URL = "https://zodiac-daily-content.krazel-zodiac-daily.workers.dev";
-				ZODIAC_DAILY_APP_STORE_ID = "";
+				ZODIAC_DAILY_APP_STORE_ID = 6800136195;
 			};
 			name = Debug;
 		};
@@ -250,7 +250,7 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 				ZODIAC_DAILY_API_BASE_URL = "https://zodiac-daily-content.krazel-zodiac-daily.workers.dev";
-				ZODIAC_DAILY_APP_STORE_ID = "";
+				ZODIAC_DAILY_APP_STORE_ID = 6800136195;
 			};
 			name = Release;
 		};

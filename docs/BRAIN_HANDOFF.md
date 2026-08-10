@@ -6,7 +6,9 @@ workspace does not have write access to Brain.
 ## Estado DIS-001
 
 - Nombre interno: `ZodiacDailyNative`.
-- Nombre publico de trabajo: **Zodiac Daily**.
+- Nombre publico en App Store: **The Daily Zodiac**. La marca dentro de la app
+  sigue siendo **Zodiac Daily**; Apple rechazo ese texto exacto como nombre de
+  ficha porque ya estaba en uso.
 - Promesa: “A beautifully written daily horoscope for your sign, presented
   like a collectible editorial card.”
 - MVP definido: Welcome/Sign Selection, Today, Saved y Settings/About como hoja;
@@ -83,9 +85,8 @@ workspace does not have write access to Brain.
   tienda y cualquier arte promocional nuevo conservan su propia puerta visual.
 - Bloqueos tecnicos/externos: Mac/Xcode o un dispositivo para simulador,
   StoreKitTest, firma y archivo de distribucion; App Store Connect para
-  productos/grupo;
-  App Store ID para review; URLs publicas de privacidad/terminos/soporte; y
-  equipo de firma.
+  productos/grupo; URLs publicas de privacidad/terminos/soporte; y equipo de
+  firma.
 - Nucleo implementado como Swift Package: 12 signos, dia local, catalogo ingles
   bundled, generacion FNV-1a determinista, snapshots guardados, stores en
   memoria y JSON file-backed y XCTest. Validacion estatica y JSON correctos;
@@ -128,6 +129,10 @@ workspace does not have write access to Brain.
 
 - Aplicada la skill `ios-app-launch` a la planificacion. Ficha local:
   `docs/LAUNCH_READINESS.md`.
+- App Store Connect creada el 2026-08-11: **The Daily Zodiac**, app ID
+  `6800136195`, bundle ID `com.krazel.zodiacdaily`, ingles (EE. UU.), SKU
+  `zodiac-daily-ios`, version `0.1.1` / build `1`, sin login y con publicacion
+  manual. No se subio build ni se crearon productos.
 - URLs compartidas planificadas, aun no publicadas:
   `https://krazel.github.io/zodiac-daily/privacy/` y
   `https://krazel.github.io/zodiac-daily/support/`.
@@ -141,8 +146,8 @@ workspace does not have write access to Brain.
 - La UI debe mostrar precios localizados de StoreKit, estados sin productos,
   Restore Purchases y Manage Subscription. No debe usar como precio real los
   importes dibujados en la referencia.
-- Rate Zodiac Daily abrira la URL `action=write-review` cuando exista App Store
-  ID; no debe publicarse con un identificador de relleno.
+- Rate Zodiac Daily usa el App Store ID real `6800136195` para la URL
+  `action=write-review`.
 - La referencia `settings-support-c3.png` esta aprobada por autorizacion
   anticipada. Crear productos/grupo en App Store Connect, firmar, subir o enviar
   a review sigue requiriendo autorizacion externa explicita.

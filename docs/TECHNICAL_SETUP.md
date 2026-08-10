@@ -57,10 +57,10 @@ comparison remain pending because Swift/Xcode are not installed locally.
   must not display reference-image prices as real offers.
 - Verified StoreKit 2 entitlements drive supporter status. Restore Purchases is
   explicit, and Manage Subscription uses the system subscription UI.
-- Rate Zodiac Daily uses the App Store `action=write-review` URL only after the
-  production App Store ID is recorded. The separate system review prompt is
-  triggered conservatively after a successful third-card save, at most once per
-  app version.
+- Rate Zodiac Daily uses app ID `6800136195` for the App Store
+  `action=write-review` URL. The separate system review prompt is triggered
+  conservatively after a successful third-card save, at most once per app
+  version.
 - Local implementation is complete. Product/group creation, Xcode StoreKitTest,
   sandbox validation, and production activation remain external release work.
 
@@ -127,10 +127,11 @@ The current Windows environment has Git but not Swift or Xcode. Project
 generation, compilation, simulator testing, signing, and archiving require a Mac
 with the agreed Xcode version.
 
-StoreKit production activation additionally requires an App Store Connect app
-record, one subscription group containing all three equivalent monthly
-products, a production App Store ID, published legal/support URLs, and a signing
-team. None of those external resources is created by the local implementation.
+The App Store Connect record and production App Store ID now exist. StoreKit
+production activation still requires one subscription group containing all
+three equivalent monthly products, published legal/support URLs, and a signing
+team. Those remaining external resources are not created by the local
+implementation.
 
 The free content adapter is active. FreeAstroAPI is stored only as the encrypted
 Worker secret `FREEASTRO_API_KEY`; Cloudflare KV, Queue, cron triggers, and the
@@ -145,10 +146,10 @@ App Store secrets and performs no external upload.
 ## Current project values and decisions still open
 
 - Deployment minimum: iOS 16.0.
-- Intended production bundle identifier: `com.krazel.zodiacdaily`.
-- Confirm that identifier and the signing team before device, archive, or
-  distribution work.
-- Record the App Store ID and final Privacy Policy, Terms/EULA, and support URLs.
+- Registered production bundle identifier: `com.krazel.zodiacdaily`.
+- App Store Connect: **The Daily Zodiac**, app ID `6800136195`.
+- Confirm the signing team before device, archive, or distribution work.
+- Record the final Privacy Policy, Terms/EULA, and support URLs.
 - Create and validate the StoreKit subscription group/products only after
   explicit external authorization.
 - Define the authored content horizon and update model for bundled readings.

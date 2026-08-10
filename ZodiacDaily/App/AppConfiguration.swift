@@ -26,9 +26,8 @@ enum AppConfiguration {
         return url
     }
 
-    /// The numeric App Store ID does not exist until the App Store Connect
-    /// record is created. The persistent review link remains unavailable until
-    /// this non-secret build setting is configured.
+    /// The numeric App Store ID is supplied by the non-secret Xcode build
+    /// setting registered with the App Store Connect record.
     static var writeReviewURL: URL? {
         guard let rawValue = Bundle.main.object(forInfoDictionaryKey: appStoreIDKey) as? String else {
             return nil

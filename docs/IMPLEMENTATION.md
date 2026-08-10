@@ -96,19 +96,19 @@ of supporter status. The three equivalent monthly levels are:
 The UI loads localized names and prices from StoreKit rather than embedding the
 USD values shown in the visual reference. It includes explicit Restore
 Purchases and Manage Subscription actions and remains useful when no products
-are returned. Rate Zodiac Daily uses the App Store
-`action=write-review` URL once the production App Store ID exists, so an
-explicit tap always has a destination. Until then, no production review URL is
-available. The separate StoreKit system review prompt is eligible only after a
-successful save produces at least three collected cards and only once per app
-version; Apple may still suppress it.
+are returned. Rate Zodiac Daily uses app ID `6800136195` for the App Store
+`action=write-review` URL, so an explicit tap has a production destination. The
+separate StoreKit system review prompt is eligible only after a successful save
+produces at least three collected cards and only once per app version; Apple may
+still suppress it.
 
 ## Xcode handoff
 
 - Open `ZodiacDaily.xcodeproj` on a Mac with Xcode.
 - Target: `ZodiacDaily`, iPhone only, iOS 16.0+.
 - Product name: Zodiac Daily.
-- Intended production bundle identifier: `com.krazel.zodiacdaily`.
+- Registered production bundle identifier: `com.krazel.zodiacdaily`.
+- App Store Connect record: **The Daily Zodiac**, app ID `6800136195`.
 - Signing team: unset.
 - Approved runtime icon: `ZodiacDaily/Assets.xcassets/AppIcon.appiconset`.
 - Local dependency: root Swift package product `ZodiacDailyCore`.

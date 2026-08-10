@@ -1,6 +1,6 @@
 # iOS launch readiness
 
-Updated: 2026-08-10
+Updated: 2026-08-11
 
 Planning only. This document does not authorize account creation, secrets,
 StoreKit products, uploads, TestFlight, App Review, or publication.
@@ -8,7 +8,9 @@ StoreKit products, uploads, TestFlight, App Review, or publication.
 ## Recorded scope
 
 - iPhone / iOS 16+, English only.
-- Intended production bundle identifier: `com.krazel.zodiacdaily`.
+- Registered production bundle identifier: `com.krazel.zodiacdaily`.
+- App Store Connect record: **The Daily Zodiac**, app ID `6800136195`, primary
+  language English (U.S.), SKU `zodiac-daily-ios`.
 - App category: Lifestyle (provisional).
 - App slug: `zodiac-daily`.
 - Planned privacy URL:
@@ -44,10 +46,10 @@ StoreKit products, uploads, TestFlight, App Review, or publication.
   and terms/EULA.
 - Optional reminder: low frequency only after meaningful use, never on first
   launch or during a critical action, with `Not now` and `Don't ask again`.
-- App Store review is separate. The persistent Rate Zodiac Daily row will open
-  the App Store `action=write-review` URL after the production App Store ID is
-  assigned; it must not contain a placeholder ID. A StoreKit system prompt is
-  eligible only after a successful third-card save and once per app version.
+- App Store review is separate. The persistent Rate Zodiac Daily row uses app
+  ID `6800136195` for its App Store `action=write-review` URL. A StoreKit system
+  prompt is eligible only after a successful third-card save and once per app
+  version.
 
 [App Review guideline 3.1.2](https://developer.apple.com/app-store/review/guidelines/#subscriptions)
 requires auto-renewable subscriptions to provide ongoing value. Before creating
@@ -67,8 +69,7 @@ local implementation only, not uploads or external activation.
 
 - Mac/Xcode or a device for StoreKitTest, simulator, signed archive, and icon
   checks. The unsigned Release device build already compiles in GitHub Actions.
-- App Store Connect app record, one subscription group, and all three products.
-- Production App Store ID for the write-review URL.
+- One subscription group and all three products in App Store Connect.
 - Published Privacy Policy, Terms of Use/EULA, and support URLs.
 - Production signing team, certificates, and provisioning.
 
@@ -98,8 +99,9 @@ credential can push and dispatch this workflow.
 - [x] Approve app icon C1 and prepare its runtime asset catalog.
 - [ ] Create shared privacy and support pages.
 - [ ] Publish or select a Terms of Use/EULA URL.
-- [ ] Confirm `com.krazel.zodiacdaily` and the signing team.
-- [ ] Record App Store Connect app ID, version, and build.
+- [ ] Confirm the production signing team for `com.krazel.zodiacdaily`.
+- [x] Record App Store Connect app ID `6800136195`, version `0.1.1`, and build
+      `1`. Release is configured for manual publication.
 - [ ] Complete age rating, content-rights, export-compliance, and App Privacy
       answers.
 - [x] Define supporter product IDs locally.
