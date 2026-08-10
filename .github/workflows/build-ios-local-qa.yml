@@ -36,7 +36,6 @@ jobs:
             -sdk iphoneos \
             -destination 'generic/platform=iOS' \
             -derivedDataPath build/ios \
-            CURRENT_PROJECT_VERSION="${GITHUB_RUN_NUMBER}" \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY=""
@@ -55,6 +54,7 @@ jobs:
           VERSION="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP_PATH/Info.plist")"
           BUILD="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$APP_PATH/Info.plist")"
           MINIMUM_IOS="$(/usr/libexec/PlistBuddy -c 'Print :MinimumOSVersion' "$APP_PATH/Info.plist")"
+          API_BASE_URL="$(/usr/libexec/PlistBuddy -c 'Print :ZodiacDailyAPIBaseURL' "$APP_PATH/Info.plist")"
 
           require_value() {
             if [ "$1" != "$2" ]; then
@@ -72,8 +72,10 @@ jobs:
 
           echo "Validating ${BUNDLE_ID} v${VERSION} (${BUILD}), minimum iOS ${MINIMUM_IOS}"
           require_value "$BUNDLE_ID" "com.krazel.zodiacdaily" "bundle identifier"
-          require_value "$VERSION" "0.1.0" "marketing version"
+          require_value "$VERSION" "0.1.1" "marketing version"
+          require_value "$BUILD" "1" "build number"
           require_value "$MINIMUM_IOS" "16.0" "minimum iOS version"
+          require_value "$API_BASE_URL" "https://zodiac-daily-content.krazel-zodiac-daily.workers.dev" "API base URL"
           require_file "$APP_PATH/ZodiacDaily"
           require_file "$APP_PATH/PrivacyInfo.xcprivacy"
           require_file "$APP_PATH/Assets.car"
@@ -93,21 +95,32 @@ jobs:
           APP_PATH: ${{ steps.app.outputs.app_path }}
           APP_VERSION: ${{ steps.app.outputs.version }}
           APP_BUILD: ${{ steps.app.outputs.build }}
+          COMMIT_SHA: ${{ github.sha }}
+          RUN_NUMBER: ${{ github.run_number }}
         run: |
           set -euo pipefail
           mkdir -p unsigned-ipa/Payload output
           cp -R "$APP_PATH" unsigned-ipa/Payload/ZodiacDaily.app
 
-          VERSIONED_IPA="ZodiacDaily-iPhone-v${APP_VERSION}-build-${APP_BUILD}-unsigned.ipa"
+          SHORT_SHA="${COMMIT_SHA:0:7}"
+          VERSIONED_IPA="ZodiacDaily-v${APP_VERSION}-build-${APP_BUILD}-${SHORT_SHA}-Local-QA-unsigned.ipa"
           (cd unsigned-ipa && zip -qry "../output/${VERSIONED_IPA}" Payload)
           shasum -a 256 "output/${VERSIONED_IPA}" > "output/${VERSIONED_IPA}.sha256"
-          cp "output/${VERSIONED_IPA}" output/ZodiacDaily-Local-QA-unsigned.ipa
+          printf '%s\n' \
+            "app=Zodiac Daily" \
+            "marketing_version=${APP_VERSION}" \
+            "build=${APP_BUILD}" \
+            "commit_sha=${COMMIT_SHA}" \
+            "purpose=Local-QA" \
+            "github_run_number=${RUN_NUMBER}" \
+            "ipa=${VERSIONED_IPA}" \
+            > output/ZodiacDaily-Local-QA-manifest.txt
           ls -lh output/*
 
       - name: Upload Local QA artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ZodiacDaily-Local-QA-unsigned-${{ github.run_number }}
+          name: ZodiacDaily-v0.1.1-build-1-${{ github.sha }}-Local-QA-run-${{ github.run_number }}
           path: output/*
           if-no-files-found: error
           retention-days: 7

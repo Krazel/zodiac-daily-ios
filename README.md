@@ -19,17 +19,16 @@ Daily endpoint.
   including final saved-card detail and optional monthly supporter controls.
 - Persistence: saved-card snapshots use an actor-isolated, atomic JSON archive
   in Application Support; the selected sign uses local app preferences.
-- Daily content: a FreeAstroAPI-to-Cloudflare Worker adapter is implemented but
-  not deployed. When configured, the app loads the complete twelve-sign daily
+- Daily content: the FreeAstroAPI-to-Cloudflare Worker is deployed and the app
+  is configured to load the complete twelve-sign daily
   edition through our endpoint, pins the first resolved sign/day card locally,
   and falls back locally on any failure.
 - Support: StoreKit 2 loads three equivalent monthly levels using Apple's live
   localized prices. The app remains fully usable for free and includes verified
   entitlement status, restore, and subscription management.
-- External services: no provider account, secret, Worker, or content endpoint
-  has been activated. A private GitHub repository exists only for source and
-  no-secret build artifacts.
-- GitHub: private repository `Krazel/zodiac-daily-ios`; `main` is current.
+- External services: the free provider account, encrypted Worker secret, KV
+  cache, Queue, cron triggers, and public cache-only HTTPS endpoint are active.
+- GitHub: public repository `Krazel/zodiac-daily-ios`; `main` is current.
 
 Open `ZodiacDaily.xcodeproj` on a Mac with Xcode. The planned bundle identifier
 is `com.krazel.zodiacdaily`; no signing team or App Store Connect products are

@@ -48,8 +48,9 @@ The Worker in `Backend/freeastro-worker` is read-only for public traffic. Only
 its queue consumer can spend provider quota: normally twelve FreeAstroAPI
 requests per day, paced at one per second, cached in Cloudflare KV. Cron
 triggers only enqueue work so they stay below the free plan's tighter CPU
-ceiling. No external account, secret, queue, KV namespace, or deployment has
-been created yet.
+ceiling. Production is active at
+`https://zodiac-daily-content.krazel-zodiac-daily.workers.dev`; its provider key
+exists only as an encrypted Worker secret.
 
 ## Persistence
 
@@ -111,8 +112,8 @@ version; Apple may still suppress it.
 - Signing team: unset.
 - Approved runtime icon: `ZodiacDaily/Assets.xcassets/AppIcon.appiconset`.
 - Local dependency: root Swift package product `ZodiacDailyCore`.
-- Optional public configuration: `ZODIAC_DAILY_API_BASE_URL`; leave empty for
-  fully local operation. It must never contain the provider key.
+- Public configuration: `ZODIAC_DAILY_API_BASE_URL` is set to the production
+  Worker base URL. It must never contain the provider key.
 - The shared app scheme builds and runs the app. Run the root package tests
   separately with `swift test` from the repository root; they are not embedded
   as an Xcode unit-test target in the app scheme.

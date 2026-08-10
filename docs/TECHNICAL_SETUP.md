@@ -34,7 +34,7 @@ Updated: 2026-08-10
   automatic bundled fallback.
 - Durable first-edition pinning by sign/day so remote and fallback changes do
   not alter a card during the day or after relaunch.
-- Undeployed Cloudflare Worker adapter with queue-based FreeAstroAPI ingestion,
+- Deployed Cloudflare Worker adapter with queue-based FreeAstroAPI ingestion,
   exact-date KV cache, secret isolation, and public cache-only routes. Cron
   triggers only enqueue work; the free queue consumer handles the heavier
   twelve-sign normalization outside the cron's 10 ms CPU ceiling.
@@ -132,13 +132,13 @@ record, one subscription group containing all three equivalent monthly
 products, a production App Store ID, published legal/support URLs, and a signing
 team. None of those external resources is created by the local implementation.
 
-The free content adapter is prepared locally but intentionally inactive. Its
-activation requires a FreeAstroAPI free key, a Cloudflare free Worker/KV/Queue
-setup, the provider key stored as a Worker secret, deployment authorization,
-and the resulting public HTTPS base URL added to the Xcode build setting. Exact
-commands and verification steps live in `Backend/freeastro-worker/README.md`.
+The free content adapter is active. FreeAstroAPI is stored only as the encrypted
+Worker secret `FREEASTRO_API_KEY`; Cloudflare KV, Queue, cron triggers, and the
+public cache-only endpoint are deployed. The Xcode build setting points to
+`https://zodiac-daily-content.krazel-zodiac-daily.workers.dev`. Maintenance and
+verification steps live in `Backend/freeastro-worker/README.md`.
 
-The GitHub repository is the private `Krazel/zodiac-daily-ios`, with branch
+The GitHub repository is the public `Krazel/zodiac-daily-ios`, with branch
 `main` and remote `origin`. Its manual Local QA workflow uses no signing or
 App Store secrets and performs no external upload.
 

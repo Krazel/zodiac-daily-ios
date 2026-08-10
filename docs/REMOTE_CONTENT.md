@@ -20,10 +20,10 @@ available for that session.
 
 ## App configuration
 
-Set the non-secret Xcode build setting `ZODIAC_DAILY_API_BASE_URL` to the public
-HTTPS base URL, without credentials, query, or fragment. When it is empty, the
-app remains fully local. A FreeAstroAPI key must exist only in the server-side
-adapter and must never be copied into the app or its build settings.
+The non-secret Xcode build setting `ZODIAC_DAILY_API_BASE_URL` is set to
+`https://zodiac-daily-content.krazel-zodiac-daily.workers.dev`, without
+credentials, query, or fragment. A FreeAstroAPI key exists only in the
+server-side adapter and must never be copied into the app or its build settings.
 
 The app requests:
 
@@ -86,7 +86,7 @@ That separation avoids doing the heavier work inside the Workers Free cron
 limit. The consumer uses one-message batches and concurrency one, so duplicate
 messages serialize and recheck KV before they can spend provider quota.
 
-The production endpoint URL is intentionally unset in the app. This app-side
-implementation neither contacts FreeAstroAPI directly nor contains its key.
+The production endpoint is active in the app. The app-side implementation
+neither contacts FreeAstroAPI directly nor contains its key.
 It requests only the local date and the full twelve-sign edition, never the
 selected sign, birth data, account data, or saved cards.

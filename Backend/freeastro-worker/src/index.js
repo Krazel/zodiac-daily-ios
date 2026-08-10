@@ -70,7 +70,7 @@ export async function handleRequest(request, env, options = {}) {
 
   if (url.pathname === "/health") {
     const configured = Boolean(
-      env?.FREEASTRO_API_KEY && env?.DAILY_CACHE && env?.WARMUP_QUEUE,
+      secretValue(env?.FREEASTRO_API_KEY) && env?.DAILY_CACHE && env?.WARMUP_QUEUE,
     );
     return jsonResponse(
       {
@@ -155,7 +155,7 @@ export async function getCachedDaily(date, env) {
 }
 
 export async function warmDate(date, env, options = {}) {
-  if (!env?.DAILY_CACHE || !env?.FREEASTRO_API_KEY) {
+  if (!env?.DAILY_CACHE || !secretValue(env?.FREEASTRO_API_KEY)) {
     throw new Error("service_not_configured");
   }
 
@@ -180,7 +180,11 @@ async function refreshDate(date, env, options) {
   if (cooldown) throw new Error("provider_cooldown");
 
   try {
-    const payload = await fetchProviderBundle(date, env.FREEASTRO_API_KEY, options);
+    const payload = await fetchProviderBundle(
+      date,
+      secretValue(env.FREEASTRO_API_KEY),
+      options,
+    );
     if (!isValidBundle(payload, date)) throw new Error("invalid_normalized_bundle");
 
     await Promise.all([
@@ -191,7 +195,11 @@ async function refreshDate(date, env, options) {
     ]);
 
     return { payload, cache: "miss" };
-  } catch {
+  } catch (error) {
+    console.error("provider refresh failed", {
+      date,
+      code: error instanceof Error ? error.message : "unknown",
+    });
     try {
       await env.DAILY_CACHE.put(failureCacheKey(date), "1", {
         expirationTtl: FAILURE_COOLDOWN_SECONDS,
@@ -403,6 +411,10 @@ function isNearToday(date, now) {
   const requested = Date.parse(`${date}T00:00:00Z`);
   const today = Date.parse(`${toUTCDate(now)}T00:00:00Z`);
   return Math.abs(requested - today) <= 24 * 60 * 60 * 1_000;
+}
+
+function secretValue(value) {
+  return typeof value === "string" ? value.trim() : "";
 }
 
 function toUTCDate(date) {

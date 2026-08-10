@@ -1,8 +1,8 @@
 # Zodiac Daily - FreeAstroAPI Worker
 
 Small Cloudflare Worker that keeps the FreeAstroAPI key out of the iOS app and
-publishes one validated daily document containing all twelve signs. Codex has
-not deployed it or created any external account.
+publishes one validated daily document containing all twelve signs. Production
+is active at `https://zodiac-daily-content.krazel-zodiac-daily.workers.dev`.
 
 ## Behavior
 
@@ -95,10 +95,13 @@ Optional local Wrangler preview:
 `.dev.vars` is ignored here. Never put the key in source, `wrangler.jsonc`,
 Xcode settings, URLs, or the iOS app.
 
-## Exact free activation steps (owner action required)
+## Production setup and maintenance
 
-These steps create external resources and deploy public code. They have not
-been run. Confirm the displayed free-plan limits before proceeding.
+The owner authorized activation on 2026-08-11. The Cloudflare account now has
+the `DAILY_CACHE` KV namespace, `zodiac-daily-warmup` Queue, two cron triggers,
+and encrypted `FREEASTRO_API_KEY` secret. The public routes remain cache-only.
+The following commands document how the deployed setup is maintained; do not
+recreate resources that already exist.
 
 1. Create a free FreeAstroAPI account and copy its API key.
 2. Create or use a free Cloudflare account.
@@ -120,8 +123,7 @@ been run. Confirm the displayed free-plan limits before proceeding.
    npx wrangler queues create zodiac-daily-warmup
    ```
 
-6. Replace `REPLACE_WITH_CLOUDFLARE_KV_NAMESPACE_ID` in `wrangler.jsonc` with
-   the returned ID.
+6. Keep the existing `DAILY_CACHE` namespace binding in `wrangler.jsonc`.
 7. Store the API key as an encrypted Worker secret:
 
    ```powershell
@@ -135,12 +137,11 @@ been run. Confirm the displayed free-plan limits before proceeding.
    npx wrangler deploy
    ```
 
-10. Initial warm-up is automatic: wait for `09:45 UTC` to prepare tomorrow and
+10. Warm-up is automatic: `09:45 UTC` prepares tomorrow and
    `00:15 UTC` to retry today if needed. Until the exact date exists in KV, the
    app deliberately uses bundled content.
-11. Verify `https://<worker-host>/health` and then
-    `https://<worker-host>/v1/daily/YYYY-MM-DD`. Configure the iOS app with only
-    the HTTPS Worker base URL.
+11. Verify the production `/health` and `/v1/daily/YYYY-MM-DD` routes. The iOS
+    app contains only the HTTPS Worker base URL, never the provider key.
 
 Official references used for this adapter:
 

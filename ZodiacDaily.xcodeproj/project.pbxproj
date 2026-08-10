@@ -212,7 +212,7 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIRequiresFullScreen = YES;
-				MARKETING_VERSION = 0.1.0;
+				MARKETING_VERSION = 0.1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.krazel.zodiacdaily;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -220,7 +220,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
-				ZODIAC_DAILY_API_BASE_URL = "";
+				ZODIAC_DAILY_API_BASE_URL = "https://zodiac-daily-content.krazel-zodiac-daily.workers.dev";
 				ZODIAC_DAILY_APP_STORE_ID = "";
 			};
 			name = Debug;
@@ -241,7 +241,7 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIRequiresFullScreen = YES;
-				MARKETING_VERSION = 0.1.0;
+				MARKETING_VERSION = 0.1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.krazel.zodiacdaily;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -249,7 +249,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
-				ZODIAC_DAILY_API_BASE_URL = "";
+				ZODIAC_DAILY_API_BASE_URL = "https://zodiac-daily-content.krazel-zodiac-daily.workers.dev";
 				ZODIAC_DAILY_APP_STORE_ID = "";
 			};
 			name = Release;

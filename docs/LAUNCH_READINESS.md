@@ -77,15 +77,17 @@ local implementation only, not uploads or external activation.
 `.github/workflows/build-ios-local-qa.yml` is a manual, owner-only GitHub
 Actions workflow for a compile-validated unsigned device IPA. It uses no Apple
 or App Store Connect secrets and performs no release, TestFlight, or App Store
-upload. The downloaded `ZodiacDaily-Local-QA-unsigned.ipa` is intended as input
-to a local signing/install tool such as Sideloadly; it is not directly
-installable until that tool signs it for the test device.
+upload. The downloaded versioned `ZodiacDaily-...-Local-QA-unsigned.ipa` and its
+manifest record app, version, build, commit, purpose, and GitHub run evidence.
+The IPA is intended as input to a local signing/install tool such as Sideloadly;
+it is not directly installable until that tool signs it for the test device.
 
-The workflow validates bundle ID `com.krazel.zodiacdaily`, marketing version
-`0.1.0`, build number, iOS 16 minimum, executable, privacy manifest, compiled
+The next deliverable workflow must validate bundle ID
+`com.krazel.zodiacdaily`, marketing version `0.1.1`, build `1`, iOS 16 minimum,
+executable, privacy manifest, compiled
 assets, and bundled horoscope content before packaging. Run `31347517648`
 (workflow run 5) completed successfully and produced the verified unsigned
-iOS 16 Local QA IPA. The private remote is `Krazel/zodiac-daily-ios`; the GitHub
+iOS 16 Local QA IPA. The public remote is `Krazel/zodiac-daily-ios`; the GitHub
 connector's repo-specific access remains optional because the existing Git
 credential can push and dispatch this workflow.
 

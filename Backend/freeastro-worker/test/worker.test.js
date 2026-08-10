@@ -172,7 +172,8 @@ test("queue consumer warm-up writes one exact-date bulk document", async () => {
   const kv = new MemoryKV();
   let calls = 0;
   let acknowledged = false;
-  const env = { FREEASTRO_API_KEY: "secret-value", DAILY_CACHE: kv };
+  const observedKeys = [];
+  const env = { FREEASTRO_API_KEY: " secret-value\r\n", DAILY_CACHE: kv };
 
   await handleQueue({ messages: [{
     body: { schema_version: 2, date: "2026-08-09" },
@@ -180,8 +181,9 @@ test("queue consumer warm-up writes one exact-date bulk document", async () => {
   }] }, env, {
     now: () => new Date("2026-08-08T10:15:00Z"),
     wait: async () => undefined,
-    fetchImpl: async (url) => {
+    fetchImpl: async (url, init) => {
       calls += 1;
+      observedKeys.push(init.headers["x-api-key"]);
       const sign = url.searchParams.get("sign");
       return Response.json(providerBody(sign, "2026-08-09"));
     },
@@ -190,6 +192,7 @@ test("queue consumer warm-up writes one exact-date bulk document", async () => {
 
   assert.equal(acknowledged, true);
   assert.equal(calls, 12);
+  assert.ok(observedKeys.every((key) => key === "secret-value"));
   assert.equal(cached.horoscopes.length, 12);
   assert.equal(cached.requested_date, "2026-08-09");
   assert.equal(cached.content_date, "2026-08-09");

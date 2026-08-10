@@ -93,8 +93,8 @@ workspace does not have write access to Brain.
 
 ## Contenido diario gratuito
 
-- El propietario eligio FreeAstroAPI free y autorizo implementacion local, no
-  activacion externa.
+- El propietario eligio FreeAstroAPI free y autorizo la activacion externa el
+  2026-08-11.
 - El iPhone pide a nuestro endpoint una edicion completa de 12 signos para la
   fecha local. No envia signo elegido, fecha de nacimiento, cuenta, guardados ni
   clave del proveedor.
@@ -117,9 +117,12 @@ workspace does not have write access to Brain.
   `Design/Concepts/today-card-back-provider-c2.png`; C1 queda supersedida.
 - Validacion local del nuevo Worker: 13/13 pruebas y sintaxis correctas, sin
   secretos. Build/XCTest/visual QA del schema 2 deben cerrarse en GitHub/macOS.
-- No se creo cuenta, secreto, KV, Queue, Worker publico ni despliegue. Activar
-  requiere autorizacion explicita y comprobar en vivo fecha de manana, CPU y
-  consumo del plan gratuito.
+- Produccion activa: Worker
+  `https://zodiac-daily-content.krazel-zodiac-daily.workers.dev`, KV
+  `DAILY_CACHE`, Queue `zodiac-daily-warmup`, crons `00:15 UTC` y `09:45 UTC`,
+  y `FREEASTRO_API_KEY` cifrada. La edicion `2026-08-11` se valido en vivo con
+  schema 2, 12 signos y datos completos. El secreto temporal de precarga fue
+  eliminado y no existe ningun secreto en Git/GitHub.
 
 ## Lanzamiento y apoyo voluntario
 
