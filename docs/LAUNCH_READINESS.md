@@ -2,8 +2,8 @@
 
 Updated: 2026-08-11
 
-Planning only. This document does not authorize account creation, secrets,
-StoreKit products, uploads, TestFlight, App Review, or publication.
+Internal TestFlight build `0.1.1` (`1`) is active. This document does not
+authorize StoreKit products, external testing, App Review, or publication.
 
 ## Recorded scope
 
@@ -87,11 +87,9 @@ local implementation only, not uploads or external activation.
 
 ## External release blockers
 
-- Mac/Xcode or a device for StoreKitTest, simulator, signed archive, and icon
-  checks. The unsigned Release device build already compiles in GitHub Actions.
-- Published Privacy Policy and support URLs. Both pages are live in the shared
-  `Krazel/krazel.github.io` site and return HTTP 200.
-- Production signing team, certificates, and provisioning.
+- Mac/Xcode or a device for StoreKitTest, simulator screenshot comparison,
+  Dynamic Type, VoiceOver, and final icon checks. The signed archive and
+  internal TestFlight upload already pass in GitHub Actions.
 - EU DSA compliance is submitted and currently `In Review`; an unresolved or
   rejected result blocks EU distribution but does not justify changing trader
   status or exposing the private review contact publicly.
@@ -106,7 +104,7 @@ manifest record app, version, build, commit, purpose, and GitHub run evidence.
 The IPA is intended as input to a local signing/install tool such as Sideloadly;
 it is not directly installable until that tool signs it for the test device.
 
-The next deliverable workflow must validate bundle ID
+The deliverable workflow validates bundle ID
 `com.krazel.zodiacdaily`, marketing version `0.1.1`, build `1`, iOS 16 minimum,
 executable, privacy manifest, compiled
 assets, and bundled horoscope content before packaging. Run `31347517648`
@@ -114,6 +112,19 @@ assets, and bundled horoscope content before packaging. Run `31347517648`
 iOS 16 Local QA IPA. The public remote is `Krazel/zodiac-daily-ios`; the GitHub
 connector's repo-specific access remains optional because the existing Git
 credential can push and dispatch this workflow.
+
+## Internal TestFlight
+
+The protected manual workflow
+`.github/workflows/build-ios-testflight.yml` compiled, tested, analyzed,
+archived, signed, inspected, exported, and uploaded version `0.1.1` build `1`.
+Run `31488398661` completed successfully from commit `0d648d3`; Apple reports
+the build as `VALID`, iOS 16.0 minimum, no non-exempt encryption, and
+`INTERNAL_ONLY`. The internal `Testers` group has access to all builds and one
+tester. Full non-secret evidence is in `docs/TESTFLIGHT_STATUS.md`.
+
+No external group, public TestFlight link, Beta App Review, App Review, or App
+Store release was created.
 
 ## Remaining release checklist
 
@@ -125,7 +136,7 @@ credential can push and dispatch this workflow.
       optional privacy-choices and marketing URLs blank.
 - [x] Use Apple's standard EULA; no custom EULA is required for the current
       free core.
-- [ ] Confirm the production signing team for `com.krazel.zodiacdaily`.
+- [x] Confirm the production signing team for `com.krazel.zodiacdaily`.
 - [x] Record App Store Connect app ID `6800136195`, version `0.1.1`, and build
       `1`. Release is configured for manual publication.
 - [x] Complete age rating, content rights, and export compliance.
@@ -142,11 +153,15 @@ credential can push and dispatch this workflow.
 - [x] Implement supporter status, dynamic prices, restore purchases, management
       sheet, privacy, and terms locally.
 - [ ] Validate all StoreKit states with a local configuration and sandbox on Mac.
-- [ ] Validate archive, XCTest, simulator, Dynamic Type, and VoiceOver on Mac.
+- [x] Validate archive and XCTest on GitHub-hosted macOS/Xcode.
+- [ ] Validate simulator screenshots, Dynamic Type, and VoiceOver on Mac.
 - [x] Prepare a manual, no-secret Local QA IPA artifact workflow.
 - [x] Create the private GitHub remote, push `main`, run the workflow, and
       obtain the unsigned IPA artifact.
 - [ ] Validate the approved runtime icon and prepare App Store screenshots.
-- [ ] Prepare a protected manual upload workflow; do not add secrets yet.
-- [ ] Obtain explicit authorization before any account/product creation,
-      secret use, upload, IAP review, App Review, or publication.
+- [x] Prepare a protected manual upload workflow and complete the explicitly
+      authorized internal TestFlight upload.
+- [x] Obtain explicit authorization for signing-secret use and the internal
+      TestFlight upload.
+- [ ] Obtain separate explicit authorization before external testing, IAP
+      review, App Review, or publication.

@@ -33,7 +33,7 @@ workspace does not have write access to Brain.
   (workflow IPA), `abcec2b` (compatibilidad iOS) y `0cf1d5f` (validacion de
   contenido empaquetado).
 - Working tree: limpio tras el cierre del build y la descarga verificada.
-- GitHub: repo privado `Krazel/zodiac-daily-ios`, remoto `origin` configurado y
+- GitHub: repo publico `Krazel/zodiac-daily-ios`, remoto `origin` configurado y
   rama `main` subida. Actions esta habilitado. El conector GitHub de Codex no
   tiene acceso a este repo concreto, pero no bloquea el flujo actual.
 - UI: Today, Sign Selection, Saved vacio/poblado y Settings C2 implementadas
@@ -76,21 +76,21 @@ workspace does not have write access to Brain.
   seleccion inicial de 12 signos, Saved vacio/poblado/detalle, Settings/About y
   Support StoreKit 2 local, navegacion Today/Saved, persistencia JSON atomica,
   preferencias locales y manifiesto de privacidad sin tracking ni datos
-  recopilados. Bundle previsto `com.krazel.zodiacdaily`, sin team ni activacion
-  externa de StoreKit.
+  recopilados. Bundle registrado `com.krazel.zodiacdaily`, team de firma
+  configurado y sin activacion externa de StoreKit.
 - QA auxiliar de las pantallas C2: sin P0/P1 tras corregir el simbolo del signo
   en Saved vacio y el retorno tras eliminar desde el antiguo wrapper de detalle.
   XML, JSON, UTF-8, PBX y privacidad validados en Windows.
 - Las referencias visuales restantes anteriores ya estan aprobadas. Capturas de
   tienda y cualquier arte promocional nuevo conservan su propia puerta visual.
-- Bloqueos tecnicos/externos: Mac/Xcode o un dispositivo para simulador,
-  StoreKitTest, firma y archivo de distribucion; App Store Connect para
-  productos/grupo; URLs publicas de privacidad/terminos/soporte; y equipo de
-  firma.
+- Bloqueos tecnicos/externos restantes: Mac/Xcode o un dispositivo para
+  simulador, comparacion visual, Dynamic Type, VoiceOver y StoreKitTest; DSA de
+  la UE; productos StoreKit; capturas y puertas de publicacion.
 - Nucleo implementado como Swift Package: 12 signos, dia local, catalogo ingles
   bundled, generacion FNV-1a determinista, snapshots guardados, stores en
-  memoria y JSON file-backed y XCTest. Validacion estatica y JSON correctos;
-  compilacion, XCTest y simulador pendientes de Mac/Xcode.
+  memoria y JSON file-backed y XCTest. Compilacion Release, XCTest, analisis,
+  archivo firmado y exportacion pasan en macOS/Xcode; simulador y QA visual
+  fisica siguen pendientes.
 
 ## Contenido diario gratuito
 
@@ -123,7 +123,9 @@ workspace does not have write access to Brain.
   `DAILY_CACHE`, Queue `zodiac-daily-warmup`, crons `00:15 UTC` y `09:45 UTC`,
   y `FREEASTRO_API_KEY` cifrada. La edicion `2026-08-11` se valido en vivo con
   schema 2, 12 signos y datos completos. El secreto temporal de precarga fue
-  eliminado y no existe ningun secreto en Git/GitHub.
+  eliminado y no existe ningun secreto en texto plano en Git. Las credenciales
+  de produccion necesarias viven cifradas en Cloudflare o en el environment
+  protegido de GitHub.
 
 ## Lanzamiento y apoyo voluntario
 
@@ -132,7 +134,8 @@ workspace does not have write access to Brain.
 - App Store Connect creada el 2026-08-11: **The Daily Zodiac**, app ID
   `6800136195`, bundle ID `com.krazel.zodiacdaily`, ingles (EE. UU.), SKU
   `zodiac-daily-ios`, version `0.1.1` / build `1`, sin login y con publicacion
-  manual. No se subio build ni se crearon productos.
+  manual. Se subio unicamente la build interna TestFlight `0.1.1` (`1`); no se
+  crearon productos ni se envio App Review.
 - Ficha completada y guardada: subtitulo `Daily Horoscope & Zodiac`, categoria
   primaria Lifestyle, secundaria Magazines & Newspapers, precio gratis en los
   175 territorios, distribucion publica y disponibilidad Mac/Vision Pro
@@ -195,3 +198,17 @@ workspace does not have write access to Brain.
   firmar/instalar con Sideloadly. Tras adaptar las APIs recientes, la ejecucion
   5 (`31347517648`) termino con exito y produjo la IPA Local QA v0.1.0 build 5,
   compatible con el dispositivo del propietario en iOS 16.7.16.
+
+## TestFlight interno
+
+- El propietario autorizo expresamente firma, secretos y subida a TestFlight
+  interno. No autorizo App Review ni publicacion.
+- The Daily Zodiac `0.1.1` build `1` se compilo, probo, analizo, firmo y subio
+  en el run `31488398661` desde el commit `0d648d3`.
+- Apple marca la build `VALID`, iOS 16.0 minimo,
+  `usesNonExemptEncryption=false` y audiencia `INTERNAL_ONLY`.
+- El grupo interno `Testers` tiene acceso automatico a todas las builds y un
+  tester. No se registran aqui identidad ni correo del tester.
+- No se creo grupo externo, enlace publico, Beta App Review, App Review,
+  producto StoreKit ni publicacion.
+- Evidencia completa no secreta: `docs/TESTFLIGHT_STATUS.md`.
