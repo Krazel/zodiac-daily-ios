@@ -19,7 +19,7 @@ struct TodayView: View {
                 // The page stays completely stationary on the approved device.
                 // Compact screens and accessibility sizes retain a measured
                 // overflow fallback without creating a second card state tree.
-                AdaptiveVerticalScrollView {
+                AdaptiveVerticalScrollView(prefersStationaryLayout: true) {
                     todayLayout
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)

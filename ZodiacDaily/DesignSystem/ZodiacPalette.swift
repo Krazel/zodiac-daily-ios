@@ -207,15 +207,26 @@ struct ZodiacPanel<Content: View>: View {
 /// interaction state (such as the face of a flipped card) is never reset by a
 /// layout branch change.
 struct AdaptiveVerticalScrollView<Content: View>: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
+    private let prefersStationaryLayout: Bool
     private let content: Content
     @State private var contentHeight: CGFloat = 0
 
-    init(@ViewBuilder content: () -> Content) {
+    init(
+        prefersStationaryLayout: Bool = false,
+        @ViewBuilder content: () -> Content
+    ) {
+        self.prefersStationaryLayout = prefersStationaryLayout
         self.content = content()
     }
 
     var body: some View {
         GeometryReader { viewport in
+            let usesStationaryLayout = prefersStationaryLayout
+                && viewport.size.height >= 700
+                && dynamicTypeSize <= .large
+
             ScrollViewReader { scrollProxy in
                 ScrollView {
                     Color.clear
@@ -234,13 +245,15 @@ struct AdaptiveVerticalScrollView<Content: View>: View {
                         }
                 }
                 .scrollIndicators(.hidden)
-                .scrollDisabled(contentHeight <= viewport.size.height + 0.5)
+                .scrollDisabled(
+                    usesStationaryLayout || contentHeight <= viewport.size.height + 0.5
+                )
                 .onAppear {
                     scrollToTop(using: scrollProxy)
                 }
                 .onPreferenceChange(AdaptiveContentHeightKey.self) { measuredHeight in
                     contentHeight = measuredHeight
-                    if measuredHeight <= viewport.size.height + 0.5 {
+                    if usesStationaryLayout || measuredHeight <= viewport.size.height + 0.5 {
                         scrollToTop(using: scrollProxy)
                     }
                 }
