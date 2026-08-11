@@ -267,9 +267,11 @@ jobs:
           IPA_PATH: ${{ steps.export.outputs.ipa_path }}
         run: |
           set -euo pipefail
-          PRIVATE_KEYS_DIR="${HOME}/private_keys"
+          API_KEY_ID="$(printf '%s' "${APP_STORE_CONNECT_API_KEY_ID}" | tr -d '\r\n')"
+          API_ISSUER_ID="$(printf '%s' "${APP_STORE_CONNECT_ISSUER_ID}" | tr -d '\r\n')"
+          PRIVATE_KEYS_DIR="${GITHUB_WORKSPACE}/private_keys"
           mkdir -p "${PRIVATE_KEYS_DIR}"
-          API_KEY_PATH="${PRIVATE_KEYS_DIR}/AuthKey_${APP_STORE_CONNECT_API_KEY_ID}.p8"
+          API_KEY_PATH="${PRIVATE_KEYS_DIR}/AuthKey_${API_KEY_ID}.p8"
           cleanup_api_key() {
             rm -f "${API_KEY_PATH}"
             rmdir "${PRIVATE_KEYS_DIR}" 2>/dev/null || true
@@ -281,13 +283,13 @@ jobs:
           xcrun altool --validate-app \
             --type ios \
             --file "${IPA_PATH}" \
-            --apiKey "${APP_STORE_CONNECT_API_KEY_ID}" \
-            --apiIssuer "${APP_STORE_CONNECT_ISSUER_ID}"
+            --apiKey "${API_KEY_ID}" \
+            --apiIssuer "${API_ISSUER_ID}"
           xcrun altool --upload-app \
             --type ios \
             --file "${IPA_PATH}" \
-            --apiKey "${APP_STORE_CONNECT_API_KEY_ID}" \
-            --apiIssuer "${APP_STORE_CONNECT_ISSUER_ID}"
+            --apiKey "${API_KEY_ID}" \
+            --apiIssuer "${API_ISSUER_ID}"
 
       - name: Remove temporary signing material
         if: always()
