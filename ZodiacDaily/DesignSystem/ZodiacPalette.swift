@@ -216,25 +216,47 @@ struct AdaptiveVerticalScrollView<Content: View>: View {
 
     var body: some View {
         GeometryReader { viewport in
-            ScrollView {
-                content
-                    .frame(maxWidth: .infinity)
-                    .background {
-                        GeometryReader { measuredContent in
-                            Color.clear.preference(
-                                key: AdaptiveContentHeightKey.self,
-                                value: measuredContent.size.height
-                            )
+            ScrollViewReader { scrollProxy in
+                ScrollView {
+                    Color.clear
+                        .frame(height: 0)
+                        .id(AdaptiveScrollAnchor.top)
+
+                    content
+                        .frame(maxWidth: .infinity)
+                        .background {
+                            GeometryReader { measuredContent in
+                                Color.clear.preference(
+                                    key: AdaptiveContentHeightKey.self,
+                                    value: measuredContent.size.height
+                                )
+                            }
                         }
+                }
+                .scrollIndicators(.hidden)
+                .scrollDisabled(contentHeight <= viewport.size.height + 0.5)
+                .onAppear {
+                    scrollToTop(using: scrollProxy)
+                }
+                .onPreferenceChange(AdaptiveContentHeightKey.self) { measuredHeight in
+                    contentHeight = measuredHeight
+                    if measuredHeight <= viewport.size.height + 0.5 {
+                        scrollToTop(using: scrollProxy)
                     }
-            }
-            .scrollIndicators(.hidden)
-            .scrollDisabled(contentHeight <= viewport.size.height + 0.5)
-            .onPreferenceChange(AdaptiveContentHeightKey.self) { measuredHeight in
-                contentHeight = measuredHeight
+                }
             }
         }
     }
+
+    private func scrollToTop(using proxy: ScrollViewProxy) {
+        DispatchQueue.main.async {
+            proxy.scrollTo(AdaptiveScrollAnchor.top, anchor: .top)
+        }
+    }
+}
+
+private enum AdaptiveScrollAnchor: Hashable {
+    case top
 }
 
 private struct AdaptiveContentHeightKey: PreferenceKey {

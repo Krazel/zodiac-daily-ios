@@ -11,12 +11,13 @@ struct DailyCardView: View {
     var readingStackSpacing: CGFloat = 1
     var symbolSize: CGFloat = 54
     var symbolTopPadding: CGFloat = 25
+    var fixedHeight: CGFloat?
     var showsTurnCue = false
 
     var body: some View {
         VStack(spacing: contentSpacing) {
             CelestialArtwork(sign: horoscope.sign)
-                .frame(height: artworkHeight)
+                .frame(height: effectiveArtworkHeight)
                 .overlay(alignment: .top) {
                     Text(horoscope.sign.symbol)
                         .font(.system(size: symbolSize, weight: .ultraLight))
@@ -45,7 +46,7 @@ struct DailyCardView: View {
                 .accessibilityHidden(true)
 
                 Text(horoscope.headline)
-                    .font(.custom("Didot", size: headlineSize, relativeTo: .largeTitle))
+                    .font(.custom("Didot", size: effectiveHeadlineSize, relativeTo: .largeTitle))
                     .foregroundStyle(ZodiacPalette.text)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
@@ -56,17 +57,18 @@ struct DailyCardView: View {
                     .accessibilityHidden(true)
 
                 Text(horoscope.reading)
-                    .font(.system(size: 13.5))
+                    .font(.system(size: effectiveReadingSize))
                     .foregroundStyle(ZodiacPalette.text.opacity(0.94))
                     .multilineTextAlignment(.center)
-                    .lineSpacing(1)
+                    .lineSpacing(usesCompactCopy ? 0 : 1)
                     .fixedSize(horizontal: false, vertical: true)
             }
             .padding(.horizontal, 28)
-            .padding(.top, 8)
-            .padding(.bottom, readingBottomPadding)
+            .padding(.top, usesCompactCopy ? 5 : 8)
+            .padding(.bottom, effectiveReadingBottomPadding)
         }
         .frame(maxWidth: maxWidth)
+        .frame(height: fixedHeight, alignment: .top)
         .background {
             LinearGradient(
                 colors: [ZodiacPalette.cardNavy, ZodiacPalette.deepIndigo.opacity(0.85), ZodiacPalette.midnight],
@@ -134,6 +136,28 @@ struct DailyCardView: View {
             "\(horoscope.sign.displayName), \(horoscope.headline). \(horoscope.reading)"
         )
     }
+
+    private var usesCompactCopy: Bool {
+        showsTurnCue && horoscope.reading.count > 220
+    }
+
+    private var effectiveArtworkHeight: CGFloat {
+        guard usesCompactCopy else { return artworkHeight }
+        return min(artworkHeight, horoscope.reading.count > 400 ? 215 : 230)
+    }
+
+    private var effectiveHeadlineSize: CGFloat {
+        usesCompactCopy ? min(headlineSize, 22) : headlineSize
+    }
+
+    private var effectiveReadingSize: CGFloat {
+        guard usesCompactCopy else { return 13.5 }
+        return horoscope.reading.count > 400 ? 9.25 : 10.5
+    }
+
+    private var effectiveReadingBottomPadding: CGFloat {
+        usesCompactCopy ? max(readingBottomPadding, 42) : readingBottomPadding
+    }
 }
 
 /// A Today-only wrapper that keeps the approved collectible-card frame while
@@ -160,7 +184,11 @@ struct FlippableDailyCard: View {
     var body: some View {
         Button(action: turnCard) {
             ZStack {
-                DailyCardView(horoscope: horoscope, showsTurnCue: true)
+                DailyCardView(
+                    horoscope: horoscope,
+                    fixedHeight: Metrics.height,
+                    showsTurnCue: true
+                )
                     .frame(width: Metrics.width, height: Metrics.height)
                     .opacity(isShowingBack ? 0 : 1)
                     .rotation3DEffect(
