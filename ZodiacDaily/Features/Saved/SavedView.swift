@@ -12,7 +12,7 @@ struct SavedView: View {
             ZStack {
                 MidnightBackground(dimming: 0.40)
 
-                ScrollView {
+                AdaptiveVerticalScrollView {
                     VStack(spacing: 0) {
                         savedHeader
 
@@ -27,10 +27,6 @@ struct SavedView: View {
                     .padding(.bottom, 34)
                     .frame(maxWidth: 650)
                     .frame(maxWidth: .infinity)
-                }
-                .scrollIndicators(.hidden)
-                .refreshable {
-                    await model.reloadSavedCards()
                 }
             }
             .navigationTitle("Saved")
@@ -414,7 +410,7 @@ struct SavedCardDetailView: View {
             VStack(spacing: 0) {
                 detailHeader
 
-                ScrollView {
+                AdaptiveVerticalScrollView {
                     VStack(spacing: 0) {
                         Text(formattedDate.uppercased())
                             .font(.system(size: 14, weight: .medium))
@@ -474,7 +470,6 @@ struct SavedCardDetailView: View {
                     .frame(maxWidth: 650)
                     .frame(maxWidth: .infinity)
                 }
-                .scrollIndicators(.hidden)
             }
         }
         .navigationBarBackButtonHidden(true)

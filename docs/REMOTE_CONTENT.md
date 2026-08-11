@@ -68,7 +68,7 @@ Accept: application/json
 
 The example abbreviates `horoscopes`; production responses must contain exactly
 all twelve unique lowercase `ZodiacSign` values. Headlines must be nonblank and
-no longer than 160 characters; readings must contain 40 to 2,000 characters.
+no longer than 52 characters; readings must contain 40 to 500 characters.
 Schema 2 requires complete FreeAstroAPI V2 details: four integer scores from 0
 to 100, one to eight unique keywords, lucky number/color, and Moon sign/phase.
 The app also accepts schema 1 during rollout, but identifies its reverse as an

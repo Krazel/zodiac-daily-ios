@@ -68,7 +68,7 @@ editions are populated.
 
 Production responses contain all twelve unique lowercase signs.
 `requested_date` and `content_date` must equal the requested date. Each headline
-is nonblank and at most 160 characters; each reading is 40-2,000 characters.
+is nonblank and at most 52 characters; each reading is 40-500 characters.
 Each item also preserves the validated V2 focus, keywords, four 0-100 scores,
 lucky color/number, and Moon sign/phase returned by FreeAstroAPI. Any
 incomplete, mismatched, stale, or invalid provider result is rejected as a

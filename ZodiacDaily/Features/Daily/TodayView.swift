@@ -16,24 +16,13 @@ struct TodayView: View {
             ZStack {
                 MidnightBackground(dimming: 0.35)
 
-                ScrollView {
-                    VStack(spacing: 0) {
-                        masthead
-
-                        signMenu
-
-                        dailyContent
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.top, 0)
-                    .padding(.bottom, 24)
-                    .frame(maxWidth: 430)
-                    .frame(maxWidth: .infinity)
+                // The page stays completely stationary on the approved device.
+                // Compact screens and accessibility sizes retain a measured
+                // overflow fallback without creating a second card state tree.
+                AdaptiveVerticalScrollView {
+                    todayLayout
                 }
-                .scrollIndicators(.hidden)
-                .refreshable {
-                    await model.refreshDailyCard()
-                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             }
             .toolbar(.hidden, for: .navigationBar)
         }
@@ -43,6 +32,20 @@ struct TodayView: View {
         .fullScreenCover(isPresented: $showsSignSelection) {
             SignSelectionView(requiresSelection: false)
         }
+    }
+
+    private var todayLayout: some View {
+        VStack(spacing: 0) {
+            masthead
+
+            signMenu
+
+            dailyContent
+        }
+        .padding(.horizontal, 16)
+        .padding(.bottom, 8)
+        .frame(maxWidth: 430)
+        .frame(maxWidth: .infinity)
     }
 
     private var masthead: some View {
@@ -201,7 +204,7 @@ struct TodayView: View {
                         .accessibilityLabel("Save error: \(message)")
                 }
             }
-            .padding(.top, 24)
+            .padding(.top, 18)
         }
     }
 

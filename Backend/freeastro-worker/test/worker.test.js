@@ -107,6 +107,65 @@ test("provider responses normalize to the exact app item contract", () => {
   assert.equal(item.content_version, 20260809);
 });
 
+test("provider card copy collapses transport whitespace", () => {
+  const body = providerBody("aries", "2026-08-09");
+  body.data.content.theme = "  A   measured\nstep  ";
+  body.data.content.text =
+    "  A\tclear  daily\nreading keeps every useful thought while removing transport spacing.  ";
+
+  const item = normalizeProviderResponse(body, "aries", "2026-08-09");
+
+  assert.equal(item.headline, "A measured step");
+  assert.equal(
+    item.reading,
+    "A clear daily reading keeps every useful thought while removing transport spacing.",
+  );
+});
+
+test("provider card copy accepts the exact fixed-card character limits", () => {
+  const body = providerBody("aries", "2026-08-09", "R".repeat(500));
+  body.data.content.theme = "H".repeat(52);
+
+  const item = normalizeProviderResponse(body, "aries", "2026-08-09");
+
+  assert.equal(item.headline.length, 52);
+  assert.equal(item.reading.length, 500);
+});
+
+test("provider card copy rejects overflow instead of truncating", () => {
+  const longHeadline = providerBody("aries", "2026-08-09");
+  longHeadline.data.content.theme = "H".repeat(53);
+  assert.throws(
+    () => normalizeProviderResponse(longHeadline, "aries", "2026-08-09"),
+    /provider_invalid_theme/,
+  );
+
+  const longReading = providerBody("aries", "2026-08-09", "R".repeat(501));
+  assert.throws(
+    () => normalizeProviderResponse(longReading, "aries", "2026-08-09"),
+    /provider_invalid_text/,
+  );
+});
+
+test("cached bundles require normalized card copy within the same limits", () => {
+  const normalized = validBundle("2026-08-09");
+  normalized.horoscopes[0].headline = "H".repeat(52);
+  normalized.horoscopes[0].reading = "R".repeat(500);
+  assert.equal(isValidBundle(normalized, "2026-08-09"), true);
+
+  const whitespace = structuredClone(normalized);
+  whitespace.horoscopes[0].headline = "  unnormalized   headline  ";
+  assert.equal(isValidBundle(whitespace, "2026-08-09"), false);
+
+  const headlineOverflow = structuredClone(normalized);
+  headlineOverflow.horoscopes[0].headline = "H".repeat(53);
+  assert.equal(isValidBundle(headlineOverflow, "2026-08-09"), false);
+
+  const readingOverflow = structuredClone(normalized);
+  readingOverflow.horoscopes[0].reading = "R".repeat(501);
+  assert.equal(isValidBundle(readingOverflow, "2026-08-09"), false);
+});
+
 test("cron targets today at 00:15 and tomorrow before UTC+14 midnight", () => {
   const time = Date.parse("2026-08-09T09:45:00Z");
   assert.equal(scheduledTargetDate(time, "15 0 * * *"), "2026-08-09");

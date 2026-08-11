@@ -11,6 +11,7 @@ struct DailyCardView: View {
     var readingStackSpacing: CGFloat = 1
     var symbolSize: CGFloat = 54
     var symbolTopPadding: CGFloat = 25
+    var showsTurnCue = false
 
     var body: some View {
         VStack(spacing: contentSpacing) {
@@ -99,11 +100,33 @@ struct DailyCardView: View {
             OrnateCardCorners()
         }
         .overlay(alignment: .bottom) {
-            Image(systemName: "sparkle")
-                .font(.body)
-                .foregroundStyle(ZodiacPalette.gold)
-                .padding(.bottom, 14)
+            if showsTurnCue {
+                ZStack(alignment: .bottom) {
+                    Image(systemName: "sparkle")
+                        .font(.body)
+                        .foregroundStyle(ZodiacPalette.gold)
+                        .padding(.bottom, 4)
+
+                    VStack(spacing: 1) {
+                        Image(systemName: "arrow.clockwise")
+                            .font(.system(size: 17, weight: .light))
+                            .foregroundStyle(ZodiacPalette.gold)
+
+                        Text("TAP FOR MORE")
+                            .font(.system(size: 7.5, weight: .medium))
+                            .tracking(1.7)
+                            .foregroundStyle(ZodiacPalette.lavender)
+                    }
+                    .padding(.bottom, 24)
+                }
                 .accessibilityHidden(true)
+            } else {
+                Image(systemName: "sparkle")
+                    .font(.body)
+                    .foregroundStyle(ZodiacPalette.gold)
+                    .padding(.bottom, 14)
+                    .accessibilityHidden(true)
+            }
         }
         .shadow(color: .black.opacity(0.75), radius: 18, y: 12)
         .accessibilityElement(children: .combine)
@@ -137,7 +160,7 @@ struct FlippableDailyCard: View {
     var body: some View {
         Button(action: turnCard) {
             ZStack {
-                DailyCardView(horoscope: horoscope)
+                DailyCardView(horoscope: horoscope, showsTurnCue: true)
                     .frame(width: Metrics.width, height: Metrics.height)
                     .opacity(isShowingBack ? 0 : 1)
                     .rotation3DEffect(

@@ -87,6 +87,57 @@ final class RemoteHoroscopeRepositoryTests: XCTestCase {
         }
     }
 
+    func testNormalizesWhitespaceInAcceptedCardCopy() async throws {
+        var horoscopes = makeHoroscopes()
+        horoscopes[0]["headline"] = "  A   measured\nstep  "
+        horoscopes[0]["reading"] = "  A\tclear  daily\nreading keeps every useful thought while removing transport spacing.  "
+        let repository = try makeRepository(data: makePayload(horoscopes: horoscopes))
+        let day = try XCTUnwrap(LocalDayKey(rawValue: "2026-08-09"))
+
+        let horoscope = try await repository.horoscope(for: .aries, day: day)
+
+        XCTAssertEqual(horoscope.headline, "A measured step")
+        XCTAssertEqual(
+            horoscope.reading,
+            "A clear daily reading keeps every useful thought while removing transport spacing."
+        )
+    }
+
+    func testAcceptsExactCardCopyCharacterLimits() async throws {
+        var horoscopes = makeHoroscopes()
+        horoscopes[0]["headline"] = String(repeating: "H", count: 52)
+        horoscopes[0]["reading"] = String(repeating: "R", count: 500)
+        let repository = try makeRepository(data: makePayload(horoscopes: horoscopes))
+        let day = try XCTUnwrap(LocalDayKey(rawValue: "2026-08-09"))
+
+        let horoscope = try await repository.horoscope(for: .aries, day: day)
+
+        XCTAssertEqual(horoscope.headline.count, 52)
+        XCTAssertEqual(horoscope.reading.count, 500)
+    }
+
+    func testRejectsHeadlineBeyondFixedCardLimit() async throws {
+        var horoscopes = makeHoroscopes()
+        horoscopes[0]["headline"] = String(repeating: "H", count: 53)
+        let repository = try makeRepository(data: makePayload(horoscopes: horoscopes))
+        let day = try XCTUnwrap(LocalDayKey(rawValue: "2026-08-09"))
+
+        await assertThrows(.invalidPayload) {
+            try await repository.horoscope(for: .aries, day: day)
+        }
+    }
+
+    func testRejectsReadingBeyondFixedCardLimitWithoutTruncating() async throws {
+        var horoscopes = makeHoroscopes()
+        horoscopes[0]["reading"] = String(repeating: "R", count: 501)
+        let repository = try makeRepository(data: makePayload(horoscopes: horoscopes))
+        let day = try XCTUnwrap(LocalDayKey(rawValue: "2026-08-09"))
+
+        await assertThrows(.invalidPayload) {
+            try await repository.horoscope(for: .aries, day: day)
+        }
+    }
+
     func testSchemaOneWithoutDetailsUsesHonestOfflineFallback() async throws {
         let day = try XCTUnwrap(LocalDayKey(rawValue: "2026-08-09"))
         let repository = try makeRepository(

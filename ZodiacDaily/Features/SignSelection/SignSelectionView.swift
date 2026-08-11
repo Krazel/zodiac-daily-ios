@@ -20,7 +20,7 @@ struct SignSelectionView: View {
             ZStack {
                 MidnightBackground()
 
-                ScrollView {
+                AdaptiveVerticalScrollView {
                     VStack(spacing: 0) {
                         selectionMasthead
                             .padding(.bottom, 29)
@@ -85,7 +85,6 @@ struct SignSelectionView: View {
                     .frame(maxWidth: 430)
                     .frame(maxWidth: .infinity)
                 }
-                .scrollIndicators(.hidden)
             }
             .toolbar(.hidden, for: .navigationBar)
             .overlay(alignment: .topTrailing) {

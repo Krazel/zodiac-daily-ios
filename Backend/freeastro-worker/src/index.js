@@ -15,6 +15,11 @@ const SIGNS = Object.freeze([
 
 const UPSTREAM_URL = "https://api.freeastroapi.com/api/v2/horoscope/daily/sign";
 const CACHE_SCHEMA_VERSION = 2;
+const MAX_HEADLINE_CHARACTERS = 52;
+const MIN_READING_CHARACTERS = 40;
+// Live FreeAstroAPI editions currently sit around 324-382 characters. This
+// guard remains bounded while accepting the provider's real daily copy.
+const MAX_READING_CHARACTERS = 500;
 const DAILY_TTL_SECONDS = 400 * 24 * 60 * 60;
 const FAILURE_COOLDOWN_SECONDS = 5 * 60;
 const PROVIDER_INTERVAL_MS = 1_050;
@@ -271,8 +276,8 @@ export function normalizeProviderResponse(body, expectedSign, expectedDate) {
   const data = body?.data ?? body;
   const sign = cleanString(data?.sign)?.toLowerCase();
   const date = cleanString(data?.date);
-  const reading = cleanString(data?.content?.text ?? data?.text ?? data?.horoscope);
-  const theme = cleanString(data?.content?.theme ?? data?.theme);
+  const reading = normalizeCardCopy(data?.content?.text ?? data?.text ?? data?.horoscope);
+  const theme = normalizeCardCopy(data?.content?.theme ?? data?.theme);
   const keywords = cleanStringArray(data?.content?.keywords);
   const scores = data?.scores;
   const luckyColor = cleanString(data?.lucky?.color?.label);
@@ -282,10 +287,16 @@ export function normalizeProviderResponse(body, expectedSign, expectedDate) {
 
   if (sign !== expectedSign) throw new Error("provider_sign_mismatch");
   if (date !== expectedDate) throw new Error("provider_date_mismatch");
-  if (!reading || reading.length < 40 || reading.length > 2_000) {
+  if (
+    !reading ||
+    reading.length < MIN_READING_CHARACTERS ||
+    reading.length > MAX_READING_CHARACTERS
+  ) {
     throw new Error("provider_invalid_text");
   }
-  if (!theme || theme.length > 100) throw new Error("provider_invalid_theme");
+  if (!theme || theme.length > MAX_HEADLINE_CHARACTERS) {
+    throw new Error("provider_invalid_theme");
+  }
   if (!isValidKeywordList(keywords)) throw new Error("provider_invalid_keywords");
   if (![scores?.love, scores?.career, scores?.money, scores?.health].every(isScore)) {
     throw new Error("provider_invalid_scores");
@@ -328,9 +339,15 @@ export function isValidBundle(value, expectedContentDate) {
   const signs = new Set();
   for (const horoscope of value.horoscopes) {
     if (!SIGNS.includes(horoscope?.sign) || signs.has(horoscope.sign)) return false;
-    if (!cleanString(horoscope.headline) || !cleanString(horoscope.reading)) return false;
-    if (horoscope.headline.length > 160) return false;
-    if (horoscope.reading.length < 40 || horoscope.reading.length > 2_000) return false;
+    const headline = normalizeCardCopy(horoscope.headline);
+    const reading = normalizeCardCopy(horoscope.reading);
+    if (!headline || !reading) return false;
+    if (headline !== horoscope.headline || reading !== horoscope.reading) return false;
+    if (headline.length > MAX_HEADLINE_CHARACTERS) return false;
+    if (
+      reading.length < MIN_READING_CHARACTERS ||
+      reading.length > MAX_READING_CHARACTERS
+    ) return false;
     if (!isValidProviderDetails(horoscope.details)) return false;
     if (horoscope.content_version !== Number(expectedContentDate.replaceAll("-", ""))) return false;
     signs.add(horoscope.sign);
@@ -363,6 +380,10 @@ function failureCacheKey(date) {
 
 function cleanString(value) {
   return typeof value === "string" ? value.trim() : null;
+}
+
+function normalizeCardCopy(value) {
+  return typeof value === "string" ? value.trim().replace(/\s+/gu, " ") : null;
 }
 
 function cleanStringArray(value) {

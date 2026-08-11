@@ -200,3 +200,47 @@ struct ZodiacPanel<Content: View>: View {
             }
     }
 }
+
+/// Keeps a page completely stationary whenever its content fits in the
+/// available height, while preserving an accessibility/small-screen escape
+/// hatch when it genuinely overflows. The content exists only once, so local
+/// interaction state (such as the face of a flipped card) is never reset by a
+/// layout branch change.
+struct AdaptiveVerticalScrollView<Content: View>: View {
+    private let content: Content
+    @State private var contentHeight: CGFloat = 0
+
+    init(@ViewBuilder content: () -> Content) {
+        self.content = content()
+    }
+
+    var body: some View {
+        GeometryReader { viewport in
+            ScrollView {
+                content
+                    .frame(maxWidth: .infinity)
+                    .background {
+                        GeometryReader { measuredContent in
+                            Color.clear.preference(
+                                key: AdaptiveContentHeightKey.self,
+                                value: measuredContent.size.height
+                            )
+                        }
+                    }
+            }
+            .scrollIndicators(.hidden)
+            .scrollDisabled(contentHeight <= viewport.size.height + 0.5)
+            .onPreferenceChange(AdaptiveContentHeightKey.self) { measuredHeight in
+                contentHeight = measuredHeight
+            }
+        }
+    }
+}
+
+private struct AdaptiveContentHeightKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
+    }
+}

@@ -13,7 +13,7 @@ superseded. Approved history is never overwritten or deleted.
 
 | Screen / state | Current master | Device / canvas | Orientation | Language | Approved | SHA-256 | Runtime evidence | Required fidelity / permitted adaptation |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Today / loaded card front | `Design/Approved/today-loaded-front-c2.png` | iPhone full-screen mockup, 862 x 1824 px including device frame | Portrait | English | 2026-08-09 | `c7d794bc89a8d62b83d1e265fdac53e0fc4b25c0593e91ed0c2d6ab34d8029ab` | `Design/Comparisons/today-comparison.png` | Preserve the complete collectible card and keep Save Card outside it. Dynamic Type, VoiceOver, safe-area, and native status-bar adaptations are permitted without changing the hierarchy. |
+| Today / loaded card front | `Design/Approved/today-loaded-front-flip-c3.png` | iPhone full-screen mockup, 862 x 1825 px including device frame | Portrait | English | 2026-08-11 | `8ba5227954cb5ff0c029d59066758385644b24670ef2e1f4c4587ed8d88c00c3` | Pending refreshed runtime comparison | Preserve the complete collectible card, keep Save Card outside it, and preserve the visible gold turn ornament with `TAP FOR MORE` inside the card. At default text size the Today viewport must not scroll or bounce when all content fits. Dynamic Type, VoiceOver, compact-height, safe-area, and native status-bar adaptations may enable scrolling without changing the hierarchy. |
 | Today / loaded card back, provider data | `Design/Approved/today-loaded-back-provider-c2.png` | iPhone full-screen mockup, 862 x 1825 px including device frame | Portrait | English | 2026-08-10 | `3933f81e13821b46d07642f6100171ff0a490cd46f2f7aac8476e1183e934ecd` | `Design/Comparisons/today-back-provider-comparison.png` | Preserve the front frame and Today composition. Changing daily fields must be provider-authored; sign essence may be static. Reduce Motion may replace the 3D turn with a short fade. |
 | First launch / sign selection | `Design/Approved/sign-selection-c2.png` | iPhone full-screen mockup, 862 x 1824 px including device frame | Portrait | English | 2026-08-09 | `0f10cdc2ceab984f32e14bc74d1a2f13325785d5c9a0846537caa87892190180` | `Design/Comparisons/sign-selection-comparison.png` | Show all 12 signs and no personal-data request. Pisces is the selected example. Native accessibility reflow is permitted. |
 | Saved / empty | `Design/Approved/saved-empty-c2.png` | iPhone full-screen mockup, 862 x 1825 px including device frame | Portrait | English | 2026-08-09 | `0475bcb8f9c7d5f044a9b248e0ebb4c1abb22f12caf3a630d500d6977d8c28d3` | `Design/Comparisons/saved-empty-comparison.png` | Preserve the empty collectible-card outline and route to Today. Native accessibility reflow is permitted. |
@@ -22,16 +22,17 @@ superseded. Approved history is never overwritten or deleted.
 | Settings / support and review | `Design/Approved/settings-support-c3.png` | iPhone full-screen mockup, 863 x 1822 px including device frame | Portrait | English | 2026-08-09 | `7aea1d31d7920360d85ac11196f492e761728711daedf164802e32c369945060` | `Design/Comparisons/settings-comparison.png` | Preserve optional support inside Settings, free core access, restore/manage controls, privacy/terms, and separate review entry. StoreKit prices must be live localized values. Native accessibility reflow is permitted. |
 | App icon | `Design/Approved/app-icon-c1.png` | Square master, 1254 x 1254 px | N/A | No text | 2026-08-10 | `353b30862440057996c28eaaee116337f460107b961be22cf12b529af4e5e00c` | Runtime asset: `ZodiacDaily/Assets.xcassets/AppIcon.appiconset/` | Preserve the central twelve-point gold star, twelve orbiting points, midnight navy, no text, no zodiac-specific glyph, no transparency, and no pre-rounded corners. |
 
-The comparison sheets above contain captures from the real SwiftUI build on an
-iPhone 15 Pro simulator at 1179 x 2556. Their provenance and workflow runs are
-recorded in `Design/Comparisons/README.md`. The final 18-point Today spacing
-change still requires one refreshed runtime comparison before the visual gate
-can be called final.
+The existing comparison sheets contain captures from the real SwiftUI build on
+an iPhone 15 Pro simulator at 1179 x 2556. Their provenance and workflow runs
+are recorded in `Design/Comparisons/README.md`. The C3 turn affordance and
+fixed-viewport behavior require one refreshed runtime comparison before the
+revised Today visual gate can be called final.
 
 ## Superseded approved references
 
 | Screen / state | Retained reference | Status | Approved | Replaced by | Reason |
 | --- | --- | --- | --- | --- | --- |
+| Today / loaded card front | `Design/Concepts/today-loaded-front-c2-approved-history.png` | Superseded, retained | 2026-08-09 | `Design/Approved/today-loaded-front-flip-c3.png` | C3 preserves the composition and adds the owner-requested visible turn affordance without adding another screen row. |
 | Today / card back | `Design/Concepts/today-card-back-c1.png` | Superseded, retained | 2026-08-10 | `Design/Approved/today-loaded-back-provider-c2.png` | The owner required all changing daily values to come from the real provider rather than local invention. |
 | Settings / About | `Design/Concepts/settings-c2.png` | Superseded, retained | 2026-08-09 | `Design/Approved/settings-support-c3.png` | C3 keeps the approved Settings direction and adds the approved optional support/review section. |
 

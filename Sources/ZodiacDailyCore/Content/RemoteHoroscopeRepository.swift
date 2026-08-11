@@ -153,8 +153,8 @@ public struct RemoteHoroscopeRepository: HoroscopeRepository {
         return DailyHoroscope(
             sign: sign,
             day: day,
-            headline: content.headline.trimmingCharacters(in: .whitespacesAndNewlines),
-            reading: content.reading.trimmingCharacters(in: .whitespacesAndNewlines),
+            headline: content.normalizedHeadline,
+            reading: content.normalizedReading,
             details: details,
             contentVersion: content.contentVersion
         )
@@ -207,6 +207,12 @@ private struct DailyPayload: Decodable, Sendable {
 }
 
 private struct RemoteSignContent: Decodable, Sendable {
+    private static let maximumHeadlineCharacterCount = 52
+    private static let minimumReadingCharacterCount = 40
+    // Current FreeAstroAPI editions are typically 324-382 characters. Keep a
+    // bounded production contract without rejecting the real daily feed.
+    private static let maximumReadingCharacterCount = 500
+
     let sign: ZodiacSign
     let headline: String
     let reading: String
@@ -221,18 +227,33 @@ private struct RemoteSignContent: Decodable, Sendable {
         case contentVersion = "content_version"
     }
 
+    var normalizedHeadline: String {
+        headline.normalizedCardCopy
+    }
+
+    var normalizedReading: String {
+        reading.normalizedCardCopy
+    }
+
     func isValid(schemaVersion: Int) -> Bool {
-        let trimmedHeadline = headline.trimmingCharacters(in: .whitespacesAndNewlines)
-        let trimmedReading = reading.trimmingCharacters(in: .whitespacesAndNewlines)
-        let baseIsValid = !trimmedHeadline.isEmpty &&
-            trimmedReading.count >= 40 &&
-            trimmedHeadline.count <= 160 &&
-            trimmedReading.count <= 2_000 &&
+        let baseIsValid = !normalizedHeadline.isEmpty &&
+            normalizedHeadline.count <= Self.maximumHeadlineCharacterCount &&
+            (Self.minimumReadingCharacterCount...Self.maximumReadingCharacterCount)
+                .contains(normalizedReading.count) &&
             contentVersion > 0
         if schemaVersion == 2 {
             return baseIsValid && details?.isValid == true
         }
         return baseIsValid
+    }
+}
+
+private extension String {
+    /// Remote prose is rendered as continuous card copy. Collapse spaces,
+    /// tabs, and line breaks before validating so layout bounds apply to the
+    /// exact text returned to the UI rather than to transport formatting.
+    var normalizedCardCopy: String {
+        split(whereSeparator: \.isWhitespace).joined(separator: " ")
     }
 }
 
