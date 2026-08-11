@@ -7,7 +7,11 @@ authorize StoreKit products, external testing, App Review, or publication.
 
 ## Recorded scope
 
-- iPhone / iOS 16+, English only.
+- Current internal TestFlight 0.1.1/1: iPhone / iOS 16+, English interface.
+- Next installable candidate: visible version `0.2`, build `1`, with the
+  English/Spanish interface and daily edition selected in
+  Settings. The schema-3 Worker translates the cached provider edition once;
+  production is not yet updated and the candidate is not release-ready.
 - Registered production bundle identifier: `com.krazel.zodiacdaily`.
 - App Store Connect record: **The Daily Zodiac**, app ID `6800136195`, primary
   language English (U.S.), SKU `zodiac-daily-ios`.
@@ -23,7 +27,8 @@ authorize StoreKit products, external testing, App Review, or publication.
 - No ads or AdMob planned.
 - FreeAstroAPI content is fetched through the Zodiac Daily Worker; the app sends
   no provider key, account, birth data, saved cards, or selected sign. It sends
-  the requested date, and the host sees ordinary HTTPS connection metadata.
+  the requested date and `en`/`es` content language, and the host sees ordinary
+  HTTPS connection metadata.
 - Content rights are declared for licensed third-party horoscope content.
 - The age-rating questionnaire is complete: 9+ globally (12+ in Vietnam and
   Brazil), with health or wellness topics disclosed and every other listed
@@ -41,8 +46,8 @@ authorize StoreKit products, external testing, App Review, or publication.
   URL, and attachment are blank.
 - The release data-flow audit is recorded in
   `docs/DATA_MINIMIZATION_AUDIT.md`: no permissions, accounts, ads, analytics,
-  or third-party SDKs; date-only HTTPS request; local-only sign/cards/settings;
-  StoreKit present but no active product.
+  or third-party SDKs; date-and-language-only HTTPS request; local-only
+  sign/cards/settings; StoreKit present but no active product.
 
 ## Voluntary supporter plan
 

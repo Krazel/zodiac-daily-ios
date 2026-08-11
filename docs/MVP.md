@@ -9,9 +9,10 @@ Updated: 2026-08-09
 
 ## Target user
 
-An English-speaking iPhone user with a casual interest in astrology who wants a
-brief, attractive daily ritual without creating an account or sharing personal
-data.
+An English- or Spanish-speaking iPhone user with a casual interest in astrology
+who wants a brief, attractive daily ritual without creating an account or
+sharing personal data. Interface and daily editorial content support English
+and Spanish; English is the explicit availability fallback.
 
 ## Minimum flow and screens
 
@@ -27,9 +28,10 @@ data.
    - Open a past card and remove it from saved items.
 4. **Settings / About sheet**
    - Change sign.
-   - Short entertainment-content and local-privacy notices.
-   - Planned optional Support the app and App Store review entries; their final
-     UI remains visually gated and StoreKit activation is release work.
+   - Change interface and daily edition immediately between English and
+     Español.
+   - Optional Support the app, restore/manage subscription, review, help,
+     privacy, terms, and entertainment notice.
 
 ## Required states
 
@@ -55,11 +57,12 @@ No permissions are required in the MVP.
   free daily service when available and bundled content when it is not.
 - Approved screens are reproduced faithfully and pass Dynamic Type, VoiceOver,
   contrast, and touch-target checks.
-- English-only copy is complete and reviewed.
+- English and Spanish interface copy is complete and reviewed; daily provider
+  copy is shown in its actual language and an English fallback is identified.
 
 ## Outside the MVP
 
-- Android, a dedicated iPad layout, web, and additional languages.
+- Android, a dedicated iPad layout, web, and languages beyond English/Spanish.
 - Accounts, login, sync, profiles, birth dates, or personal data.
 - Natal charts, compatibility, tarot, chat, or personalized AI.
 - Notifications, widgets, analytics, or ads.

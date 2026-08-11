@@ -6,6 +6,8 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.locale) private var locale
+    @AppStorage(AppLanguage.storageKey) private var appLanguageRawValue = AppLanguage.english.rawValue
     @State private var showsSignSelection = false
 
     var body: some View {
@@ -18,6 +20,7 @@ struct SettingsView: View {
                     VStack(spacing: 10) {
                         header
                         signSection
+                        languageSection
                         SupportSectionView()
                         rateSection
                         privacyAndTermsSection
@@ -61,7 +64,7 @@ struct SettingsView: View {
             Text("✦")
                 .font(.system(size: 18, weight: .light))
                 .accessibilityHidden(true)
-            Text("Settings")
+            Text(localized("common.settings"))
                 .font(.custom("Didot", size: 29, relativeTo: .largeTitle))
                 .foregroundStyle(ZodiacPalette.settingsText)
                 .accessibilityAddTraits(.isHeader)
@@ -74,7 +77,7 @@ struct SettingsView: View {
     }
 
     private var doneButton: some View {
-        Button("DONE") {
+        Button(localized("common.done")) {
             dismiss()
         }
         .font(.system(size: 14, weight: .medium))
@@ -84,7 +87,7 @@ struct SettingsView: View {
     }
 
     private var signSection: some View {
-        settingsSection(title: "Your Sign") {
+        settingsSection(title: localized("settings.your_sign")) {
             Button {
                 showsSignSelection = true
             } label: {
@@ -95,7 +98,10 @@ struct SettingsView: View {
                         .frame(width: 46)
                         .accessibilityHidden(true)
 
-                    Text(model.selectedSign?.displayName.uppercased() ?? "CHOOSE SIGN")
+                    Text(
+                        model.selectedSign?.localizedDisplayName(locale: locale).uppercased()
+                            ?? localized("settings.choose_sign").uppercased()
+                    )
                         .font(.custom("Didot", size: 18, relativeTo: .title3))
                         .tracking(1.4)
                         .foregroundStyle(ZodiacPalette.settingsText)
@@ -104,7 +110,7 @@ struct SettingsView: View {
 
                     Spacer(minLength: 6)
 
-                    Text("Change Sign")
+                    Text(localized("settings.change_sign"))
                         .font(.system(size: 14))
                         .foregroundStyle(ZodiacPalette.settingsGold)
                         .lineLimit(1)
@@ -125,35 +131,114 @@ struct SettingsView: View {
                 .contentShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             }
             .buttonStyle(.plain)
-            .accessibilityLabel("Your sign, \(model.selectedSign?.displayName ?? "not selected")")
-            .accessibilityHint("Opens zodiac sign selection")
+            .accessibilityLabel(
+                String(
+                    format: localized("settings.sign_accessibility_format"),
+                    model.selectedSign?.localizedDisplayName(locale: locale)
+                        ?? localized("settings.sign_not_selected")
+                )
+            )
+            .accessibilityHint(localized("settings.sign_selection_hint"))
         }
     }
 
+    private var languageSection: some View {
+        settingsSection(title: localized("settings.language")) {
+            VStack(spacing: 0) {
+                HStack(spacing: 0) {
+                    ForEach(AppLanguage.allCases) { language in
+                        languageButton(language)
+                    }
+                }
+                .padding(7)
+
+                Rectangle()
+                    .fill(ZodiacPalette.settingsGold.opacity(0.42))
+                    .frame(height: 0.7)
+
+                Text(localized("settings.daily_content_language"))
+                    .font(.system(size: 13))
+                    .foregroundStyle(ZodiacPalette.settingsLavender)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 10)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .background(panelBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .stroke(ZodiacPalette.settingsGold.opacity(0.72), lineWidth: 0.8)
+            }
+        }
+    }
+
+    private func languageButton(_ language: AppLanguage) -> some View {
+        let isSelected = currentLanguage == language
+
+        return Button {
+            appLanguageRawValue = language.rawValue
+        } label: {
+            HStack(spacing: 9) {
+                Spacer(minLength: 0)
+
+                Text(language.displayName)
+                    .font(.custom("Didot", size: 16, relativeTo: .headline))
+                    .foregroundStyle(isSelected ? ZodiacPalette.settingsGold : ZodiacPalette.settingsText)
+
+                if isSelected {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(ZodiacPalette.settingsGold)
+                        .accessibilityHidden(true)
+                }
+
+                Spacer(minLength: 0)
+            }
+            .frame(maxWidth: .infinity, minHeight: 42)
+            .background(
+                isSelected
+                    ? ZodiacPalette.settingsPanel.opacity(0.88)
+                    : Color.clear,
+                in: RoundedRectangle(cornerRadius: 8, style: .continuous)
+            )
+            .overlay {
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .stroke(
+                        isSelected ? ZodiacPalette.settingsGold : Color.clear,
+                        lineWidth: 0.8
+                    )
+            }
+            .contentShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+    }
+
     private var rateSection: some View {
-        settingsSection(title: "Rate Zodiac Daily") {
+        settingsSection(title: localized("settings.rate_section")) {
             Button {
                 guard let url = AppConfiguration.writeReviewURL else { return }
                 openURL(url)
             } label: {
-                framedActionRow(title: "Rate Zodiac Daily", systemImage: "star", minHeight: 43)
+                framedActionRow(title: localized("settings.rate_action"), systemImage: "star", minHeight: 43)
             }
             .buttonStyle(.plain)
             .accessibilityHint(
                 AppConfiguration.writeReviewURL == nil
-                    ? "Available after the App Store release"
-                    : "Opens the App Store review page"
+                    ? localized("settings.rate_unavailable_hint")
+                    : localized("settings.rate_open_hint")
             )
         }
     }
 
     private var privacyAndTermsSection: some View {
-        settingsSection(title: "Privacy & Terms") {
+        settingsSection(title: localized("settings.privacy_terms")) {
             VStack(spacing: 0) {
                 Button {
                     openURL(AppConfiguration.privacyURL)
                 } label: {
-                    settingsActionRowContent(title: "Privacy Policy", systemImage: "lock")
+                    settingsActionRowContent(title: localized("settings.privacy_policy"), systemImage: "lock")
                 }
                 .buttonStyle(.plain)
 
@@ -164,7 +249,18 @@ struct SettingsView: View {
                 Button {
                     openURL(AppConfiguration.termsURL)
                 } label: {
-                    settingsActionRowContent(title: "Terms of Use", systemImage: "list.bullet.rectangle")
+                    settingsActionRowContent(title: localized("settings.terms_of_use"), systemImage: "list.bullet.rectangle")
+                }
+                .buttonStyle(.plain)
+
+                Rectangle()
+                    .fill(ZodiacPalette.settingsGold.opacity(0.50))
+                    .frame(height: 0.7)
+
+                Button {
+                    openURL(AppConfiguration.supportURL)
+                } label: {
+                    settingsActionRowContent(title: localized("settings.help_support"), systemImage: "questionmark")
                 }
                 .buttonStyle(.plain)
             }
@@ -178,11 +274,11 @@ struct SettingsView: View {
     }
 
     private var aboutSection: some View {
-        settingsSection(title: "About") {
+        settingsSection(title: localized("settings.about")) {
             HStack(spacing: 14) {
                 celestialIcon("sparkle")
 
-                Text("Daily readings are for reflection and entertainment.")
+                Text(localized("settings.entertainment_notice"))
                     .font(.system(size: 15))
                     .foregroundStyle(ZodiacPalette.settingsText)
                     .fixedSize(horizontal: false, vertical: true)
@@ -274,5 +370,13 @@ struct SettingsView: View {
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
+    }
+
+    private var currentLanguage: AppLanguage {
+        AppLanguage(rawValue: appLanguageRawValue) ?? .english
+    }
+
+    private func localized(_ key: String.LocalizationValue) -> String {
+        String(localized: key, locale: locale)
     }
 }

@@ -14,6 +14,37 @@
 - Base action: save a daily card locally. Sharing is a stretch candidate.
 - Visual approval is required per screen before UI implementation.
 
+## 2026-08-11 — English/Spanish interface
+
+- The app interface, dates, zodiac names, navigation, accessibility copy,
+  Settings, and StoreKit supporter states support English and Spanish.
+- The selected interface language is stored locally and can be changed
+  immediately in Settings; Spanish device languages default to Spanish.
+- FreeAstroAPI Daily Sign currently supports English, French, and Italian but
+  not Spanish. Provider-authored horoscope content therefore remains English
+  and is identified honestly in Settings; the app does not invent or silently
+  translate a Spanish edition.
+- Settings receives a visible gear entry from Today plus Language and Help &
+  Support sections. The free core remains unchanged.
+
+## 2026-08-11 — Server-translated Spanish daily edition
+
+- The owner approved creating a real Spanish daily flow while keeping the free
+  plan and English as the availability fallback.
+- FreeAstroAPI remains the source of the daily edition. Because its Daily Sign
+  endpoint has no Spanish, the queue candidate translates the complete cached
+  English document once with Cloudflare Workers AI and stores separate EN/ES
+  schema-3 documents. Individual users never invoke FreeAstroAPI or Workers AI.
+- The app requests `lang=en|es`. A Spanish miss falls back to the same day's
+  remote English edition, then bundled English, and never labels English as
+  Spanish.
+- Daily pin keys and saved-card identities include actual content language;
+  legacy archives decode as English. Saved snapshots remain immutable.
+- This decision authorizes local implementation and tests only. Production
+  deployment still requires a real non-production translation smoke test,
+  confirmation that translating provider copy is permitted, macOS/XCTest, and
+  separate deployment authorization.
+
 ## 2026-08-09 — Practical visual gate
 
 - Visual approval blocks final UI appearance, not non-visual product work.

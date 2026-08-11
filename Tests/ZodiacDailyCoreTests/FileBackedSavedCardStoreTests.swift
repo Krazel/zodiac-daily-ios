@@ -81,6 +81,8 @@ final class FileBackedSavedCardStoreTests: XCTestCase {
         let cards = try await store.allCards()
         let card = try XCTUnwrap(cards.first)
         XCTAssertEqual(card.horoscope.headline, "Legacy headline")
+        XCTAssertEqual(card.horoscope.language, .english)
+        XCTAssertEqual(card.id, "en:pisces:2026-08-09")
         XCTAssertEqual(
             card.horoscope.details,
             DailyCardDetails.offlineFallback(for: .pisces)

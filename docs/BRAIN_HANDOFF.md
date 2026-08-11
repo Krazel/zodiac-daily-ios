@@ -212,3 +212,53 @@ workspace does not have write access to Brain.
 - No se creo grupo externo, enlace publico, Beta App Review, App Review,
   producto StoreKit ni publicacion.
 - Evidencia completa no secreta: `docs/TESTFLIGHT_STATUS.md`.
+
+## Reanudacion 2026-08-11 — Settings e interfaz EN/ES
+
+- Settings deja de estar oculto tras una accion secundaria: Today incorpora un
+  boton de engranaje visible y mantiene el toque directo del selector de signo.
+- Se implemento `AppLanguage` EN/ES persistido, deteccion inicial de dispositivos
+  espanoles, cambio inmediato de locale, nombres de signos y fechas localizados,
+  y un catalogo con 153 claves completas en ambos idiomas.
+- Settings incorpora Language, Your Sign, Support the app, Restore/Manage,
+  Rate, Help & Support, Privacy, Terms y About. Los mensajes StoreKit son estados
+  semanticos y se vuelven a renderizar en el idioma activo.
+- FreeAstroAPI Daily Sign no ofrece espanol a 2026-08-11. La interfaz puede ser
+  espanola, pero la edicion diaria del proveedor sigue en ingles y Settings lo
+  indica expresamente; no se inventa ni se etiqueta falsamente contenido.
+- Propuestas completas guardadas en `Design/Concepts/settings-language-support-c4.png`
+  y `Design/Concepts/today-settings-entry-c4.png`; siguen como propuestas hasta
+  obtener captura real y comparacion de la build.
+- No se crearon productos StoreKit, no se subio una build nueva y no se envio
+  TestFlight/App Review durante este hito.
+
+## Reanudacion 2026-08-11 — Edicion diaria real EN/ES
+
+- Estado local, sin commit ni despliegue: contrato schema 3 con `language`,
+  endpoint `?lang=en|es`, cache KV separada por idioma y cabecera
+  `Content-Language`.
+- El Queue consumer obtiene una sola edicion inglesa de 12 signos y crea una
+  edicion castellana una vez con Workers AI `m2m100`. El trafico de usuarios
+  solo lee cache y nunca llama al proveedor ni al traductor.
+- Fallo ES: remoto ES → remoto EN de la misma fecha → bundled EN. Nunca se
+  etiqueta ingles como castellano. Un fallo de traduccion conserva EN y el
+  retry no repite las 12 llamadas FreeAstro.
+- `DailyHoroscope`, pin diario y guardados incluyen idioma; archivos legacy
+  migran a EN. EN/ES del mismo signo/dia no colisionan, se ordenan de forma
+  estable y la UI muestra el codigo real de idioma.
+- Worker: 23/23 pruebas offline. Estimacion normal 93–155 neuronas por nueva
+  edicion, con maximo contractual conservador de 815 frente a 10.000 gratis;
+  12 llamadas proveedor por nueva fecha frente a 80/dia.
+- La app envia solo fecha + `en`/`es`; no envia signo seleccionado, cuenta,
+  nacimiento, guardados ni identificadores. Workers AI recibe solo texto del
+  proveedor.
+- Preview real no productiva superada: respuesta castellana con acentos, HTTP
+  200, 15 tokens de entrada + 17 de salida y 0,9936 neuronas. El preview se
+  detuvo y no cambio recursos productivos.
+- Bloqueos antes de produccion: confirmar la base juridica/riesgo aceptado para
+  traducir contenido FreeAstro, compilar y ejecutar XCTest en macOS, y obtener
+  autorizacion separada de despliegue. Produccion sigue en schema 2 ingles; no
+  se desplego, publico ni subio ninguna build durante este hito.
+- Al ser funcionalidad nueva, la siguiente IPA instalable corresponde a
+  version visible `0.2`, build `1`; las validaciones locales sin artifact no
+  fuerzan el cambio del proyecto todavia.

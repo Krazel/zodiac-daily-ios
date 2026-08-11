@@ -64,6 +64,19 @@ final class BundledHoroscopeRepositoryTests: XCTestCase {
         }
     }
 
+    func testSpanishRequestReturnsHonestlyMarkedEnglishFallback() async throws {
+        let repository = try BundledHoroscopeRepository()
+        let day = try XCTUnwrap(LocalDayKey(rawValue: "2026-08-09"))
+
+        let horoscope = try await repository.horoscope(
+            for: .scorpio,
+            day: day,
+            language: .spanish
+        )
+
+        XCTAssertEqual(horoscope.language, .english)
+    }
+
     func testCatalogWithBlankAuthoredContentIsRejected() throws {
         let signs = Dictionary(uniqueKeysWithValues: ZodiacSign.allCases.map {
             ($0.rawValue, ["headlines": [" "], "readings": ["Valid reading"]])

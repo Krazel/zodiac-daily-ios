@@ -14,14 +14,31 @@ public struct FallbackHoroscopeRepository: HoroscopeRepository {
         self.fallback = fallback
     }
 
-    public func horoscope(for sign: ZodiacSign, day: LocalDayKey) async throws -> DailyHoroscope {
+    public func horoscope(
+        for sign: ZodiacSign,
+        day: LocalDayKey,
+        language: HoroscopeLanguage
+    ) async throws -> DailyHoroscope {
         do {
-            return try await primary.horoscope(for: sign, day: day)
+            return try await primary.horoscope(for: sign, day: day, language: language)
         } catch is CancellationError {
             throw CancellationError()
         } catch {
             try Task.checkCancellation()
-            return try await fallback.horoscope(for: sign, day: day)
+            if language == .spanish {
+                do {
+                    return try await primary.horoscope(
+                        for: sign,
+                        day: day,
+                        language: .english
+                    )
+                } catch is CancellationError {
+                    throw CancellationError()
+                } catch {
+                    try Task.checkCancellation()
+                }
+            }
+            return try await fallback.horoscope(for: sign, day: day, language: .english)
         }
     }
 }

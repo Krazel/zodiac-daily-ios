@@ -32,7 +32,11 @@ public struct BundledHoroscopeRepository: HoroscopeRepository {
         }
     }
 
-    public func horoscope(for sign: ZodiacSign, day: LocalDayKey) async throws -> DailyHoroscope {
+    public func horoscope(
+        for sign: ZodiacSign,
+        day: LocalDayKey,
+        language: HoroscopeLanguage
+    ) async throws -> DailyHoroscope {
         guard let content = catalog.signs[sign.rawValue] else {
             throw HoroscopeRepositoryError.missingContent(sign)
         }
@@ -44,6 +48,10 @@ public struct BundledHoroscopeRepository: HoroscopeRepository {
         return DailyHoroscope(
             sign: sign,
             day: day,
+            // The authored emergency catalog is English-only. Marking the
+            // actual language prevents an offline fallback from masquerading
+            // as a translated Spanish edition.
+            language: .english,
             headline: content.headlines[headlineIndex],
             reading: content.readings[readingIndex],
             contentVersion: catalog.version

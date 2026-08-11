@@ -4,6 +4,7 @@ import ZodiacDailyCore
 /// Measured implementation candidate for the owner-approved C2 Today reference.
 struct TodayView: View {
     @EnvironmentObject private var model: AppModel
+    @Environment(\.locale) private var locale
     @State private var showsSettings: Bool
     @State private var showsSignSelection = false
 
@@ -46,6 +47,26 @@ struct TodayView: View {
         .padding(.bottom, 8)
         .frame(maxWidth: 430)
         .frame(maxWidth: .infinity)
+        .overlay(alignment: .topTrailing) {
+            Button {
+                showsSettings = true
+            } label: {
+                Image(systemName: "gearshape")
+                    .font(.system(size: 20, weight: .light))
+                    .foregroundStyle(ZodiacPalette.gold)
+                    .frame(width: 44, height: 44)
+                    .background(ZodiacPalette.midnight.opacity(0.58), in: Circle())
+                    .overlay {
+                        Circle().stroke(ZodiacPalette.gold.opacity(0.82), lineWidth: 0.9)
+                    }
+                    .contentShape(Circle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(String(localized: "common.settings", locale: locale))
+            .accessibilityHint(String(localized: "Opens app settings", locale: locale))
+            .padding(.trailing, 4)
+            .offset(y: -1)
+        }
     }
 
     private var masthead: some View {
@@ -88,7 +109,10 @@ struct TodayView: View {
                     Button {
                         model.select(sign)
                     } label: {
-                        Label(sign.displayName, systemImage: sign == selectedSign ? "checkmark" : "circle")
+                        Label(
+                            sign.localizedDisplayName(locale: locale),
+                            systemImage: sign == selectedSign ? "checkmark" : "circle"
+                        )
                     }
                 }
 
@@ -101,7 +125,7 @@ struct TodayView: View {
                 HStack(spacing: 14) {
                     Text(selectedSign.symbol)
                         .font(.system(size: 40, weight: .ultraLight))
-                    Text(selectedSign.displayName.uppercased())
+                    Text(selectedSign.localizedDisplayName(locale: locale).uppercased(with: locale))
                         .font(.custom("Didot", size: 18, relativeTo: .title3).weight(.semibold))
                         .tracking(2)
                         .minimumScaleFactor(0.62)
@@ -122,9 +146,18 @@ struct TodayView: View {
                 showsSignSelection = true
             }
             .padding(.top, 22)
-            .accessibilityLabel("Selected sign, \(selectedSign.displayName)")
-            .accessibilityHint("Double-tap to choose another sign")
-            .accessibilityAction(named: "Open Settings") {
+            .accessibilityLabel(
+                String(
+                    format: String(localized: "today.selected_sign_format", locale: locale),
+                    selectedSign.localizedDisplayName(locale: locale)
+                )
+            )
+            .accessibilityHint(
+                String(localized: "Double-tap to choose another sign", locale: locale)
+            )
+            .accessibilityAction(
+                named: Text(String(localized: "Open Settings", locale: locale))
+            ) {
                 showsSettings = true
             }
         }
@@ -140,7 +173,7 @@ struct TodayView: View {
                 .frame(maxWidth: 328, minHeight: 456)
                 .padding(.top, 39)
 
-        case .failed(let message):
+        case .failed:
             VStack(spacing: 10) {
                 Image(systemName: "sparkles")
                     .font(.largeTitle)
@@ -148,7 +181,7 @@ struct TodayView: View {
                     .accessibilityHidden(true)
                 Text("Card unavailable")
                     .font(.headline)
-                Text(message)
+                Text(String(localized: "app.error.daily_unavailable", locale: locale))
                     .font(.subheadline)
                     .multilineTextAlignment(.center)
                 Button("Try Again") {
@@ -174,7 +207,9 @@ struct TodayView: View {
                     Task { await model.toggleCurrentCardSaved() }
                 } label: {
                     Label(
-                        model.isCurrentCardSaved ? "Saved" : "Save Card",
+                        model.isCurrentCardSaved
+                            ? String(localized: "Saved", locale: locale)
+                            : String(localized: "Save Card", locale: locale),
                         systemImage: model.isCurrentCardSaved ? "bookmark.fill" : "bookmark"
                     )
                     .font(.system(size: 13, weight: .semibold))
@@ -196,12 +231,14 @@ struct TodayView: View {
                         : "Keeps an offline copy of this card in Saved"
                 )
 
-                if let message = model.persistenceMessage {
-                    Text(message)
+                if model.persistenceMessage != nil {
+                    Text(String(localized: "app.error.persistence", locale: locale))
                         .font(.footnote)
                         .foregroundStyle(.red)
                         .multilineTextAlignment(.center)
-                        .accessibilityLabel("Save error: \(message)")
+                        .accessibilityLabel(
+                            String(localized: "app.error.persistence", locale: locale)
+                        )
                 }
             }
             .padding(.top, 18)
@@ -210,7 +247,7 @@ struct TodayView: View {
 
     private var formattedDay: String {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US")
+        formatter.locale = locale
         formatter.timeZone = .current
         formatter.dateFormat = "EEEE  ·  MMMM d"
         let date: Date
@@ -220,6 +257,7 @@ struct TodayView: View {
         } else {
             date = Date()
         }
-        return formatter.string(from: date).uppercased()
+        return formatter.string(from: date).uppercased(with: locale)
     }
+
 }

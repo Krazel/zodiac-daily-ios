@@ -21,6 +21,9 @@
 		A1000000000000000000000D /* SupportStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000D /* SupportStore.swift */; };
 		A1000000000000000000000E /* SupportSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000E /* SupportSectionView.swift */; };
 		A1000000000000000000000F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000F /* Assets.xcassets */; };
+		A10000000000000000000010 /* AppLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000010 /* AppLanguage.swift */; };
+		A10000000000000000000011 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000011 /* Localizable.xcstrings */; };
+		A10000000000000000000012 /* ZodiacSign+Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000012 /* ZodiacSign+Localization.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -39,6 +42,9 @@
 		B1000000000000000000000D /* SupportStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportStore.swift; sourceTree = "<group>"; };
 		B1000000000000000000000E /* SupportSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportSectionView.swift; sourceTree = "<group>"; };
 		B1000000000000000000000F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B10000000000000000000010 /* AppLanguage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLanguage.swift; sourceTree = "<group>"; };
+		B10000000000000000000011 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		B10000000000000000000012 /* ZodiacSign+Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ZodiacSign+Localization.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -70,7 +76,7 @@
 		};
 		C10000000000000000000004 /* App */ = {
 			isa = PBXGroup;
-			children = (B10000000000000000000001 /* ZodiacDailyApp.swift */, B1000000000000000000000C /* AppConfiguration.swift */, B10000000000000000000002 /* AppModel.swift */, B10000000000000000000003 /* RootView.swift */,);
+			children = (B10000000000000000000001 /* ZodiacDailyApp.swift */, B10000000000000000000010 /* AppLanguage.swift */, B10000000000000000000012 /* ZodiacSign+Localization.swift */, B1000000000000000000000C /* AppConfiguration.swift */, B10000000000000000000002 /* AppModel.swift */, B10000000000000000000003 /* RootView.swift */,);
 			path = App;
 			sourceTree = "<group>";
 		};
@@ -123,7 +129,7 @@
 		};
 		C10000000000000000000009 /* Resources */ = {
 			isa = PBXGroup;
-			children = (B1000000000000000000000B /* PrivacyInfo.xcprivacy */,);
+			children = (B1000000000000000000000B /* PrivacyInfo.xcprivacy */, B10000000000000000000011 /* Localizable.xcstrings */,);
 			path = Resources;
 			sourceTree = "<group>";
 		};
@@ -157,7 +163,7 @@
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
-			knownRegions = (en, Base,);
+			knownRegions = (en, es, Base,);
 			mainGroup = C10000000000000000000001;
 			packageReferences = (H10000000000000000000001 /* XCLocalSwiftPackageReference "." */,);
 			productRefGroup = C10000000000000000000002 /* Products */;
@@ -168,7 +174,7 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		D10000000000000000000003 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (A1000000000000000000000B /* PrivacyInfo.xcprivacy in Resources */, A1000000000000000000000F /* Assets.xcassets in Resources */,); runOnlyForDeploymentPostprocessing = 0; };
+		D10000000000000000000003 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (A1000000000000000000000B /* PrivacyInfo.xcprivacy in Resources */, A10000000000000000000011 /* Localizable.xcstrings in Resources */, A1000000000000000000000F /* Assets.xcassets in Resources */,); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -177,6 +183,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				A10000000000000000000001 /* ZodiacDailyApp.swift in Sources */,
+				A10000000000000000000010 /* AppLanguage.swift in Sources */,
+				A10000000000000000000012 /* ZodiacSign+Localization.swift in Sources */,
 				A1000000000000000000000C /* AppConfiguration.swift in Sources */,
 				A10000000000000000000002 /* AppModel.swift in Sources */,
 				A10000000000000000000003 /* RootView.swift in Sources */,
@@ -213,7 +221,7 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIRequiresFullScreen = YES;
-				MARKETING_VERSION = 0.1.1;
+				MARKETING_VERSION = 0.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.krazel.zodiacdaily;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -244,7 +252,7 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIRequiresFullScreen = YES;
-				MARKETING_VERSION = 0.1.1;
+				MARKETING_VERSION = 0.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.krazel.zodiacdaily;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "Zodiac Daily App Store 2026-08-11";

@@ -64,6 +64,16 @@ final class DailyCardDetailsTests: XCTestCase {
         XCTAssertEqual(decoded.signEssence, "Preserved essence.")
     }
 
+    func testSpanishDetailsUseSpanishEssenceAndOfflineLabel() {
+        let details = DailyCardDetails.offlineFallback(
+            for: .pisces,
+            language: .spanish
+        )
+
+        XCTAssertEqual(details.focus, "Edición sin conexión")
+        XCTAssertEqual(details.signEssence, "Intuitivo · Compasivo · Imaginativo")
+    }
+
     private func makeProviderDetails() -> DailyCardDetails {
         .provider(
             focus: "Intuition",

@@ -44,6 +44,20 @@ specifications:
 - `today-a-celestial-broadsheet.png`
 - `today-b-modern-magazine.png`
 - `today-c-mystic-night.png`
+- `settings-language-support-c4.png` — complete Settings extension with the
+  English/Español selector, the historical English-only provider note, and
+  Help & Support. It predates the schema-3 Spanish translation candidate and
+  must not govern that new note;
+  SHA-256 `89e4ef5d2025b49593746604ccc5e1d8360442ecb28573b716f31e2e9516692f`.
+- `today-settings-entry-c4.png` — complete Today proposal showing the visible
+  Settings entry while retaining the sign selector's direct action; SHA-256
+  `45afee32eac0ab2fd92345b7b58babcd74aa0494aaa9f32be4c0e470d876fa9f`.
+
+The schema-3 candidate adds only functional language variants to the existing
+hierarchy: an actual-language `EN`/`ES` marker on saved snapshots and an
+English-fallback label when Spanish is unavailable. These variants remain
+implementation candidates until real EN/ES captures are compared at the same
+device size; they do not replace any current master in this manifest.
 
 ## Store screenshot rule
 

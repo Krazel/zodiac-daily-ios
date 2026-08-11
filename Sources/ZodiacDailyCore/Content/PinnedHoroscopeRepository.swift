@@ -36,15 +36,23 @@ public actor PinnedHoroscopeRepository: HoroscopeRepository {
 
     public func horoscope(
         for sign: ZodiacSign,
-        day: LocalDayKey
+        day: LocalDayKey,
+        language: HoroscopeLanguage
     ) async throws -> DailyHoroscope {
-        let archiveKey = "\(sign.rawValue):\(day.rawValue)"
+        let archiveKey = "\(language.rawValue):\(sign.rawValue):\(day.rawValue)"
         if let pinned = try await store.card(id: archiveKey) {
             return pinned.horoscope
         }
 
-        let resolved = try await upstream.horoscope(for: sign, day: day)
-        guard resolved.sign == sign, resolved.day == day else {
+        let resolved = try await upstream.horoscope(
+            for: sign,
+            day: day,
+            language: language
+        )
+        let isPermittedEnglishFallback = language == .spanish && resolved.language == .english
+        guard resolved.sign == sign,
+              resolved.day == day,
+              resolved.language == language || isPermittedEnglishFallback else {
             throw PinnedHoroscopeRepositoryError.mismatchedEdition
         }
 
@@ -54,7 +62,7 @@ public actor PinnedHoroscopeRepository: HoroscopeRepository {
             // Concurrent callers may both resolve upstream content. The store
             // is first-write-wins, so rereading makes every caller converge on
             // the same immutable edition.
-            return try await store.card(id: archiveKey)?.horoscope ?? resolved
+            return try await store.card(id: resolved.archiveKey)?.horoscope ?? resolved
         } catch {
             // A derived cache must never hide an otherwise valid daily card
             // merely because local storage is temporarily unavailable.

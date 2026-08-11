@@ -47,6 +47,58 @@ final class FallbackHoroscopeRepositoryTests: XCTestCase {
         }
     }
 
+    func testSpanishFailureRetriesRemoteEnglishBeforeBundledEnglish() async throws {
+        let day = try XCTUnwrap(LocalDayKey(rawValue: "2026-08-09"))
+        let english = makeHoroscope(sign: .cancer, day: day, version: 2)
+        let primary = LanguageRecordingRepository(
+            results: [
+                .spanish: .failure(.unavailable),
+                .english: .success(english)
+            ]
+        )
+        let fallback = LanguageRecordingRepository(
+            results: [.english: .failure(.invalidFallback)]
+        )
+        let repository = FallbackHoroscopeRepository(primary: primary, fallback: fallback)
+
+        let result = try await repository.horoscope(
+            for: .cancer,
+            day: day,
+            language: .spanish
+        )
+
+        XCTAssertEqual(result, english)
+        let primaryLanguages = await primary.requestedLanguages()
+        let fallbackLanguages = await fallback.requestedLanguages()
+        XCTAssertEqual(primaryLanguages, [.spanish, .english])
+        XCTAssertEqual(fallbackLanguages, [])
+    }
+
+    func testSpanishAndEnglishRemoteFailuresUseBundledEnglish() async throws {
+        let day = try XCTUnwrap(LocalDayKey(rawValue: "2026-08-09"))
+        let english = makeHoroscope(sign: .cancer, day: day, version: 1)
+        let primary = LanguageRecordingRepository(
+            results: [
+                .spanish: .failure(.unavailable),
+                .english: .failure(.unavailable)
+            ]
+        )
+        let fallback = LanguageRecordingRepository(results: [.english: .success(english)])
+        let repository = FallbackHoroscopeRepository(primary: primary, fallback: fallback)
+
+        let result = try await repository.horoscope(
+            for: .cancer,
+            day: day,
+            language: .spanish
+        )
+
+        XCTAssertEqual(result, english)
+        let primaryLanguages = await primary.requestedLanguages()
+        let fallbackLanguages = await fallback.requestedLanguages()
+        XCTAssertEqual(primaryLanguages, [.spanish, .english])
+        XCTAssertEqual(fallbackLanguages, [.english])
+    }
+
     private func makeHoroscope(
         sign: ZodiacSign,
         day: LocalDayKey,
@@ -74,7 +126,33 @@ private actor StubHoroscopeRepository: HoroscopeRepository {
         self.result = result
     }
 
-    func horoscope(for sign: ZodiacSign, day: LocalDayKey) async throws -> DailyHoroscope {
+    func horoscope(
+        for sign: ZodiacSign,
+        day: LocalDayKey,
+        language: HoroscopeLanguage
+    ) async throws -> DailyHoroscope {
         try result.get()
+    }
+}
+
+private actor LanguageRecordingRepository: HoroscopeRepository {
+    private let results: [HoroscopeLanguage: Result<DailyHoroscope, StubRepositoryError>]
+    private var languages: [HoroscopeLanguage] = []
+
+    init(results: [HoroscopeLanguage: Result<DailyHoroscope, StubRepositoryError>]) {
+        self.results = results
+    }
+
+    func horoscope(
+        for sign: ZodiacSign,
+        day: LocalDayKey,
+        language: HoroscopeLanguage
+    ) async throws -> DailyHoroscope {
+        languages.append(language)
+        return try results[language, default: .failure(.unavailable)].get()
+    }
+
+    func requestedLanguages() -> [HoroscopeLanguage] {
+        languages
     }
 }

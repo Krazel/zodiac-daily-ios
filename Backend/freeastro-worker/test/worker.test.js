@@ -11,6 +11,7 @@ import {
   isValidBundle,
   normalizeProviderResponse,
   scheduledTargetDate,
+  translateBundleToSpanish,
   warmDate,
 } from "../src/index.js";
 
@@ -56,9 +57,10 @@ function providerBody(sign, date, text = null) {
   };
 }
 
-function validBundle(date) {
+function validBundle(date, language = "en") {
   return {
-    schema_version: 2,
+    schema_version: 3,
+    language,
     requested_date: date,
     content_date: date,
     generated_at: `${date}T00:15:00.000Z`,
@@ -83,6 +85,15 @@ function validBundle(date) {
       },
       content_version: Number(date.replaceAll("-", "")),
     })),
+  };
+}
+
+function fakeAI(calls = []) {
+  return {
+    async run(model, input) {
+      calls.push({ model, input });
+      return { translated_text: `ES ${input.text}` };
+    },
   };
 }
 
@@ -179,7 +190,7 @@ test("cron only enqueues warm-up work and never calls the provider", async () =>
     { WARMUP_QUEUE: { send: async (message) => messages.push(message) } },
   );
 
-  assert.deepEqual(messages, [{ schema_version: 2, date: "2026-08-10" }]);
+  assert.deepEqual(messages, [{ schema_version: 3, date: "2026-08-10" }]);
 });
 
 test("a provider sign mismatch is rejected", () => {
@@ -227,15 +238,50 @@ test("provider fan-out covers 12 signs and respects the published free rate", as
   assert.doesNotMatch(JSON.stringify(payload), /private-test-key/);
 });
 
-test("queue consumer warm-up writes one exact-date bulk document", async () => {
+test("Workers AI translates every user-facing field into a valid Spanish edition", async () => {
+  const english = validBundle("2026-08-09");
+  const calls = [];
+  const spanish = await translateBundleToSpanish(english, fakeAI(calls), {
+    now: () => new Date("2026-08-08T10:30:00Z"),
+  });
+
+  assert.equal(spanish.language, "es");
+  assert.equal(spanish.generated_at, "2026-08-08T10:30:00.000Z");
+  assert.equal(spanish.horoscopes[0].headline, "ES aries theme");
+  assert.match(spanish.horoscopes[0].reading, /^ES /);
+  assert.deepEqual(spanish.horoscopes[0].details.keywords, [
+    "ES Empathy",
+    "ES Flow",
+    "ES Imagination",
+  ]);
+  assert.equal(spanish.horoscopes[0].details.focus, spanish.horoscopes[0].headline);
+  assert.equal(spanish.horoscopes[0].details.lucky_color, "ES Silver");
+  assert.equal(spanish.horoscopes[0].details.moon_sign, "ES Capricorn");
+  assert.equal(spanish.horoscopes[0].details.moon_phase, "ES Last Quarter");
+  assert.equal(spanish.horoscopes[0].details.love_score, 83);
+  assert.equal(spanish.horoscopes[0].content_version, 20260809);
+  assert.equal(calls.length, 96);
+  assert.ok(calls.every(({ model }) => model === "@cf/meta/m2m100-1.2b"));
+  assert.ok(calls.every(({ input }) => input.source_lang === "en" && input.target_lang === "es"));
+  assert.ok(isValidBundle(spanish, "2026-08-09", "es"));
+  assert.ok(isValidBundle(english, "2026-08-09", "en"));
+  assert.equal(isValidBundle(english, "2026-08-09", "es"), false);
+});
+
+test("queue consumer writes one English and one Spanish exact-date edition", async () => {
   const kv = new MemoryKV();
   let calls = 0;
   let acknowledged = false;
   const observedKeys = [];
-  const env = { FREEASTRO_API_KEY: " secret-value\r\n", DAILY_CACHE: kv };
+  const aiCalls = [];
+  const env = {
+    FREEASTRO_API_KEY: " secret-value\r\n",
+    DAILY_CACHE: kv,
+    AI: fakeAI(aiCalls),
+  };
 
   await handleQueue({ messages: [{
-    body: { schema_version: 2, date: "2026-08-09" },
+    body: { schema_version: 3, date: "2026-08-09" },
     ack: () => { acknowledged = true; },
   }] }, env, {
     now: () => new Date("2026-08-08T10:15:00Z"),
@@ -247,7 +293,8 @@ test("queue consumer warm-up writes one exact-date bulk document", async () => {
       return Response.json(providerBody(sign, "2026-08-09"));
     },
   });
-  const cached = await getCachedDaily("2026-08-09", env);
+  const cached = await getCachedDaily("2026-08-09", env, "en");
+  const translated = await getCachedDaily("2026-08-09", env, "es");
 
   assert.equal(acknowledged, true);
   assert.equal(calls, 12);
@@ -255,16 +302,46 @@ test("queue consumer warm-up writes one exact-date bulk document", async () => {
   assert.equal(cached.horoscopes.length, 12);
   assert.equal(cached.requested_date, "2026-08-09");
   assert.equal(cached.content_date, "2026-08-09");
-  assert.equal(kv.puts.filter(({ key }) => key.startsWith("daily:")).length, 1);
+  assert.equal(cached.language, "en");
+  assert.equal(translated.language, "es");
+  assert.match(translated.horoscopes[0].reading, /^ES /);
+  assert.equal(aiCalls.length, 96);
+  assert.equal(kv.puts.filter(({ key }) => key.startsWith("daily:")).length, 2);
+});
+
+test("an English cache hit translates Spanish without spending provider quota", async () => {
+  const english = validBundle("2026-08-09");
+  const kv = new MemoryKV({
+    "daily:v3:en:2026-08-09": JSON.stringify(english),
+  });
+  let providerCalls = 0;
+  const aiCalls = [];
+
+  const result = await warmDate(
+    "2026-08-09",
+    { FREEASTRO_API_KEY: "secret", DAILY_CACHE: kv, AI: fakeAI(aiCalls) },
+    { fetchImpl: async () => { providerCalls += 1; return new Response(); } },
+  );
+
+  assert.equal(result.cache, "miss");
+  assert.equal(providerCalls, 0);
+  assert.equal(aiCalls.length, 96);
+  assert.equal((await getCachedDaily("2026-08-09", { DAILY_CACHE: kv }, "es")).language, "es");
 });
 
 test("a second scheduled check uses KV and spends no provider quota", async () => {
-  const cached = validBundle("2026-08-09");
-  const kv = new MemoryKV({ "daily:v2:2026-08-09": JSON.stringify(cached) });
+  const english = validBundle("2026-08-09");
+  const spanish = await translateBundleToSpanish(english, fakeAI(), {
+    now: () => new Date("2026-08-09T00:15:00Z"),
+  });
+  const kv = new MemoryKV({
+    "daily:v3:en:2026-08-09": JSON.stringify(english),
+    "daily:v3:es:2026-08-09": JSON.stringify(spanish),
+  });
   let calls = 0;
   const result = await warmDate(
     "2026-08-09",
-    { FREEASTRO_API_KEY: "secret", DAILY_CACHE: kv },
+    { FREEASTRO_API_KEY: "secret", DAILY_CACHE: kv, AI: fakeAI() },
     { fetchImpl: async () => { calls += 1; return new Response(); } },
   );
 
@@ -274,7 +351,7 @@ test("a second scheduled check uses KV and spends no provider quota", async () =
 
 test("public cache miss never contacts provider or serves another date", async () => {
   const prior = validBundle("2026-08-08");
-  const kv = new MemoryKV({ "last-valid:v2": JSON.stringify(prior) });
+  const kv = new MemoryKV({ "last-valid:v3:en": JSON.stringify(prior) });
   let calls = 0;
   const response = await handleRequest(
     new Request("https://example.test/v1/daily/2026-08-09"),
@@ -289,18 +366,76 @@ test("public cache miss never contacts provider or serves another date", async (
   assert.equal(response.status, 503);
   assert.equal(body.error.code, "daily_content_unavailable");
   assert.equal(calls, 0);
-  assert.equal(await kv.get("last-valid:v2"), JSON.stringify(prior));
+  assert.equal(await kv.get("last-valid:v3:en"), JSON.stringify(prior));
   assert.doesNotMatch(JSON.stringify(body), /never-expose-this/);
+});
+
+test("public language selection never substitutes the wrong-language cache", async () => {
+  const english = validBundle("2026-08-09", "en");
+  const kv = new MemoryKV({
+    "daily:v3:en:2026-08-09": JSON.stringify(english),
+  });
+  const options = { now: () => new Date("2026-08-09T12:00:00Z") };
+
+  const englishResponse = await handleRequest(
+    new Request("https://example.test/v1/horoscopes/daily?date=2026-08-09&lang=en"),
+    { DAILY_CACHE: kv },
+    options,
+  );
+  assert.equal(englishResponse.status, 200);
+  assert.equal(englishResponse.headers.get("Content-Language"), "en");
+  assert.equal((await englishResponse.json()).language, "en");
+
+  const spanishResponse = await handleRequest(
+    new Request("https://example.test/v1/horoscopes/daily?date=2026-08-09&lang=es"),
+    { DAILY_CACHE: kv },
+    options,
+  );
+  assert.equal(spanishResponse.status, 503);
+  assert.equal((await spanishResponse.json()).error.code, "daily_content_unavailable");
+});
+
+test("Spanish route returns only the cached Spanish edition and language header", async () => {
+  const english = validBundle("2026-08-09", "en");
+  const spanish = await translateBundleToSpanish(english, fakeAI(), {
+    now: () => new Date("2026-08-09T00:15:00Z"),
+  });
+  const kv = new MemoryKV({
+    "daily:v3:es:2026-08-09": JSON.stringify(spanish),
+  });
+
+  const response = await handleRequest(
+    new Request("https://example.test/v1/horoscopes/daily?date=2026-08-09&lang=es"),
+    { DAILY_CACHE: kv },
+    { now: () => new Date("2026-08-09T12:00:00Z") },
+  );
+  const body = await response.json();
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get("Content-Language"), "es");
+  assert.equal(body.language, "es");
+  assert.match(body.horoscopes[0].reading, /^ES /);
+});
+
+test("unsupported public languages are rejected before any cache access", async () => {
+  let reads = 0;
+  const response = await handleRequest(
+    new Request("https://example.test/v1/horoscopes/daily?date=2026-08-09&lang=fr"),
+    { DAILY_CACHE: { get: async () => { reads += 1; return null; } } },
+    { now: () => new Date("2026-08-09T12:00:00Z") },
+  );
+  assert.equal(response.status, 400);
+  assert.equal((await response.json()).error.code, "unsupported_language");
+  assert.equal(reads, 0);
 });
 
 test("scheduled provider failure cools down and preserves only diagnostic last-valid", async () => {
   const prior = validBundle("2026-08-08");
-  const kv = new MemoryKV({ "last-valid:v2": JSON.stringify(prior) });
+  const kv = new MemoryKV({ "last-valid:v3:en": JSON.stringify(prior) });
 
   await assert.rejects(
     warmDate(
       "2026-08-09",
-      { FREEASTRO_API_KEY: "secret", DAILY_CACHE: kv },
+      { FREEASTRO_API_KEY: "secret", DAILY_CACHE: kv, AI: fakeAI() },
       {
         now: () => new Date("2026-08-09T00:15:00Z"),
         wait: async () => undefined,
@@ -310,9 +445,44 @@ test("scheduled provider failure cools down and preserves only diagnostic last-v
     /provider_refresh_failed/,
   );
 
-  assert.equal(await kv.get("failure:v2:2026-08-09"), "1");
-  assert.equal(await kv.get("last-valid:v2"), JSON.stringify(prior));
+  assert.equal(await kv.get("failure:v3:en:2026-08-09"), "1");
+  assert.equal(await kv.get("last-valid:v3:en"), JSON.stringify(prior));
   await assert.rejects(getCachedDaily("2026-08-09", { DAILY_CACHE: kv }), /daily_cache_miss/);
+});
+
+test("translation failure keeps English cached and retries never refetch FreeAstro", async () => {
+  const kv = new MemoryKV();
+  let providerCalls = 0;
+  let aiCalls = 0;
+  const env = {
+    FREEASTRO_API_KEY: "secret",
+    DAILY_CACHE: kv,
+    AI: {
+      async run() {
+        aiCalls += 1;
+        throw new Error("offline_ai_failure");
+      },
+    },
+  };
+  const options = {
+    now: () => new Date("2026-08-09T00:15:00Z"),
+    wait: async () => undefined,
+    fetchImpl: async (url) => {
+      providerCalls += 1;
+      return Response.json(providerBody(url.searchParams.get("sign"), "2026-08-09"));
+    },
+  };
+
+  await assert.rejects(warmDate("2026-08-09", env, options), /translation_refresh_failed/);
+  assert.equal(providerCalls, 12);
+  assert.equal(aiCalls, 1);
+  assert.equal((await getCachedDaily("2026-08-09", env, "en")).language, "en");
+  await assert.rejects(getCachedDaily("2026-08-09", env, "es"), /daily_cache_miss/);
+  assert.equal(await kv.get("failure:v3:es:2026-08-09"), "1");
+
+  await assert.rejects(warmDate("2026-08-09", env, options), /translation_cooldown/);
+  assert.equal(providerCalls, 12);
+  assert.equal(aiCalls, 1);
 });
 
 test("invalid, impossible, and distant dates cannot consume provider quota", async () => {
@@ -332,7 +502,7 @@ test("invalid, impossible, and distant dates cannot consume provider quota", asy
 
 test("canonical and compatibility routes return the exact array contract", async () => {
   const cached = validBundle("2026-08-09");
-  const kv = new MemoryKV({ "daily:v2:2026-08-09": JSON.stringify(cached) });
+  const kv = new MemoryKV({ "daily:v3:en:2026-08-09": JSON.stringify(cached) });
   const env = { FREEASTRO_API_KEY: "secret", DAILY_CACHE: kv };
   const options = { now: () => new Date("2026-08-09T12:00:00Z") };
 
@@ -345,6 +515,7 @@ test("canonical and compatibility routes return the exact array contract", async
     assert.equal(response.status, 200);
     assert.deepEqual(Object.keys(body), [
       "schema_version",
+      "language",
       "requested_date",
       "content_date",
       "generated_at",
@@ -361,9 +532,17 @@ test("health never returns the provider key", async () => {
     FREEASTRO_API_KEY: "top-secret",
     DAILY_CACHE: new MemoryKV(),
     WARMUP_QUEUE: { send: async () => undefined },
+    AI: fakeAI(),
   });
   assert.equal(response.status, 200);
   assert.doesNotMatch(await response.text(), /top-secret/);
+
+  const missingAI = await handleRequest(new Request("https://example.test/health"), {
+    FREEASTRO_API_KEY: "top-secret",
+    DAILY_CACHE: new MemoryKV(),
+    WARMUP_QUEUE: { send: async () => undefined },
+  });
+  assert.equal(missingAI.status, 503);
 
   const unconfigured = await handleRequest(new Request("https://example.test/health"), {});
   assert.equal(unconfigured.status, 503);

@@ -13,12 +13,25 @@ final class SupportStore: ObservableObject {
         case restricted
     }
 
+    enum StatusMessage: Equatable {
+        case purchasesUnavailable
+        case optionUnavailable
+        case verificationFailed
+        case thankYou
+        case pending
+        case purchaseFailed
+        case restored
+        case noneFound
+        case restoreFailed
+        case configurationError
+    }
+
     @Published private(set) var products: [Product] = []
     @Published private(set) var catalogState: CatalogState = .idle
     @Published private(set) var activeProductID: String?
     @Published private(set) var purchasingProductID: String?
     @Published private(set) var isRestoring = false
-    @Published private(set) var statusMessage: String?
+    @Published private(set) var statusMessage: StatusMessage?
 
     private var updatesTask: Task<Void, Never>?
     private var hasStarted = false
@@ -49,11 +62,11 @@ final class SupportStore: ObservableObject {
         guard purchasingProductID == nil, !isRestoring else { return }
         guard canMakePayments else {
             catalogState = .restricted
-            statusMessage = "Purchases are not available on this device."
+            statusMessage = .purchasesUnavailable
             return
         }
         guard Self.isValidSupportProduct(product) else {
-            statusMessage = "This support option is temporarily unavailable."
+            statusMessage = .optionUnavailable
             return
         }
 
@@ -68,29 +81,29 @@ final class SupportStore: ObservableObject {
                 guard case .verified(let transaction) = verification,
                       Self.productIDs.contains(transaction.productID)
                 else {
-                    statusMessage = "The purchase could not be verified. You were not marked as a supporter."
+                    statusMessage = .verificationFailed
                     return
                 }
                 activeProductID = transaction.productID
-                statusMessage = "Thank you for supporting Zodiac Daily."
+                statusMessage = .thankYou
                 await transaction.finish()
                 await refreshEntitlements()
             case .pending:
-                statusMessage = "The purchase is pending approval."
+                statusMessage = .pending
             case .userCancelled:
                 break
             @unknown default:
-                statusMessage = "The purchase could not be completed. Please try again."
+                statusMessage = .purchaseFailed
             }
         } catch {
-            statusMessage = "The purchase could not be completed. Please try again."
+            statusMessage = .purchaseFailed
         }
     }
 
     func restorePurchases() async {
         guard !isRestoring, purchasingProductID == nil else { return }
         guard canMakePayments else {
-            statusMessage = "Purchases are not available on this device."
+            statusMessage = .purchasesUnavailable
             return
         }
         isRestoring = true
@@ -100,11 +113,9 @@ final class SupportStore: ObservableObject {
         do {
             try await AppStore.sync()
             await refreshEntitlements()
-            statusMessage = isSupporter
-                ? "Your supporter status has been restored. Thank you."
-                : "No active supporter subscription was found."
+            statusMessage = isSupporter ? .restored : .noneFound
         } catch {
-            statusMessage = "Purchases could not be restored. Please try again."
+            statusMessage = .restoreFailed
         }
     }
 
@@ -129,7 +140,7 @@ final class SupportStore: ObservableObject {
             guard subscriptionGroupIDs.count <= 1 else {
                 products = []
                 catalogState = .unavailable
-                statusMessage = "Support options are not configured correctly. No charge can be made."
+                statusMessage = .configurationError
                 return
             }
             products = loaded

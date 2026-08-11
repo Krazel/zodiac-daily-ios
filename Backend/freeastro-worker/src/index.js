@@ -14,12 +14,16 @@ const SIGNS = Object.freeze([
 ]);
 
 const UPSTREAM_URL = "https://api.freeastroapi.com/api/v2/horoscope/daily/sign";
-const CACHE_SCHEMA_VERSION = 2;
+const TRANSLATION_MODEL = "@cf/meta/m2m100-1.2b";
+const CACHE_SCHEMA_VERSION = 3;
+const LANGUAGES = Object.freeze(["en", "es"]);
 const MAX_HEADLINE_CHARACTERS = 52;
 const MIN_READING_CHARACTERS = 40;
 // Live FreeAstroAPI editions currently sit around 324-382 characters. This
 // guard remains bounded while accepting the provider's real daily copy.
 const MAX_READING_CHARACTERS = 500;
+const MAX_TRANSLATED_HEADLINE_CHARACTERS = 72;
+const MAX_TRANSLATED_READING_CHARACTERS = 700;
 const DAILY_TTL_SECONDS = 400 * 24 * 60 * 60;
 const FAILURE_COOLDOWN_SECONDS = 5 * 60;
 const PROVIDER_INTERVAL_MS = 1_050;
@@ -75,7 +79,7 @@ export async function handleRequest(request, env, options = {}) {
 
   if (url.pathname === "/health") {
     const configured = Boolean(
-      secretValue(env?.FREEASTRO_API_KEY) && env?.DAILY_CACHE && env?.WARMUP_QUEUE,
+      secretValue(env?.FREEASTRO_API_KEY) && env?.DAILY_CACHE && env?.WARMUP_QUEUE && env?.AI,
     );
     return jsonResponse(
       {
@@ -101,9 +105,18 @@ export async function handleRequest(request, env, options = {}) {
   const date = isAppRoute
     ? url.searchParams.get("date") ?? ""
     : decodeURIComponent(legacyMatch[1]);
+  const language = url.searchParams.get("lang") ?? "en";
   if (!isISODate(date)) {
     return jsonResponse(
       { error: { code: "invalid_date", message: "Use a real date in YYYY-MM-DD format." } },
+      400,
+      { "Cache-Control": "no-store" },
+    );
+  }
+
+  if (!LANGUAGES.includes(language)) {
+    return jsonResponse(
+      { error: { code: "unsupported_language", message: "Use lang=en or lang=es." } },
       400,
       { "Cache-Control": "no-store" },
     );
@@ -132,10 +145,11 @@ export async function handleRequest(request, env, options = {}) {
   }
 
   try {
-    const payload = await getCachedDaily(date, env);
+    const payload = await getCachedDaily(date, env, language);
 
     return jsonResponse(payload, 200, {
       "Cache-Control": "public, max-age=300, s-maxage=3600, stale-if-error=86400",
+      "Content-Language": language,
       "X-Zodiac-Content-State": "fresh",
     });
   } catch {
@@ -152,20 +166,25 @@ export async function handleRequest(request, env, options = {}) {
   }
 }
 
-export async function getCachedDaily(date, env) {
-  const cacheKey = dailyCacheKey(date);
+export async function getCachedDaily(date, env, language = "en") {
+  if (!LANGUAGES.includes(language)) throw new Error("unsupported_language");
+  const cacheKey = dailyCacheKey(date, language);
   const cached = await readPayload(env.DAILY_CACHE, cacheKey);
-  if (cached && isValidBundle(cached, date)) return cached;
+  if (cached && isValidBundle(cached, date, language)) return cached;
   throw new Error("daily_cache_miss");
 }
 
 export async function warmDate(date, env, options = {}) {
-  if (!env?.DAILY_CACHE || !secretValue(env?.FREEASTRO_API_KEY)) {
+  if (!env?.DAILY_CACHE || !secretValue(env?.FREEASTRO_API_KEY) || !env?.AI) {
     throw new Error("service_not_configured");
   }
 
   try {
-    return { payload: await getCachedDaily(date, env), cache: "hit" };
+    const [english, spanish] = await Promise.all([
+      getCachedDaily(date, env, "en"),
+      getCachedDaily(date, env, "es"),
+    ]);
+    return { payload: english, translations: { es: spanish }, cache: "hit" };
   } catch {
     // Only scheduled warm-up is allowed to turn a cache miss into API calls.
   }
@@ -181,8 +200,35 @@ export async function warmDate(date, env, options = {}) {
 }
 
 async function refreshDate(date, env, options) {
-  const cooldown = await env.DAILY_CACHE.get(failureCacheKey(date));
-  if (cooldown) throw new Error("provider_cooldown");
+  let english;
+  let englishCache = "hit";
+  try {
+    english = await getCachedDaily(date, env, "en");
+  } catch {
+    englishCache = "miss";
+    english = await refreshEnglishDate(date, env, options);
+  }
+
+  let spanish;
+  let spanishCache = "hit";
+  try {
+    spanish = await getCachedDaily(date, env, "es");
+  } catch {
+    spanishCache = "miss";
+    spanish = await refreshSpanishDate(english, env, options);
+  }
+
+  return {
+    payload: english,
+    translations: { es: spanish },
+    cache: englishCache === "hit" && spanishCache === "hit" ? "hit" : "miss",
+  };
+}
+
+async function refreshEnglishDate(date, env, options) {
+  if (await env.DAILY_CACHE.get(failureCacheKey(date, "en"))) {
+    throw new Error("provider_cooldown");
+  }
 
   try {
     const payload = await fetchProviderBundle(
@@ -190,32 +236,56 @@ async function refreshDate(date, env, options) {
       secretValue(env.FREEASTRO_API_KEY),
       options,
     );
-    if (!isValidBundle(payload, date)) throw new Error("invalid_normalized_bundle");
-
-    await Promise.all([
-      env.DAILY_CACHE.put(dailyCacheKey(date), JSON.stringify(payload), {
-        expirationTtl: DAILY_TTL_SECONDS,
-      }),
-      env.DAILY_CACHE.put(lastValidCacheKey(), JSON.stringify(payload)),
-    ]);
-
-    return { payload, cache: "miss" };
+    if (!isValidBundle(payload, date, "en")) throw new Error("invalid_normalized_bundle");
+    await writePayload(env.DAILY_CACHE, payload);
+    return payload;
   } catch (error) {
+    await recordFailure(env.DAILY_CACHE, date, "en");
     console.error("provider refresh failed", {
       date,
       code: error instanceof Error ? error.message : "unknown",
     });
-    try {
-      await env.DAILY_CACHE.put(failureCacheKey(date), "1", {
-        expirationTtl: FAILURE_COOLDOWN_SECONDS,
-      });
-    } catch {
-      // A failed cooldown write must not hide the original provider failure.
-    }
-    // The last-valid record is retained for diagnosis only. Serving a previous
-    // date as today's edition would violate the product promise, so the app
-    // receives 503 and activates its bundled, date-specific fallback instead.
     throw new Error("provider_refresh_failed");
+  }
+}
+
+async function refreshSpanishDate(english, env, options) {
+  const date = english.content_date;
+  if (await env.DAILY_CACHE.get(failureCacheKey(date, "es"))) {
+    throw new Error("translation_cooldown");
+  }
+
+  try {
+    const payload = await translateBundleToSpanish(english, env.AI, options);
+    if (!isValidBundle(payload, date, "es")) throw new Error("invalid_translated_bundle");
+    await writePayload(env.DAILY_CACHE, payload);
+    return payload;
+  } catch (error) {
+    await recordFailure(env.DAILY_CACHE, date, "es");
+    console.error("translation refresh failed", {
+      date,
+      code: error instanceof Error ? error.message : "unknown",
+    });
+    throw new Error("translation_refresh_failed");
+  }
+}
+
+async function writePayload(kv, payload) {
+  await Promise.all([
+    kv.put(dailyCacheKey(payload.content_date, payload.language), JSON.stringify(payload), {
+      expirationTtl: DAILY_TTL_SECONDS,
+    }),
+    kv.put(lastValidCacheKey(payload.language), JSON.stringify(payload)),
+  ]);
+}
+
+async function recordFailure(kv, date, language) {
+  try {
+    await kv.put(failureCacheKey(date, language), "1", {
+      expirationTtl: FAILURE_COOLDOWN_SECONDS,
+    });
+  } catch {
+    // A failed cooldown write must not hide the original provider/AI failure.
   }
 }
 
@@ -263,6 +333,7 @@ export async function fetchProviderBundle(date, apiKey, options = {}) {
 
   return {
     schema_version: CACHE_SCHEMA_VERSION,
+    language: "en",
     requested_date: date,
     content_date: date,
     generated_at: now.toISOString(),
@@ -270,6 +341,56 @@ export async function fetchProviderBundle(date, apiKey, options = {}) {
     provider: "freeastroapi",
     horoscopes,
   };
+}
+
+export async function translateBundleToSpanish(english, ai, options = {}) {
+  if (!isValidBundle(english, english?.content_date, "en")) {
+    throw new Error("invalid_english_bundle");
+  }
+  if (!ai || typeof ai.run !== "function") throw new Error("ai_not_configured");
+
+  const now = options.now?.() ?? new Date();
+  const horoscopes = [];
+  for (const horoscope of english.horoscopes) {
+    const headline = await translateText(horoscope.headline, ai);
+    const reading = await translateText(horoscope.reading, ai);
+    const keywords = [];
+    for (const keyword of horoscope.details.keywords) {
+      keywords.push(await translateText(keyword, ai));
+    }
+
+    horoscopes.push({
+      ...horoscope,
+      headline,
+      reading,
+      details: {
+        ...horoscope.details,
+        focus: headline,
+        keywords,
+        lucky_color: await translateText(horoscope.details.lucky_color, ai),
+        moon_sign: await translateText(horoscope.details.moon_sign, ai),
+        moon_phase: await translateText(horoscope.details.moon_phase, ai),
+      },
+    });
+  }
+
+  return {
+    ...english,
+    language: "es",
+    generated_at: now.toISOString(),
+    horoscopes,
+  };
+}
+
+async function translateText(text, ai) {
+  const response = await ai.run(TRANSLATION_MODEL, {
+    text,
+    source_lang: "en",
+    target_lang: "es",
+  });
+  const translated = normalizeCardCopy(response?.translated_text);
+  if (!translated) throw new Error("translation_invalid_response");
+  return translated;
 }
 
 export function normalizeProviderResponse(body, expectedSign, expectedDate) {
@@ -329,8 +450,9 @@ export function normalizeProviderResponse(body, expectedSign, expectedDate) {
   };
 }
 
-export function isValidBundle(value, expectedContentDate) {
+export function isValidBundle(value, expectedContentDate, expectedLanguage = "en") {
   if (!value || value.schema_version !== CACHE_SCHEMA_VERSION) return false;
+  if (value.language !== expectedLanguage || !LANGUAGES.includes(value.language)) return false;
   if (value.requested_date !== expectedContentDate || value.content_date !== expectedContentDate) return false;
   if (value.stale !== false || value.provider !== "freeastroapi") return false;
   if (typeof value.generated_at !== "string" || Number.isNaN(Date.parse(value.generated_at))) return false;
@@ -343,10 +465,16 @@ export function isValidBundle(value, expectedContentDate) {
     const reading = normalizeCardCopy(horoscope.reading);
     if (!headline || !reading) return false;
     if (headline !== horoscope.headline || reading !== horoscope.reading) return false;
-    if (headline.length > MAX_HEADLINE_CHARACTERS) return false;
+    const headlineLimit = expectedLanguage === "es"
+      ? MAX_TRANSLATED_HEADLINE_CHARACTERS
+      : MAX_HEADLINE_CHARACTERS;
+    const readingLimit = expectedLanguage === "es"
+      ? MAX_TRANSLATED_READING_CHARACTERS
+      : MAX_READING_CHARACTERS;
+    if (headline.length > headlineLimit) return false;
     if (
       reading.length < MIN_READING_CHARACTERS ||
-      reading.length > MAX_READING_CHARACTERS
+      reading.length > readingLimit
     ) return false;
     if (!isValidProviderDetails(horoscope.details)) return false;
     if (horoscope.content_version !== Number(expectedContentDate.replaceAll("-", ""))) return false;
@@ -366,16 +494,16 @@ async function readPayload(kv, key) {
   }
 }
 
-function dailyCacheKey(date) {
-  return `daily:v${CACHE_SCHEMA_VERSION}:${date}`;
+function dailyCacheKey(date, language) {
+  return `daily:v${CACHE_SCHEMA_VERSION}:${language}:${date}`;
 }
 
-function lastValidCacheKey() {
-  return `last-valid:v${CACHE_SCHEMA_VERSION}`;
+function lastValidCacheKey(language) {
+  return `last-valid:v${CACHE_SCHEMA_VERSION}:${language}`;
 }
 
-function failureCacheKey(date) {
-  return `failure:v${CACHE_SCHEMA_VERSION}:${date}`;
+function failureCacheKey(date, language) {
+  return `failure:v${CACHE_SCHEMA_VERSION}:${language}:${date}`;
 }
 
 function cleanString(value) {
@@ -467,4 +595,4 @@ function jsonResponse(body, status, extraHeaders = {}) {
   });
 }
 
-export { SIGNS };
+export { LANGUAGES, SIGNS, TRANSLATION_MODEL };

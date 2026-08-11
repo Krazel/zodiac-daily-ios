@@ -5,6 +5,7 @@ import SwiftUI
 struct SupportSectionView: View {
     @EnvironmentObject private var store: SupportStore
     @Environment(\.openURL) private var openURL
+    @Environment(\.locale) private var locale
     @State private var showsManageSubscriptions = false
 
     #if DEBUG
@@ -27,7 +28,7 @@ struct SupportSectionView: View {
 
     private var content: some View {
         VStack(alignment: .leading, spacing: 7) {
-            Text("SUPPORT THE APP")
+            Text(localized("support.title").uppercased())
                 .font(.system(size: 12, weight: .semibold))
                 .tracking(2.5)
                 .foregroundStyle(ZodiacPalette.settingsLavender)
@@ -45,14 +46,14 @@ struct SupportSectionView: View {
                 renewalDisclosure
 
                 if let message = store.statusMessage {
-                    Text(message)
+                    Text(localizedStatus(message))
                         .font(.system(size: 12, weight: .medium))
                         .foregroundStyle(store.isSupporter ? ZodiacPalette.settingsText : ZodiacPalette.settingsLavender)
                         .multilineTextAlignment(.leading)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, 10)
                         .fixedSize(horizontal: false, vertical: true)
-                        .accessibilityLabel(message)
+                        .accessibilityLabel(localizedStatus(message))
                 }
 
                 restoreButton
@@ -73,11 +74,7 @@ struct SupportSectionView: View {
         HStack(spacing: 14) {
             celestialIcon("sparkle", size: 43)
 
-            Text(
-                store.isSupporter
-                    ? "Thank you for supporting ongoing development and helping keep the app free for everyone."
-                    : "Support ongoing development and keep the app free for everyone."
-            )
+            Text(localized(store.isSupporter ? "support.header.active" : "support.header.inactive"))
             .font(.system(size: 14))
             .foregroundStyle(ZodiacPalette.settingsText)
             .fixedSize(horizontal: false, vertical: true)
@@ -118,7 +115,7 @@ struct SupportSectionView: View {
                     ProgressView()
                         .tint(ZodiacPalette.settingsGold)
                 } else {
-                    Text(isActive ? "ACTIVE" : displayPrice(for: product, index: index))
+                    Text(isActive ? localized("support.active") : displayPrice(for: product, index: index))
                         .font(
                             .custom(
                                 "Didot",
@@ -161,13 +158,13 @@ struct SupportSectionView: View {
         )
         .opacity(1)
         .accessibilityLabel(
-            "\(tierTitle(at: index)), \(displayPrice(for: product, index: index))\(isActive ? ", active" : "")"
+            "\(tierTitle(at: index)), \(displayPrice(for: product, index: index))\(isActive ? ", \(localized("support.active"))" : "")"
         )
         .accessibilityHint(optionAccessibilityHint(product: product, isActive: isActive))
     }
 
     private var renewalDisclosure: some View {
-        Text("All levels include the same supporter status.\nSubscriptions renew automatically until cancelled.")
+        Text(localized("support.renewal_disclosure"))
             .font(.system(size: 12))
             .foregroundStyle(ZodiacPalette.settingsMuted)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -181,13 +178,13 @@ struct SupportSectionView: View {
             Task { await store.restorePurchases() }
         } label: {
             actionRow(
-                title: store.isRestoring ? "Restoring…" : "Restore Purchases",
+                title: store.isRestoring ? localized("support.restoring") : localized("support.restore"),
                 systemImage: "arrow.counterclockwise"
             )
         }
         .buttonStyle(.plain)
         .disabled(store.isRestoring || store.purchasingProductID != nil)
-        .accessibilityHint("Restores an existing supporter subscription")
+        .accessibilityHint(localized("support.hint.restore"))
     }
 
     private var manageButton: some View {
@@ -198,10 +195,10 @@ struct SupportSectionView: View {
                 openURL(subscriptionsURL)
             }
         } label: {
-            actionRow(title: "Manage Subscription", systemImage: "person")
+            actionRow(title: localized("support.manage"), systemImage: "person")
         }
         .buttonStyle(.plain)
-        .accessibilityHint("Opens Apple subscription management")
+        .accessibilityHint(localized("support.hint.manage"))
     }
 
     private func actionRow(title: String, systemImage: String) -> some View {
@@ -259,28 +256,57 @@ struct SupportSectionView: View {
 
     private func tierTitle(at index: Int) -> String {
         switch index {
-        case 0: return "Monthly Supporter"
-        case 1: return "Kind Supporter"
-        default: return "Generous Supporter"
+        case 0: return localized("support.tier.monthly")
+        case 1: return localized("support.tier.kind")
+        default: return localized("support.tier.generous")
         }
     }
 
     private func displayPrice(for product: Product?, index: Int) -> String {
         if let product {
-            return "\(product.displayPrice) / month"
+            return String(format: localized("support.price_per_month_format"), product.displayPrice)
         }
         #if DEBUG
         if AppModel.visualQAState == .settings {
-            return "\(visualQAPrices[index]) / month"
+            return String(format: localized("support.price_per_month_format"), visualQAPrices[index])
         }
         #endif
-        return "Unavailable"
+        return localized("support.unavailable")
     }
 
     private func optionAccessibilityHint(product: Product?, isActive: Bool) -> String {
-        if isActive { return "Current supporter level" }
-        if !store.canMakePayments { return "Purchases are unavailable on this device" }
-        if product == nil { return "Reloads temporarily unavailable support options" }
-        return "Starts an auto-renewable monthly subscription"
+        if isActive { return localized("support.hint.current_level") }
+        if !store.canMakePayments { return localized("support.hint.purchases_unavailable") }
+        if product == nil { return localized("support.hint.reload_unavailable") }
+        return localized("support.hint.starts_monthly")
+    }
+
+    private func localizedStatus(_ message: SupportStore.StatusMessage) -> String {
+        switch message {
+        case .purchasesUnavailable:
+            return localized("support.status.purchases_unavailable")
+        case .optionUnavailable:
+            return localized("support.status.option_unavailable")
+        case .verificationFailed:
+            return localized("support.status.verification_failed")
+        case .thankYou:
+            return localized("support.status.thank_you")
+        case .pending:
+            return localized("support.status.pending")
+        case .purchaseFailed:
+            return localized("support.status.purchase_failed")
+        case .restored:
+            return localized("support.status.restored")
+        case .noneFound:
+            return localized("support.status.none_found")
+        case .restoreFailed:
+            return localized("support.status.restore_failed")
+        case .configurationError:
+            return localized("support.status.configuration_error")
+        }
+    }
+
+    private func localized(_ key: String.LocalizationValue) -> String {
+        String(localized: key, locale: locale)
     }
 }

@@ -1,18 +1,24 @@
 # Zodiac Daily - FreeAstroAPI Worker
 
 Small Cloudflare Worker that keeps the FreeAstroAPI key out of the iOS app and
-publishes one validated daily document containing all twelve signs. Production
-is active at `https://zodiac-daily-content.krazel-zodiac-daily.workers.dev`.
+publishes validated English and Spanish daily documents containing all twelve
+signs. Production at
+`https://zodiac-daily-content.krazel-zodiac-daily.workers.dev` still runs the
+previous English schema; this bilingual schema-3 candidate is not deployed.
+A remote-preview-only Workers AI smoke test passed on 2026-08-11 with valid
+Spanish and accented characters; the preview was stopped and production was
+not modified.
 
 ## Behavior
 
-- `GET /v1/daily/:date` reads KV and returns the exact snake-case array contract
-  consumed by the app.
-- `GET /v1/horoscopes/daily?date=YYYY-MM-DD` is a compatibility alias.
+- `GET /v1/daily/:date?lang=en|es` reads the matching KV document and returns
+  the exact snake-case array contract consumed by the app. Missing `lang`
+  defaults to English for legacy clients.
+- `GET /v1/horoscopes/daily?date=YYYY-MM-DD&lang=en|es` is a compatibility alias.
 - `GET /health` reports configuration state without exposing identifiers or the
   secret.
-- Public traffic never calls FreeAstroAPI. A cache miss returns `503`, causing
-  the app to use its bundled date-specific content.
+- Public traffic never calls FreeAstroAPI or Workers AI. A cache miss returns
+  `503`; a Spanish miss is never replaced or mislabeled with English.
 - Cron triggers do only a tiny enqueue operation. A free Cloudflare Queue
   consumer performs the heavier provider work outside the free cron's 10 ms
   CPU ceiling.
@@ -30,13 +36,16 @@ twelve-sign upstream bulk endpoint. The queue consumer calls all twelve signs
 sequentially, at least one second apart, and exposes them as one bulk document.
 After initial warm-up, this normally uses 12 of the free plan's published 80
 daily requests. Initial activation can use up to 24 while current and next-day
-editions are populated.
+editions are populated. The queue then translates the cached English edition
+once with Workers AI `@cf/meta/m2m100-1.2b` and stores EN/ES under separate KV
+keys.
 
 ## Exact app contract
 
 ```json
 {
-  "schema_version": 2,
+  "schema_version": 3,
+  "language": "es",
   "requested_date": "2026-08-09",
   "content_date": "2026-08-09",
   "generated_at": "2026-08-08T10:15:12.000Z",
@@ -46,7 +55,7 @@ editions are populated.
     {
       "sign": "aries",
       "headline": "Initiative",
-      "reading": "The complete English daily reading.",
+      "reading": "La lectura diaria completa en castellano.",
       "details": {
         "source": "freeastroapi-v2",
         "focus": "Initiative",
@@ -66,9 +75,11 @@ editions are populated.
 }
 ```
 
-Production responses contain all twelve unique lowercase signs.
+Schema-3 responses contain all twelve unique lowercase signs and exactly match
+the requested `en` or `es` language.
 `requested_date` and `content_date` must equal the requested date. Each headline
-is nonblank and at most 52 characters; each reading is 40-500 characters.
+is nonblank and at most 52 English or 72 Spanish characters; each reading is
+40-500 English or 40-700 Spanish characters.
 Each item also preserves the validated V2 focus, keywords, four 0-100 scores,
 lucky color/number, and Moon sign/phase returned by FreeAstroAPI. Any
 incomplete, mismatched, stale, or invalid provider result is rejected as a
@@ -83,7 +94,7 @@ cd "C:\Users\dmkra\Documents\Codex Apps\ZodiacDailyNative\Backend\freeastro-work
 npm test
 ```
 
-Tests use fake provider responses and in-memory KV. They do not contact
+Tests use fake provider/AI responses and in-memory KV. They do not contact
 FreeAstroAPI or Cloudflare.
 
 Optional local Wrangler preview:
@@ -130,7 +141,7 @@ recreate resources that already exist.
    npx wrangler secret put FREEASTRO_API_KEY
    ```
 
-8. Run `npm test`.
+8. Keep the `AI` binding in `wrangler.jsonc` and run `npm test`.
 9. Deploy only after explicit owner authorization:
 
    ```powershell
@@ -140,7 +151,8 @@ recreate resources that already exist.
 10. Warm-up is automatic: `09:45 UTC` prepares tomorrow and
    `00:15 UTC` to retry today if needed. Until the exact date exists in KV, the
    app deliberately uses bundled content.
-11. Verify the production `/health` and `/v1/daily/YYYY-MM-DD` routes. The iOS
+11. Verify the preview `/health` and `/v1/daily/YYYY-MM-DD?lang=en|es` routes
+    before any production deployment. The iOS
     app contains only the HTTPS Worker base URL, never the provider key.
 
 Official references used for this adapter:
@@ -151,13 +163,18 @@ Official references used for this adapter:
 - Provider terms: <https://www.freeastroapi.com/terms>
 - Workers Free limits: <https://developers.cloudflare.com/workers/platform/limits/>
 - Queues Free limits: <https://developers.cloudflare.com/queues/platform/limits/>
+- Workers AI model: <https://developers.cloudflare.com/workers-ai/models/m2m100-1.2b/>
+- Workers AI pricing: <https://developers.cloudflare.com/workers-ai/platform/pricing/>
 
 ## Content-rights decision
 
 FreeAstroAPI currently advertises commercial use on its free plan. Its public
-terms do not expressly state a retention period for generated horoscopes. On
-2026-08-09 the product owner explicitly chose to proceed on the assumption that
-the absence of a retention restriction permits a user's saved cards to remain.
+terms do not expressly state a retention period for generated horoscopes or a
+right to publish translated derivatives. On 2026-08-09 the product owner chose
+to proceed on the assumption that the absence of a retention restriction
+permits a user's saved cards to remain. The bilingual candidate must not reach
+production until translation rights are confirmed or that risk is accepted on
+an informed basis.
 
 That is the owner's product/legal assumption, not an additional license granted
 by this code. Review current terms before App Store release. If the provider
@@ -168,6 +185,8 @@ the bundled catalog until the product decision is revisited.
 
 - Never log request headers or `env.FREEASTRO_API_KEY`.
 - A failed scheduled refresh gets a five-minute KV cooldown.
+- A failed Spanish translation preserves the English document. Queue retry is
+  delayed six minutes and reuses English, so it does not spend provider quota.
 - Public routes are read-only with respect to FreeAstroAPI, so bots and cache
   misses cannot trigger upstream fan-out.
 - The `last-valid` KV value is diagnostic only; it is never a cross-date API

@@ -5,6 +5,7 @@ import ZodiacDailyCore
 /// references are the visual specification for the regular-size-class layout.
 struct SavedView: View {
     @EnvironmentObject private var model: AppModel
+    @Environment(\.locale) private var locale
     let onViewToday: () -> Void
 
     var body: some View {
@@ -29,11 +30,11 @@ struct SavedView: View {
                     .frame(maxWidth: .infinity)
                 }
             }
-            .navigationTitle("Saved")
+            .navigationTitle(String(localized: "Saved", locale: locale))
             .toolbar(.hidden, for: .navigationBar)
             .overlay(alignment: .bottom) {
-                if let message = model.persistenceMessage {
-                    Text(message)
+                if model.persistenceMessage != nil {
+                    Text(String(localized: "app.error.persistence", locale: locale))
                         .font(.footnote)
                         .foregroundStyle(ZodiacPalette.text)
                         .multilineTextAlignment(.center)
@@ -44,7 +45,7 @@ struct SavedView: View {
                             Capsule().stroke(ZodiacPalette.gold.opacity(0.55), lineWidth: 1)
                         }
                         .padding()
-                        .accessibilityLabel("Saved cards error: \(message)")
+                        .accessibilityLabel(String(localized: "app.error.persistence", locale: locale))
                 }
             }
         }
@@ -59,7 +60,7 @@ struct SavedView: View {
                 .offset(y: model.savedCards.isEmpty ? -11 : -3)
                 .padding(.bottom, 5)
 
-            Text("Your Saved Cards")
+            Text(String(localized: "Your Saved Cards", locale: locale))
                 .font(
                     .custom(
                         "Didot",
@@ -103,12 +104,21 @@ struct SavedView: View {
                 }
                 .buttonStyle(.plain)
                 .contextMenu {
-                    Button("Delete Card", role: .destructive) {
+                    Button(role: .destructive) {
                         Task { await model.removeSavedCard(id: card.id) }
+                    } label: {
+                        Text(String(localized: "Delete Card", locale: locale))
                     }
                 }
-                .accessibilityHint("Opens this saved card. Use the actions menu to delete it.")
-                .accessibilityAction(named: "Delete Card") {
+                .accessibilityHint(
+                    String(
+                        localized: "Opens this saved card. Use the actions menu to delete it.",
+                        locale: locale
+                    )
+                )
+                .accessibilityAction(
+                    named: Text(String(localized: "Delete Card", locale: locale))
+                ) {
                     Task { await model.removeSavedCard(id: card.id) }
                 }
             }
@@ -122,20 +132,20 @@ struct SavedView: View {
                 .padding(.top, 6)
                 .accessibilityHidden(true)
 
-            Text("No Cards Yet")
+            Text(String(localized: "No Cards Yet", locale: locale))
                 .font(.custom("Didot", size: 29, relativeTo: .title))
                 .foregroundStyle(ZodiacPalette.text)
                 .padding(.top, 20)
                 .accessibilityAddTraits(.isHeader)
 
-            Text("Save today’s card to begin your collection.")
+            Text(String(localized: "Save today’s card to begin your collection.", locale: locale))
                 .font(.system(size: 15.5))
                 .foregroundStyle(ZodiacPalette.mutedText)
                 .multilineTextAlignment(.center)
                 .padding(.top, 8)
 
             Button(action: onViewToday) {
-                Text("VIEW TODAY’S CARD")
+                Text(String(localized: "VIEW TODAY’S CARD", locale: locale))
                     .font(.system(size: 12, weight: .semibold))
                     .tracking(2.2)
                     .frame(width: 214, height: 38)
@@ -149,18 +159,22 @@ struct SavedView: View {
             .contentShape(Capsule())
             .frame(minHeight: 44)
             .padding(.top, 21)
-            .accessibilityHint("Switches to Today")
+            .accessibilityHint(String(localized: "Switches to Today", locale: locale))
         }
     }
 
     private var collectionSummary: String {
         let count = model.savedCards.count
-        return count == 1 ? "1 card in your collection" : "\(count) cards in your collection"
+        let item = count == 1
+            ? String(localized: "card in your collection", locale: locale)
+            : String(localized: "cards in your collection", locale: locale)
+        return "\(count) \(item)"
     }
 }
 
 private struct SavedCardPreview: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.locale) private var locale
     let card: SavedCard
 
     var body: some View {
@@ -217,7 +231,8 @@ private struct SavedCardPreview: View {
         .contentShape(RoundedRectangle(cornerRadius: 17, style: .continuous))
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(
-            "\(card.horoscope.sign.displayName), \(formattedDate), \(card.horoscope.headline)"
+            "\(card.horoscope.sign.localizedDisplayName(locale: locale)), "
+                + "\(formattedDate), \(languageName), \(card.horoscope.headline)"
         )
     }
 
@@ -244,14 +259,14 @@ private struct SavedCardPreview: View {
         VStack(spacing: 0) {
             Spacer(minLength: 0)
 
-            Text(card.horoscope.sign.displayName.uppercased())
+            Text(card.horoscope.sign.localizedDisplayName(locale: locale).uppercased(with: locale))
                 .font(.custom("Didot", size: 20, relativeTo: .title2))
                 .tracking(1.25)
                 .foregroundStyle(ZodiacPalette.text)
                 .lineLimit(1)
                 .minimumScaleFactor(0.62)
 
-            Text(formattedDate.uppercased())
+            Text("\(formattedDate.uppercased()) · \(languageCode)")
                 .font(.system(size: 11, weight: .medium))
                 .tracking(2.5)
                 .foregroundStyle(ZodiacPalette.lavender)
@@ -287,10 +302,21 @@ private struct SavedCardPreview: View {
             return card.horoscope.day.rawValue
         }
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US")
+        formatter.locale = locale
         formatter.timeZone = .current
-        formatter.dateFormat = "MMMM d"
+        formatter.setLocalizedDateFormatFromTemplate("MMMMd")
         return formatter.string(from: date)
+    }
+
+    private var languageCode: String {
+        card.horoscope.language.rawValue.uppercased()
+    }
+
+    private var languageName: String {
+        let key: String.LocalizationValue = card.horoscope.language == .spanish
+            ? "language.spanish"
+            : "language.english"
+        return String(localized: key, locale: locale)
     }
 }
 
@@ -401,6 +427,7 @@ private struct RadialConstellation: View {
 struct SavedCardDetailView: View {
     @EnvironmentObject private var model: AppModel
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.locale) private var locale
     let card: SavedCard
 
     var body: some View {
@@ -412,7 +439,10 @@ struct SavedCardDetailView: View {
 
                 AdaptiveVerticalScrollView {
                     VStack(spacing: 0) {
-                        Text(formattedDate.uppercased())
+                        Text(
+                            "\(formattedDate.uppercased()) · "
+                                + card.horoscope.language.rawValue.uppercased()
+                        )
                             .font(.system(size: 14, weight: .medium))
                             .tracking(3.8)
                             .foregroundStyle(ZodiacPalette.lavender)
@@ -436,7 +466,10 @@ struct SavedCardDetailView: View {
                         Button(role: .destructive) {
                             removeCard()
                         } label: {
-                            Label("REMOVE FROM SAVED", systemImage: "trash")
+                            Label(
+                                String(localized: "REMOVE FROM SAVED", locale: locale),
+                                systemImage: "trash"
+                            )
                                 .font(.system(size: 13, weight: .semibold))
                                 .tracking(1.8)
                                 .foregroundStyle(Color(red: 1.0, green: 0.27, blue: 0.24))
@@ -453,10 +486,12 @@ struct SavedCardDetailView: View {
                         }
                         .frame(minHeight: 44)
                         .padding(.top, 33)
-                        .accessibilityHint("Deletes this card from your collection")
+                        .accessibilityHint(
+                            String(localized: "Deletes this card from your collection", locale: locale)
+                        )
 
-                        if let message = model.persistenceMessage {
-                            Text(message)
+                        if model.persistenceMessage != nil {
+                            Text(String(localized: "app.error.persistence", locale: locale))
                                 .font(.footnote)
                                 .foregroundStyle(ZodiacPalette.lavender)
                                 .multilineTextAlignment(.center)
@@ -478,7 +513,7 @@ struct SavedCardDetailView: View {
 
     private var detailHeader: some View {
         ZStack {
-            Text("Saved Card")
+            Text(String(localized: "Saved Card", locale: locale))
                 .font(.custom("Didot", size: 21, relativeTo: .title3))
                 .foregroundStyle(ZodiacPalette.text)
 
@@ -489,14 +524,14 @@ struct SavedCardDetailView: View {
                     HStack(spacing: 4) {
                         Image(systemName: "chevron.left")
                             .font(.system(size: 19, weight: .medium))
-                        Text("Saved")
+                        Text(String(localized: "Saved", locale: locale))
                             .font(.system(size: 17))
                     }
                     .foregroundStyle(ZodiacPalette.gold)
                     .frame(minHeight: 44)
                     .contentShape(Rectangle())
                 }
-                .accessibilityLabel("Back to Saved")
+                .accessibilityLabel(String(localized: "Back to Saved", locale: locale))
 
                 Spacer()
             }
@@ -510,9 +545,9 @@ struct SavedCardDetailView: View {
             return card.horoscope.day.rawValue
         }
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US")
+        formatter.locale = locale
         formatter.timeZone = .current
-        formatter.dateFormat = "MMMM d, yyyy"
+        formatter.setLocalizedDateFormatFromTemplate("MMMMdyyyy")
         return formatter.string(from: date)
     }
 

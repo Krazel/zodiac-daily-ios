@@ -21,10 +21,35 @@ final class DailyHoroscopeCodableTests: XCTestCase {
 
         XCTAssertEqual(decoded.sign, .pisces)
         XCTAssertEqual(decoded.day, day)
+        XCTAssertEqual(decoded.language, .english)
         XCTAssertEqual(
             decoded.details,
             DailyCardDetails.offlineFallback(for: .pisces)
         )
+    }
+
+    func testEnglishAndSpanishEditionsHaveIndependentArchiveIdentity() throws {
+        let day = try XCTUnwrap(LocalDayKey(rawValue: "2026-08-09"))
+        let english = DailyHoroscope(
+            sign: .pisces,
+            day: day,
+            language: .english,
+            headline: "English",
+            reading: "English reading",
+            contentVersion: 1
+        )
+        let spanish = DailyHoroscope(
+            sign: .pisces,
+            day: day,
+            language: .spanish,
+            headline: "Español",
+            reading: "Lectura en español",
+            contentVersion: 1
+        )
+
+        XCTAssertEqual(english.archiveKey, "en:pisces:2026-08-09")
+        XCTAssertEqual(spanish.archiveKey, "es:pisces:2026-08-09")
+        XCTAssertNotEqual(english.archiveKey, spanish.archiveKey)
     }
 
     func testCurrentEditionRoundTripPreservesExactDetailsSnapshot() throws {

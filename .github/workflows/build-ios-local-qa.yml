@@ -72,7 +72,7 @@ jobs:
 
           echo "Validating ${BUNDLE_ID} v${VERSION} (${BUILD}), minimum iOS ${MINIMUM_IOS}"
           require_value "$BUNDLE_ID" "com.krazel.zodiacdaily" "bundle identifier"
-          require_value "$VERSION" "0.1.1" "marketing version"
+          require_value "$VERSION" "0.2" "marketing version"
           require_value "$BUILD" "1" "build number"
           require_value "$MINIMUM_IOS" "16.0" "minimum iOS version"
           require_value "$API_BASE_URL" "https://zodiac-daily-content.krazel-zodiac-daily.workers.dev" "API base URL"
@@ -120,7 +120,7 @@ jobs:
       - name: Upload Local QA artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ZodiacDaily-v0.1.1-build-1-${{ github.sha }}-Local-QA-run-${{ github.run_number }}
+          name: ZodiacDaily-v0.2-build-1-${{ github.sha }}-Local-QA-run-${{ github.run_number }}
           path: output/*
           if-no-files-found: error
           retention-days: 7

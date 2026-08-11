@@ -109,6 +109,83 @@ final class PinnedHoroscopeRepositoryTests: XCTestCase {
         XCTAssertEqual(result, expected)
     }
 
+    func testPinnedEditionsAreIndependentByLanguage() async throws {
+        let day = try XCTUnwrap(LocalDayKey(rawValue: "2026-08-09"))
+        let english = makeHoroscope(day: day, headline: "English", version: 1)
+        let spanish = DailyHoroscope(
+            sign: .scorpio,
+            day: day,
+            language: .spanish,
+            headline: "Español",
+            reading: "Una lectura diaria completa y estable para las pruebas.",
+            contentVersion: 1
+        )
+        let upstream = LanguageHoroscopeRepository(english: english, spanish: spanish)
+        let repository = PinnedHoroscopeRepository(
+            upstream: upstream,
+            store: InMemorySavedCardStore()
+        )
+
+        let resolvedEnglish = try await repository.horoscope(
+            for: .scorpio,
+            day: day,
+            language: .english
+        )
+        let resolvedSpanish = try await repository.horoscope(
+            for: .scorpio,
+            day: day,
+            language: .spanish
+        )
+
+        XCTAssertEqual(resolvedEnglish, english)
+        XCTAssertEqual(resolvedSpanish, spanish)
+        XCTAssertNotEqual(resolvedEnglish.archiveKey, resolvedSpanish.archiveKey)
+    }
+
+    func testLegacyPinnedEditionMigratesToEnglishKeyWithoutRefetching() async throws {
+        let day = try XCTUnwrap(LocalDayKey(rawValue: "2026-08-09"))
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let fileURL = directory.appendingPathComponent("daily-editions.json")
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        try Data(
+            """
+            {
+              "version": 1,
+              "cards": [{
+                "horoscope": {
+                  "sign": "scorpio",
+                  "day": "2026-08-09",
+                  "headline": "Legacy pinned",
+                  "reading": "A complete legacy pinned reading for migration.",
+                  "contentVersion": 1
+                },
+                "savedAt": "1970-01-01T00:01:40Z"
+              }]
+            }
+            """.utf8
+        ).write(to: fileURL)
+        let upstream = MutableHoroscopeRepository(
+            makeHoroscope(day: day, headline: "Must not load", version: 2)
+        )
+        let repository = PinnedHoroscopeRepository(
+            upstream: upstream,
+            store: FileBackedSavedCardStore(fileURL: fileURL)
+        )
+
+        let resolved = try await repository.horoscope(
+            for: .scorpio,
+            day: day,
+            language: .english
+        )
+
+        XCTAssertEqual(resolved.headline, "Legacy pinned")
+        XCTAssertEqual(resolved.archiveKey, "en:scorpio:2026-08-09")
+        let upstreamCallCount = await upstream.callCount
+        XCTAssertEqual(upstreamCallCount, 0)
+    }
+
     private func makeHoroscope(
         day: LocalDayKey,
         headline: String,
@@ -136,7 +213,11 @@ private actor MutableHoroscopeRepository: HoroscopeRepository {
         self.horoscope = horoscope
     }
 
-    func horoscope(for sign: ZodiacSign, day: LocalDayKey) async throws -> DailyHoroscope {
+    func horoscope(
+        for sign: ZodiacSign,
+        day: LocalDayKey,
+        language: HoroscopeLanguage
+    ) async throws -> DailyHoroscope {
         callCount += 1
         return horoscope
     }
@@ -149,11 +230,33 @@ private actor RotatingHoroscopeRepository: HoroscopeRepository {
         self.values = values
     }
 
-    func horoscope(for sign: ZodiacSign, day: LocalDayKey) async throws -> DailyHoroscope {
+    func horoscope(
+        for sign: ZodiacSign,
+        day: LocalDayKey,
+        language: HoroscopeLanguage
+    ) async throws -> DailyHoroscope {
         guard !values.isEmpty else {
             throw PinnedHoroscopeRepositoryError.mismatchedEdition
         }
         return values.removeFirst()
+    }
+}
+
+private actor LanguageHoroscopeRepository: HoroscopeRepository {
+    let english: DailyHoroscope
+    let spanish: DailyHoroscope
+
+    init(english: DailyHoroscope, spanish: DailyHoroscope) {
+        self.english = english
+        self.spanish = spanish
+    }
+
+    func horoscope(
+        for sign: ZodiacSign,
+        day: LocalDayKey,
+        language: HoroscopeLanguage
+    ) async throws -> DailyHoroscope {
+        language == .spanish ? spanish : english
     }
 }
 

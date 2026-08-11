@@ -1,13 +1,13 @@
 # Remote daily content
 
-Updated: 2026-08-10
+Updated: 2026-08-11
 
 The app can load a fresh daily edition from a Zodiac Daily-owned HTTPS endpoint
 and falls back automatically to `BundledHoroscopeRepository` on connectivity,
 HTTP, date, or payload errors. Saved cards remain immutable local snapshots;
 the remote repository does not change the save/archive model.
 
-The first successfully resolved card for each sign and local date is pinned in
+The first successfully resolved card for each language, sign, and local date is pinned in
 the separate `daily-editions.json` archive. This makes remote, fallback, and
 relaunch behavior converge on one collectible card for the whole day. A user's
 saved-card archive remains separate and, when present for the same sign/day,
@@ -28,7 +28,7 @@ server-side adapter and must never be copied into the app or its build settings.
 The app requests:
 
 ```text
-GET {baseURL}/v1/daily/YYYY-MM-DD
+GET {baseURL}/v1/daily/YYYY-MM-DD?lang=en|es
 Accept: application/json
 ```
 
@@ -36,7 +36,8 @@ Accept: application/json
 
 ```json
 {
-  "schema_version": 2,
+  "schema_version": 3,
+  "language": "es",
   "requested_date": "2026-08-09",
   "content_date": "2026-08-09",
   "generated_at": "2026-08-09T00:15:12.000Z",
@@ -46,7 +47,7 @@ Accept: application/json
     {
       "sign": "aries",
       "headline": "A concise editorial headline",
-      "reading": "The complete English daily reading with enough useful detail.",
+      "reading": "La lectura diaria completa en castellano.",
       "details": {
         "source": "freeastroapi-v2",
         "focus": "Initiative",
@@ -66,19 +67,21 @@ Accept: application/json
 }
 ```
 
-The example abbreviates `horoscopes`; production responses must contain exactly
+The example abbreviates `horoscopes`; schema-3 responses must contain exactly
 all twelve unique lowercase `ZodiacSign` values. Headlines must be nonblank and
-no longer than 52 characters; readings must contain 40 to 500 characters.
-Schema 2 requires complete FreeAstroAPI V2 details: four integer scores from 0
+no longer than 52 English or 72 Spanish characters; readings must contain 40
+to 500 English or 700 Spanish characters. Schema 3 requires an exact `en` or
+`es` language match and complete FreeAstroAPI V2 details: four integer scores from 0
 to 100, one to eight unique keywords, lucky number/color, and Moon sign/phase.
-The app also accepts schema 1 during rollout, but identifies its reverse as an
-offline edition instead of synthesizing missing provider values. Each
+The app accepts legacy schema 1/2 documents without a language only as English;
+schema 3 without `language` is rejected. Each
 `content_version` must be a positive integer. `requested_date` must exactly
 match the requested local Gregorian day, and `content_date` must always equal
 `requested_date`. A last-valid payload from another date is deliberately
 rejected so the app falls back to its date-correct bundled card. The server
-caches one validated twelve-sign document per date so FreeAstroAPI is called at
-most once per daily refresh, regardless of app traffic.
+caches one validated twelve-sign document per language/date. FreeAstroAPI is
+called only for the English source document; Workers AI translates that cached
+document once to Spanish. App traffic invokes neither service.
 
 Cloudflare Cron Triggers only enqueue the target date. A Cloudflare Queue
 consumer performs the twelve paced provider requests, validation, and KV write.
@@ -88,5 +91,11 @@ messages serialize and recheck KV before they can spend provider quota.
 
 The production endpoint is active in the app. The app-side implementation
 neither contacts FreeAstroAPI directly nor contains its key.
-It requests only the local date and the full twelve-sign edition, never the
-selected sign, birth data, account data, or saved cards.
+It requests only the local date, `en`/`es`, and the full twelve-sign edition,
+never the selected sign, birth data, account data, or saved cards.
+
+The bilingual schema-3 code is currently a local candidate. The Workers AI
+binding passed a remote-preview-only smoke test on 2026-08-11 with valid
+Spanish and accented characters; the preview was stopped afterward. The
+deployed endpoint remains on the prior English schema until rights review,
+macOS tests, and explicit deployment authorization are complete.

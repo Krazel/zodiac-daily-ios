@@ -33,6 +33,7 @@ public enum RemoteHoroscopeRepositoryError: Error, Equatable, Sendable {
     case httpStatus(Int)
     case invalidPayload
     case mismatchedDay(expected: LocalDayKey, received: LocalDayKey)
+    case mismatchedLanguage(expected: HoroscopeLanguage, received: HoroscopeLanguage)
     case missingContent(ZodiacSign)
 }
 
@@ -50,6 +51,8 @@ extension RemoteHoroscopeRepositoryError: LocalizedError {
         case .invalidPayload:
             "The daily horoscope service returned invalid content."
         case .mismatchedDay(let expected, let received):
+            "The daily horoscope service returned \(received.rawValue) instead of \(expected.rawValue)."
+        case .mismatchedLanguage(let expected, let received):
             "The daily horoscope service returned \(received.rawValue) instead of \(expected.rawValue)."
         case .missingContent(let sign):
             "The daily horoscope service returned no content for \(sign.displayName)."
@@ -76,9 +79,13 @@ public struct RemoteHoroscopeRepository: HoroscopeRepository {
         self.transport = transport
     }
 
-    public func horoscope(for sign: ZodiacSign, day: LocalDayKey) async throws -> DailyHoroscope {
+    public func horoscope(
+        for sign: ZodiacSign,
+        day: LocalDayKey,
+        language: HoroscopeLanguage
+    ) async throws -> DailyHoroscope {
         try Task.checkCancellation()
-        let request = try makeRequest(day: day)
+        let request = try makeRequest(day: day, language: language)
         let data: Data
         let response: HTTPURLResponse
 
@@ -107,16 +114,27 @@ public struct RemoteHoroscopeRepository: HoroscopeRepository {
             throw RemoteHoroscopeRepositoryError.invalidPayload
         }
 
-        guard (1...2).contains(payload.schemaVersion),
+        guard (1...3).contains(payload.schemaVersion),
               !payload.generatedAt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
               !payload.provider.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
               payload.horoscopes.count == ZodiacSign.allCases.count,
-              payload.horoscopes.allSatisfy({ $0.isValid(schemaVersion: payload.schemaVersion) })
+              payload.horoscopes.allSatisfy({
+                  $0.isValid(
+                      schemaVersion: payload.schemaVersion,
+                      language: payload.language
+                  )
+              })
         else {
             throw RemoteHoroscopeRepositoryError.invalidPayload
         }
         guard payload.requestedDate == day else {
             throw RemoteHoroscopeRepositoryError.mismatchedDay(expected: day, received: payload.requestedDate)
+        }
+        guard payload.language == language else {
+            throw RemoteHoroscopeRepositoryError.mismatchedLanguage(
+                expected: language,
+                received: payload.language
+            )
         }
         guard payload.contentDate == payload.requestedDate else {
             throw RemoteHoroscopeRepositoryError.invalidPayload
@@ -146,13 +164,15 @@ public struct RemoteHoroscopeRepository: HoroscopeRepository {
                 luckyNumber: $0.luckyNumber,
                 moonSign: $0.moonSign.trimmingCharacters(in: .whitespacesAndNewlines),
                 moonPhase: $0.moonPhase.trimmingCharacters(in: .whitespacesAndNewlines),
-                sign: sign
+                sign: sign,
+                language: language
             )
         }
 
         return DailyHoroscope(
             sign: sign,
             day: day,
+            language: language,
             headline: content.normalizedHeadline,
             reading: content.normalizedReading,
             details: details,
@@ -160,13 +180,21 @@ public struct RemoteHoroscopeRepository: HoroscopeRepository {
         )
     }
 
-    private func makeRequest(day: LocalDayKey) throws -> URLRequest {
+    private func makeRequest(day: LocalDayKey, language: HoroscopeLanguage) throws -> URLRequest {
         let url = baseURL
             .appendingPathComponent("v1", isDirectory: true)
             .appendingPathComponent("daily", isDirectory: true)
             .appendingPathComponent(day.rawValue, isDirectory: false)
 
-        var request = URLRequest(url: url)
+        guard var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
+            throw RemoteHoroscopeRepositoryError.invalidResponse
+        }
+        components.queryItems = [URLQueryItem(name: "lang", value: language.rawValue)]
+        guard let localizedURL = components.url else {
+            throw RemoteHoroscopeRepositoryError.invalidResponse
+        }
+
+        var request = URLRequest(url: localizedURL)
         request.httpMethod = "GET"
         request.timeoutInterval = 15
         request.setValue("application/json", forHTTPHeaderField: "Accept")
@@ -190,6 +218,7 @@ private struct DailyPayload: Decodable, Sendable {
     let schemaVersion: Int
     let requestedDate: LocalDayKey
     let contentDate: LocalDayKey
+    let language: HoroscopeLanguage
     let generatedAt: String
     let stale: Bool
     let provider: String
@@ -199,19 +228,53 @@ private struct DailyPayload: Decodable, Sendable {
         case schemaVersion = "schema_version"
         case requestedDate = "requested_date"
         case contentDate = "content_date"
+        case language
         case generatedAt = "generated_at"
         case stale
         case provider
         case horoscopes
     }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        schemaVersion = try container.decode(Int.self, forKey: .schemaVersion)
+        requestedDate = try container.decode(LocalDayKey.self, forKey: .requestedDate)
+        contentDate = try container.decode(LocalDayKey.self, forKey: .contentDate)
+
+        if let decodedLanguage = try container.decodeIfPresent(
+            HoroscopeLanguage.self,
+            forKey: .language
+        ) {
+            language = decodedLanguage
+        } else if schemaVersion <= 2 {
+            // The original normalized contract was English-only and did not
+            // carry a language field.
+            language = .english
+        } else {
+            throw DecodingError.keyNotFound(
+                CodingKeys.language,
+                DecodingError.Context(
+                    codingPath: container.codingPath,
+                    debugDescription: "Schema 3 requires a content language."
+                )
+            )
+        }
+
+        generatedAt = try container.decode(String.self, forKey: .generatedAt)
+        stale = try container.decode(Bool.self, forKey: .stale)
+        provider = try container.decode(String.self, forKey: .provider)
+        horoscopes = try container.decode([RemoteSignContent].self, forKey: .horoscopes)
+    }
 }
 
 private struct RemoteSignContent: Decodable, Sendable {
     private static let maximumHeadlineCharacterCount = 52
+    private static let maximumSpanishHeadlineCharacterCount = 72
     private static let minimumReadingCharacterCount = 40
     // Current FreeAstroAPI editions are typically 324-382 characters. Keep a
     // bounded production contract without rejecting the real daily feed.
     private static let maximumReadingCharacterCount = 500
+    private static let maximumSpanishReadingCharacterCount = 700
 
     let sign: ZodiacSign
     let headline: String
@@ -235,13 +298,19 @@ private struct RemoteSignContent: Decodable, Sendable {
         reading.normalizedCardCopy
     }
 
-    func isValid(schemaVersion: Int) -> Bool {
+    func isValid(schemaVersion: Int, language: HoroscopeLanguage) -> Bool {
+        let headlineLimit = language == .spanish
+            ? Self.maximumSpanishHeadlineCharacterCount
+            : Self.maximumHeadlineCharacterCount
+        let readingLimit = language == .spanish
+            ? Self.maximumSpanishReadingCharacterCount
+            : Self.maximumReadingCharacterCount
         let baseIsValid = !normalizedHeadline.isEmpty &&
-            normalizedHeadline.count <= Self.maximumHeadlineCharacterCount &&
-            (Self.minimumReadingCharacterCount...Self.maximumReadingCharacterCount)
+            normalizedHeadline.count <= headlineLimit &&
+            (Self.minimumReadingCharacterCount...readingLimit)
                 .contains(normalizedReading.count) &&
             contentVersion > 0
-        if schemaVersion == 2 {
+        if schemaVersion >= 2 {
             return baseIsValid && details?.isValid == true
         }
         return baseIsValid

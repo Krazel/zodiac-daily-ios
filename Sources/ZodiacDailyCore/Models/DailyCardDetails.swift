@@ -63,7 +63,8 @@ public struct DailyCardDetails: Codable, Hashable, Sendable {
         luckyNumber: Int,
         moonSign: String,
         moonPhase: String,
-        sign: ZodiacSign
+        sign: ZodiacSign,
+        language: HoroscopeLanguage = .english
     ) -> DailyCardDetails {
         DailyCardDetails(
             source: .freeAstroAPIV2,
@@ -77,14 +78,17 @@ public struct DailyCardDetails: Codable, Hashable, Sendable {
             luckyNumber: luckyNumber,
             moonSign: moonSign,
             moonPhase: moonPhase,
-            signEssence: signEssence(for: sign)
+            signEssence: signEssence(for: sign, language: language)
         )
     }
 
-    public static func offlineFallback(for sign: ZodiacSign) -> DailyCardDetails {
+    public static func offlineFallback(
+        for sign: ZodiacSign,
+        language: HoroscopeLanguage = .english
+    ) -> DailyCardDetails {
         DailyCardDetails(
             source: .offline,
-            focus: "Offline Edition",
+            focus: language == .spanish ? "Edición sin conexión" : "Offline Edition",
             keywords: [],
             loveScore: nil,
             careerScore: nil,
@@ -94,7 +98,7 @@ public struct DailyCardDetails: Codable, Hashable, Sendable {
             luckyNumber: nil,
             moonSign: nil,
             moonPhase: nil,
-            signEssence: signEssence(for: sign)
+            signEssence: signEssence(for: sign, language: language)
         )
     }
 
@@ -106,32 +110,35 @@ public struct DailyCardDetails: Codable, Hashable, Sendable {
             luckyColor != nil && luckyNumber != nil && moonSign != nil && moonPhase != nil
     }
 
-    public static func signEssence(for sign: ZodiacSign) -> String {
-        switch sign {
-        case .aries:
-            "Courageous · Direct · Vital"
-        case .taurus:
-            "Steady · Devoted · Sensual"
-        case .gemini:
-            "Curious · Expressive · Versatile"
-        case .cancer:
-            "Protective · Sensitive · Nurturing"
-        case .leo:
-            "Creative · Warm · Generous"
-        case .virgo:
-            "Discerning · Thoughtful · Practical"
-        case .libra:
-            "Graceful · Fair · Harmonious"
-        case .scorpio:
-            "Intense · Perceptive · Transformative"
-        case .sagittarius:
-            "Expansive · Honest · Adventurous"
-        case .capricorn:
-            "Patient · Ambitious · Enduring"
-        case .aquarius:
-            "Independent · Visionary · Original"
-        case .pisces:
-            "Intuitive · Compassionate · Imaginative"
+    public static func signEssence(
+        for sign: ZodiacSign,
+        language: HoroscopeLanguage = .english
+    ) -> String {
+        switch (sign, language) {
+        case (.aries, .english): "Courageous · Direct · Vital"
+        case (.taurus, .english): "Steady · Devoted · Sensual"
+        case (.gemini, .english): "Curious · Expressive · Versatile"
+        case (.cancer, .english): "Protective · Sensitive · Nurturing"
+        case (.leo, .english): "Creative · Warm · Generous"
+        case (.virgo, .english): "Discerning · Thoughtful · Practical"
+        case (.libra, .english): "Graceful · Fair · Harmonious"
+        case (.scorpio, .english): "Intense · Perceptive · Transformative"
+        case (.sagittarius, .english): "Expansive · Honest · Adventurous"
+        case (.capricorn, .english): "Patient · Ambitious · Enduring"
+        case (.aquarius, .english): "Independent · Visionary · Original"
+        case (.pisces, .english): "Intuitive · Compassionate · Imaginative"
+        case (.aries, .spanish): "Valiente · Directo · Vital"
+        case (.taurus, .spanish): "Estable · Leal · Sensual"
+        case (.gemini, .spanish): "Curioso · Expresivo · Versátil"
+        case (.cancer, .spanish): "Protector · Sensible · Acogedor"
+        case (.leo, .spanish): "Creativo · Cálido · Generoso"
+        case (.virgo, .spanish): "Perspicaz · Reflexivo · Práctico"
+        case (.libra, .spanish): "Elegante · Justo · Armonioso"
+        case (.scorpio, .spanish): "Intenso · Perceptivo · Transformador"
+        case (.sagittarius, .spanish): "Expansivo · Sincero · Aventurero"
+        case (.capricorn, .spanish): "Paciente · Ambicioso · Perseverante"
+        case (.aquarius, .spanish): "Independiente · Visionario · Original"
+        case (.pisces, .spanish): "Intuitivo · Compasivo · Imaginativo"
         }
     }
 
@@ -174,6 +181,8 @@ public struct DailyCardDetails: Codable, Hashable, Sendable {
             signEssence = try container.decode(String.self, forKey: .signEssence)
         } else {
             source = .offline
+            // Standalone legacy details have no language field and are
+            // therefore migrated as the original English edition.
             focus = "Offline Edition"
             keywords = []
             loveScore = nil

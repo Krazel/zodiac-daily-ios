@@ -30,14 +30,17 @@ results are discarded if the user changes signs while a card is loading.
 
 When `ZODIAC_DAILY_API_BASE_URL` contains the public HTTPS Worker address, the
 app requests one normalized document containing all twelve signs for the local
-date. It sends neither a FreeAstroAPI key nor the user's selected sign. The
+date and selected app language. It sends neither a FreeAstroAPI key nor the
+user's selected sign. The
 response must contain twelve unique, validated readings for the exact requested
 date; otherwise the bundled repository supplies the card automatically.
-Schema 2 also carries provider-authored focus, keywords, four daily scores,
+Schema 3 adds an explicit `language` and carries provider-authored focus,
+keywords, four daily scores,
 lucky values, and Moon data for the approved card reverse. The app never
 manufactures replacements for those fields: bundled fallback is explicitly
 shown as an offline edition with provider-only values absent.
-`PinnedHoroscopeRepository` stores the first resolved card for each sign/day in
+`PinnedHoroscopeRepository` stores the first resolved card for each
+language/sign/day in
 `Application Support/ZodiacDaily/daily-editions.json`, so a network transition
 cannot change the visible card later that day or after relaunch. This derived
 cache rebuilds itself if its archive is corrupt; the separate user-owned saved
@@ -46,7 +49,9 @@ cache cannot write, the already resolved card is still shown for availability.
 
 The Worker in `Backend/freeastro-worker` is read-only for public traffic. Only
 its queue consumer can spend provider quota: normally twelve FreeAstroAPI
-requests per day, paced at one per second, cached in Cloudflare KV. Cron
+requests per new date, paced at one per second, cached in Cloudflare KV. The
+same cached English document is translated once to Spanish through Workers AI;
+app traffic never triggers translation or provider calls. Cron
 triggers only enqueue work so they stay below the free plan's tighter CPU
 ceiling. Production is active at
 `https://zodiac-daily-content.krazel-zodiac-daily.workers.dev`; its provider key
@@ -56,7 +61,7 @@ exists only as an encrypted Worker secret.
 
 `FileBackedSavedCardStore` stores versioned JSON in
 `Application Support/ZodiacDaily/saved-cards.json`. It loads lazily inside an
-actor, writes atomically, deduplicates by sign/day, and never replaces the first
+actor, writes atomically, deduplicates by language/sign/day, and never replaces the first
 saved snapshot with a later content version. The selected sign is stored in the
 app's local `UserDefaults` container. Saved cards and the selected sign are not
 transmitted. When remote content is enabled, the app sends the requested date
@@ -101,6 +106,31 @@ are returned. Rate Zodiac Daily uses app ID `6800136195` for the App Store
 separate StoreKit system review prompt is eligible only after a successful save
 produces at least three collected cards and only once per app version; Apple may
 still suppress it.
+
+## English and Spanish interface
+
+`AppLanguage` persists `en` or `es` in local preferences. On first launch a
+Spanish preferred device language selects Spanish; all other devices begin in
+English. The root injects the selected locale so Settings can switch the live
+interface without a relaunch. `Localizable.xcstrings` contains the English and
+Spanish UI, navigation, zodiac names, dates, accessibility, error, and StoreKit
+supporter copy.
+
+The Today masthead has a visible 44-point Settings control while the sign
+selector keeps its direct change-sign action. Settings contains Language,
+Your Sign, Support the app, Restore/Manage Subscription, Rate, Help & Support,
+Privacy, Terms, and About. FreeAstroAPI supplies the source English edition.
+The local schema-3 Worker candidate translates that cached document to Spanish
+once, stores EN and ES separately, and never labels English as Spanish. If ES
+is unavailable, the app tries the same day's remote English edition and then
+its bundled English edition. Saved snapshots include their actual language and
+never overwrite the other language.
+
+This bilingual Worker/app change is local only. Production remains on the
+previous English schema until provider-rights review, macOS/XCTest pass, and
+separate deployment authorization. A non-production Workers AI smoke test on
+2026-08-11 returned valid Spanish with accents and reported 0.9936 neurons for
+a 15-token input and 17-token output; it did not alter production.
 
 ## Xcode handoff
 

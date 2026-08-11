@@ -92,8 +92,12 @@ struct RootView: View {
 
     private var customTabBar: some View {
         HStack(spacing: 0) {
-            tabButton(title: "TODAY", systemImage: "sparkle", tab: 0)
-            tabButton(title: "SAVED", systemImage: selectedTab == 1 ? "bookmark.fill" : "bookmark", tab: 1)
+            tabButton(title: "navigation.today", systemImage: "sparkle", tab: 0)
+            tabButton(
+                title: "navigation.saved",
+                systemImage: selectedTab == 1 ? "bookmark.fill" : "bookmark",
+                tab: 1
+            )
         }
         .frame(height: 53)
         .background {
@@ -111,7 +115,11 @@ struct RootView: View {
         }
     }
 
-    private func tabButton(title: String, systemImage: String, tab: Int) -> some View {
+    private func tabButton(
+        title: LocalizedStringKey,
+        systemImage: String,
+        tab: Int
+    ) -> some View {
         let isSelected = selectedTab == tab
 
         return Button {
@@ -137,7 +145,7 @@ struct RootView: View {
             }
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(title.capitalized)
+        .accessibilityLabel(Text(title))
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 

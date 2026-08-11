@@ -84,6 +84,34 @@ final class SavedCardStoreTests: XCTestCase {
         XCTAssertEqual(cards.map(\.horoscope.day), [newDay, oldDay])
     }
 
+    func testEnglishAndSpanishSnapshotsForSameSignAndDayCoexist() async throws {
+        let day = try XCTUnwrap(LocalDayKey(rawValue: "2026-08-09"))
+        let store = InMemorySavedCardStore()
+        let english = DailyHoroscope(
+            sign: .pisces,
+            day: day,
+            language: .english,
+            headline: "English",
+            reading: "English reading",
+            contentVersion: 1
+        )
+        let spanish = DailyHoroscope(
+            sign: .pisces,
+            day: day,
+            language: .spanish,
+            headline: "Español",
+            reading: "Lectura en español",
+            contentVersion: 1
+        )
+
+        try await store.save(SavedCard(horoscope: english))
+        try await store.save(SavedCard(horoscope: spanish))
+
+        let cards = try await store.allCards()
+        XCTAssertEqual(cards.count, 2)
+        XCTAssertEqual(cards.map(\.horoscope.language), [.english, .spanish])
+    }
+
     private func makeHoroscope(sign: ZodiacSign, day: LocalDayKey) -> DailyHoroscope {
         DailyHoroscope(
             sign: sign,

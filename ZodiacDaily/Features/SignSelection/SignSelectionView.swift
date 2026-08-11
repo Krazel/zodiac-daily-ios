@@ -6,6 +6,7 @@ struct SignSelectionView: View {
     @EnvironmentObject private var model: AppModel
     @Environment(\.dismiss) private var dismiss
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.locale) private var locale
 
     let requiresSelection: Bool
     @State private var pendingSign: ZodiacSign?
@@ -26,7 +27,11 @@ struct SignSelectionView: View {
                             .padding(.bottom, 29)
 
                         VStack(spacing: 10) {
-                            Text(requiresSelection ? "Choose Your Sign" : "Change Your Sign")
+                            Text(
+                                requiresSelection
+                                    ? String(localized: "Choose Your Sign", locale: locale)
+                                    : String(localized: "Change Your Sign", locale: locale)
+                            )
                                 .font(.custom("Didot", size: 30, relativeTo: .largeTitle))
                                 .foregroundStyle(ZodiacPalette.text)
                                 .multilineTextAlignment(.center)
@@ -34,7 +39,7 @@ struct SignSelectionView: View {
                                 .lineLimit(1)
                                 .accessibilityAddTraits(.isHeader)
 
-                            Text("Your daily card will be written for this sign.")
+                            Text(String(localized: "Your daily card will be written for this sign.", locale: locale))
                                 .font(.system(size: 16))
                                 .foregroundStyle(ZodiacPalette.mutedText)
                                 .multilineTextAlignment(.center)
@@ -59,7 +64,11 @@ struct SignSelectionView: View {
                             HStack(spacing: 16) {
                                 Text("✦")
                                     .accessibilityHidden(true)
-                                Text(requiresSelection ? "CONTINUE" : "USE THIS SIGN")
+                                Text(
+                                    requiresSelection
+                                        ? String(localized: "CONTINUE", locale: locale)
+                                        : String(localized: "USE THIS SIGN", locale: locale)
+                                )
                                     .frame(maxWidth: .infinity)
                                 Text("✦")
                                     .accessibilityHidden(true)
@@ -77,7 +86,9 @@ struct SignSelectionView: View {
                         .contentShape(Capsule())
                         .disabled(pendingSign == nil)
                         .opacity(pendingSign == nil ? 0.48 : 1)
-                        .accessibilityHint("Confirms your selected zodiac sign")
+                        .accessibilityHint(
+                            String(localized: "Confirms your selected zodiac sign", locale: locale)
+                        )
                     }
                     .padding(.horizontal, 16)
                     .padding(.top, 5)
@@ -103,7 +114,9 @@ struct SignSelectionView: View {
                     .foregroundStyle(ZodiacPalette.paleGold)
                     .padding(.top, 8)
                     .padding(.trailing, 12)
-                    .accessibilityLabel("Close sign selection")
+                    .accessibilityLabel(
+                        String(localized: "Close sign selection", locale: locale)
+                    )
                 }
             }
         }
@@ -158,6 +171,7 @@ struct SignSelectionView: View {
 }
 
 private struct SignChoiceCard: View {
+    @Environment(\.locale) private var locale
     let sign: ZodiacSign
     let isSelected: Bool
     let usesAccessibleHeight: Bool
@@ -171,7 +185,7 @@ private struct SignChoiceCard: View {
                     .foregroundStyle(ZodiacPalette.gold)
                     .minimumScaleFactor(0.7)
 
-                Text(sign.displayName.uppercased())
+                Text(sign.localizedDisplayName(locale: locale).uppercased(with: locale))
                     .font(.custom("Didot", size: 10, relativeTo: .caption).weight(.medium))
                     .tracking(1.0)
                     .foregroundStyle(ZodiacPalette.text)
@@ -212,9 +226,15 @@ private struct SignChoiceCard: View {
             .contentShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(sign.displayName)
-        .accessibilityValue(isSelected ? "Selected" : "Not selected")
-        .accessibilityHint("Selects this sign for your daily card")
+        .accessibilityLabel(sign.localizedDisplayName(locale: locale))
+        .accessibilityValue(
+            isSelected
+                ? String(localized: "Selected", locale: locale)
+                : String(localized: "Not selected", locale: locale)
+        )
+        .accessibilityHint(
+            String(localized: "Selects this sign for your daily card", locale: locale)
+        )
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }

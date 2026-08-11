@@ -32,6 +32,7 @@ final class AppModel: ObservableObject {
     @Published private(set) var savedCards: [SavedCard] = []
     @Published private(set) var persistenceMessage: String?
     @Published private(set) var successfulSaveEvent: UInt = 0
+    @Published private(set) var contentLanguage: HoroscopeLanguage
 
     private static let selectedSignKey = "selected-zodiac-sign"
 
@@ -50,12 +51,15 @@ final class AppModel: ObservableObject {
     private let now: @Sendable () -> Date
     private let initializationMessage: String?
     private var refreshGeneration: UInt64 = 0
+    private var refreshTask: Task<DailyHoroscope, Error>?
 
     init(
         userDefaults: UserDefaults = .standard,
         now: @escaping @Sendable () -> Date = Date.init
     ) {
         let visualQAState = Self.visualQAState
+        let initialAppLanguage = AppLanguage.persistedOrPreferred(userDefaults: userDefaults)
+        contentLanguage = initialAppLanguage.horoscopeLanguage
         self.userDefaults = userDefaults
         if visualQAState != nil {
             let visualQADate = Date(timeIntervalSince1970: 1_786_233_600)
@@ -202,6 +206,20 @@ final class AppModel: ObservableObject {
         selectedSign = sign
     }
 
+    /// Synchronizes the editorial edition with the in-app language setting.
+    /// Incrementing the generation and cancelling the active request ensure a
+    /// slow response in the previous language can never replace the new card.
+    func setAppLanguage(rawValue: String) async {
+        let language = AppLanguage(rawValue: rawValue)?.horoscopeLanguage ?? .english
+        guard language != contentLanguage else { return }
+
+        contentLanguage = language
+        refreshGeneration &+= 1
+        refreshTask?.cancel()
+        refreshTask = nil
+        await refreshDailyCard()
+    }
+
     func refreshDailyCard() async {
         refreshGeneration &+= 1
         let generation = refreshGeneration
@@ -229,10 +247,22 @@ final class AppModel: ObservableObject {
 
         dailyState = .loading
         let day = LocalDayKey(date: now(), timeZone: .current)
+        let language = contentLanguage
+        let requestTask = Task {
+            try await repository.horoscope(for: sign, day: day, language: language)
+        }
+        refreshTask?.cancel()
+        refreshTask = requestTask
+        defer {
+            if generation == refreshGeneration {
+                refreshTask = nil
+            }
+        }
         do {
-            let horoscope = try await repository.horoscope(for: sign, day: day)
+            let horoscope = try await requestTask.value
             guard generation == refreshGeneration,
                   selectedSign == sign,
+                  contentLanguage == language,
                   LocalDayKey(date: now(), timeZone: .current) == day else { return }
             let displayed = savedCards.first { $0.id == horoscope.archiveKey }?.horoscope
                 ?? horoscope
@@ -240,7 +270,9 @@ final class AppModel: ObservableObject {
         } catch {
             guard generation == refreshGeneration,
                   selectedSign == sign,
+                  contentLanguage == language,
                   LocalDayKey(date: now(), timeZone: .current) == day else { return }
+            if error is CancellationError { return }
             dailyState = .failed(error.localizedDescription)
         }
     }

@@ -145,7 +145,10 @@ public actor FileBackedSavedCardStore: SavedCardStore {
             if $0.horoscope.day != $1.horoscope.day {
                 return $0.horoscope.day > $1.horoscope.day
             }
-            return $0.horoscope.sign.rawValue < $1.horoscope.sign.rawValue
+            if $0.horoscope.sign != $1.horoscope.sign {
+                return $0.horoscope.sign.rawValue < $1.horoscope.sign.rawValue
+            }
+            return $0.horoscope.language.rawValue < $1.horoscope.language.rawValue
         }
     }
 }
@@ -179,7 +182,10 @@ public actor InMemorySavedCardStore: SavedCardStore {
             if $0.horoscope.day != $1.horoscope.day {
                 return $0.horoscope.day > $1.horoscope.day
             }
-            return $0.horoscope.sign.rawValue < $1.horoscope.sign.rawValue
+            if $0.horoscope.sign != $1.horoscope.sign {
+                return $0.horoscope.sign.rawValue < $1.horoscope.sign.rawValue
+            }
+            return $0.horoscope.language.rawValue < $1.horoscope.language.rawValue
         }
     }
 }
