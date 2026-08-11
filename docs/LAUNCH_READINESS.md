@@ -11,7 +11,10 @@ StoreKit products, uploads, TestFlight, App Review, or publication.
 - Registered production bundle identifier: `com.krazel.zodiacdaily`.
 - App Store Connect record: **The Daily Zodiac**, app ID `6800136195`, primary
   language English (U.S.), SKU `zodiac-daily-ios`.
-- App category: Lifestyle (provisional).
+- Subtitle: `Daily Horoscope & Zodiac`.
+- Primary category: Lifestyle. Secondary category: Magazines & Newspapers.
+- Price: free in all 175 App Store territories. Public distribution is enabled;
+  Apple silicon Mac and Apple Vision Pro availability are disabled.
 - App slug: `zodiac-daily`.
 - Planned privacy URL:
   `https://krazel.github.io/zodiac-daily/privacy/`.
@@ -21,8 +24,19 @@ StoreKit products, uploads, TestFlight, App Review, or publication.
 - FreeAstroAPI content is fetched through the Zodiac Daily Worker; the app sends
   no provider key, account, birth data, saved cards, or selected sign. It sends
   the requested date, and the host sees ordinary HTTPS connection metadata.
-- Before App Privacy answers are finalized, confirm Worker/Cloudflare logging
-  and retention are minimized and match the public privacy page.
+- Content rights are declared for licensed third-party horoscope content.
+- The age-rating questionnaire is complete: 9+ globally (12+ in Vietnam and
+  Brazil), with health or wellness topics disclosed and every other listed
+  content category marked absent.
+- App Privacy is saved as `No data collected`. This is accurate under Apple's
+  definition because the date request is used in real time and is not retained
+  or associated with an identity. The answer remains unpublished until its
+  public privacy URL is live.
+- Export compliance is declared in the build with
+  `ITSAppUsesNonExemptEncryption = NO`; the app implements no proprietary or
+  non-exempt encryption and relies only on standard HTTPS provided by Apple.
+- Promotional text, description, keywords, copyright, review notes, and the
+  no-login review state are filled and saved in App Store Connect.
 
 ## Voluntary supporter plan
 
@@ -70,7 +84,8 @@ local implementation only, not uploads or external activation.
 - Mac/Xcode or a device for StoreKitTest, simulator, signed archive, and icon
   checks. The unsigned Release device build already compiles in GitHub Actions.
 - One subscription group and all three products in App Store Connect.
-- Published Privacy Policy, Terms of Use/EULA, and support URLs.
+- Published Privacy Policy and support URLs. Draft pages are prepared locally
+  in the shared `Krazel/krazel.github.io` site but have not been pushed.
 - Production signing team, certificates, and provisioning.
 
 ## Local QA IPA workflow
@@ -97,13 +112,18 @@ credential can push and dispatch this workflow.
 - [x] Approve Saved card detail visual.
 - [x] Approve Settings support/review extension visual.
 - [x] Approve app icon C1 and prepare its runtime asset catalog.
-- [ ] Create shared privacy and support pages.
-- [ ] Publish or select a Terms of Use/EULA URL.
+- [x] Prepare shared privacy and support pages locally.
+- [ ] Publish the prepared privacy and support pages and enter their live URLs.
+- [x] Use Apple's standard EULA; no custom EULA is required for the current
+      free core.
 - [ ] Confirm the production signing team for `com.krazel.zodiacdaily`.
 - [x] Record App Store Connect app ID `6800136195`, version `0.1.1`, and build
       `1`. Release is configured for manual publication.
-- [ ] Complete age rating, content-rights, export-compliance, and App Privacy
-      answers.
+- [x] Complete age rating, content rights, and export compliance.
+- [ ] Publish the saved `No data collected` App Privacy answer after the privacy
+      URL is live.
+- [ ] Add the owner's App Review contact name, surname, phone, and email; these
+      personal details must not be invented.
 - [x] Define supporter product IDs locally.
 - [ ] Create the App Store Connect subscription group/products after explicit
       external authorization.

@@ -206,6 +206,7 @@
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Zodiac Daily";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_ZodiacDailyAPIBaseURL = "$(ZODIAC_DAILY_API_BASE_URL)";
 				INFOPLIST_KEY_ZodiacDailyAppStoreID = "$(ZODIAC_DAILY_APP_STORE_ID)";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
@@ -235,6 +236,7 @@
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Zodiac Daily";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_ZodiacDailyAPIBaseURL = "$(ZODIAC_DAILY_API_BASE_URL)";
 				INFOPLIST_KEY_ZodiacDailyAppStoreID = "$(ZODIAC_DAILY_APP_STORE_ID)";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
