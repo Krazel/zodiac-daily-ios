@@ -267,7 +267,7 @@ jobs:
           IPA_PATH: ${{ steps.export.outputs.ipa_path }}
         run: |
           set -euo pipefail
-          PRIVATE_KEYS_DIR="${HOME}/.appstoreconnect/private_keys"
+          PRIVATE_KEYS_DIR="${HOME}/private_keys"
           mkdir -p "${PRIVATE_KEYS_DIR}"
           API_KEY_PATH="${PRIVATE_KEYS_DIR}/AuthKey_${APP_STORE_CONNECT_API_KEY_ID}.p8"
           cleanup_api_key() {
@@ -276,6 +276,7 @@ jobs:
           }
           trap cleanup_api_key EXIT
           printf '%s' "${APP_STORE_CONNECT_API_KEY_BASE64}" | base64 --decode > "${API_KEY_PATH}"
+          test -s "${API_KEY_PATH}"
           chmod 600 "${API_KEY_PATH}"
           xcrun altool --validate-app \
             --type ios \
