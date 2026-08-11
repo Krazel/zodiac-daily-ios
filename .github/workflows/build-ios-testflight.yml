@@ -1,0 +1,307 @@
+name: Build Zodiac Daily TestFlight
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_number:
+        description: "Unique build number for marketing version 0.1.1"
+        required: true
+        default: "1"
+        type: string
+      upload_to_testflight:
+        description: "Upload to internal TestFlight"
+        required: true
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: zodiac-daily-testflight
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: github.actor == github.repository_owner
+    runs-on: macos-26
+    timeout-minutes: 40
+    environment: app-store-production
+    env:
+      APP_VERSION: "0.1.1"
+      APP_BUNDLE_ID: com.krazel.zodiacdaily
+      APPLE_TEAM_ID: B2X6D3A9J9
+
+    steps:
+      - name: Checkout approved source
+        uses: actions/checkout@v5
+
+      - name: Require main branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${GITHUB_REF_NAME}" = "main"
+
+      - name: Verify Xcode and iOS SDK
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodebuild -version
+          SDK_VERSION="$(xcrun --sdk iphoneos --show-sdk-version)"
+          SDK_MAJOR="${SDK_VERSION%%.*}"
+          if [ "${SDK_MAJOR}" -lt 26 ]; then
+            echo "iOS SDK 26 or later is required; found ${SDK_VERSION}."
+            exit 1
+          fi
+
+      - name: Validate build number and signing secrets
+        shell: bash
+        env:
+          BUILD_NUMBER: ${{ inputs.build_number }}
+          BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
+          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+          BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.BUILD_PROVISION_PROFILE_BASE64 }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          set -euo pipefail
+          if ! [[ "${BUILD_NUMBER}" =~ ^[1-9][0-9]*$ ]]; then
+            echo "build_number must be a positive integer."
+            exit 1
+          fi
+          for NAME in BUILD_CERTIFICATE_BASE64 P12_PASSWORD BUILD_PROVISION_PROFILE_BASE64 KEYCHAIN_PASSWORD; do
+            if [ -z "${!NAME:-}" ]; then
+              echo "Required environment secret is missing: ${NAME}."
+              exit 1
+            fi
+          done
+
+      - name: Resolve Swift packages
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodebuild -resolvePackageDependencies \
+            -project ZodiacDaily.xcodeproj \
+            -scheme ZodiacDaily
+
+      - name: Run core tests
+        run: swift test
+
+      - name: Analyze Release configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodebuild \
+            -project ZodiacDaily.xcodeproj \
+            -scheme ZodiacDaily \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build/testflight-analyze \
+            CODE_SIGNING_ALLOWED=NO \
+            analyze
+
+      - name: Install distribution certificate and profile
+        id: signing
+        shell: bash
+        env:
+          BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
+          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+          BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.BUILD_PROVISION_PROFILE_BASE64 }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          set -euo pipefail
+          CERTIFICATE_PATH="${RUNNER_TEMP}/distribution.p12"
+          PROFILE_PATH="${RUNNER_TEMP}/distribution.mobileprovision"
+          PROFILE_PLIST="${RUNNER_TEMP}/distribution-profile.plist"
+          KEYCHAIN_PATH="${RUNNER_TEMP}/app-signing.keychain-db"
+
+          printf '%s' "${BUILD_CERTIFICATE_BASE64}" | base64 --decode > "${CERTIFICATE_PATH}"
+          printf '%s' "${BUILD_PROVISION_PROFILE_BASE64}" | base64 --decode > "${PROFILE_PATH}"
+
+          security create-keychain -p "${KEYCHAIN_PASSWORD}" "${KEYCHAIN_PATH}"
+          security set-keychain-settings -lut 21600 "${KEYCHAIN_PATH}"
+          security unlock-keychain -p "${KEYCHAIN_PASSWORD}" "${KEYCHAIN_PATH}"
+          security import "${CERTIFICATE_PATH}" -P "${P12_PASSWORD}" -A -t cert -f pkcs12 -k "${KEYCHAIN_PATH}"
+          security set-key-partition-list -S apple-tool:,apple: -k "${KEYCHAIN_PASSWORD}" "${KEYCHAIN_PATH}"
+          security list-keychain -d user -s "${KEYCHAIN_PATH}"
+
+          security cms -D -i "${PROFILE_PATH}" > "${PROFILE_PLIST}"
+          PROFILE_UUID="$(/usr/libexec/PlistBuddy -c 'Print :UUID' "${PROFILE_PLIST}")"
+          PROFILE_NAME="$(/usr/libexec/PlistBuddy -c 'Print :Name' "${PROFILE_PLIST}")"
+          PROFILE_TEAM="$(/usr/libexec/PlistBuddy -c 'Print :TeamIdentifier:0' "${PROFILE_PLIST}")"
+          PROFILE_APP_ID="$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:application-identifier' "${PROFILE_PLIST}")"
+          GET_TASK_ALLOW="$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:get-task-allow' "${PROFILE_PLIST}")"
+
+          test "${PROFILE_TEAM}" = "${APPLE_TEAM_ID}"
+          test "${PROFILE_APP_ID}" = "${APPLE_TEAM_ID}.${APP_BUNDLE_ID}"
+          test "${GET_TASK_ALLOW}" = "false"
+
+          mkdir -p "${HOME}/Library/MobileDevice/Provisioning Profiles"
+          cp "${PROFILE_PATH}" "${HOME}/Library/MobileDevice/Provisioning Profiles/${PROFILE_UUID}.mobileprovision"
+          echo "profile_name=${PROFILE_NAME}" >> "${GITHUB_OUTPUT}"
+          echo "profile_uuid=${PROFILE_UUID}" >> "${GITHUB_OUTPUT}"
+          echo "keychain_path=${KEYCHAIN_PATH}" >> "${GITHUB_OUTPUT}"
+
+      - name: Archive signed Release build
+        shell: bash
+        env:
+          PROFILE_NAME: ${{ steps.signing.outputs.profile_name }}
+          BUILD_NUMBER: ${{ inputs.build_number }}
+        run: |
+          set -euo pipefail
+          xcodebuild archive \
+            -project ZodiacDaily.xcodeproj \
+            -scheme ZodiacDaily \
+            -configuration Release \
+            -archivePath "${RUNNER_TEMP}/ZodiacDaily.xcarchive" \
+            MARKETING_VERSION="${APP_VERSION}" \
+            CURRENT_PROJECT_VERSION="${BUILD_NUMBER}" \
+            DEVELOPMENT_TEAM="${APPLE_TEAM_ID}" \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
+            PROVISIONING_PROFILE_SPECIFIER="${PROFILE_NAME}" \
+            archive
+
+      - name: Inspect signed archive
+        shell: bash
+        env:
+          BUILD_NUMBER: ${{ inputs.build_number }}
+        run: |
+          set -euo pipefail
+          APP_PATH="${RUNNER_TEMP}/ZodiacDaily.xcarchive/Products/Applications/ZodiacDaily.app"
+          test -d "${APP_PATH}"
+          test -f "${APP_PATH}/PrivacyInfo.xcprivacy"
+          test -f "${APP_PATH}/Assets.car"
+          test -n "$(find "${APP_PATH}" -name zodiac_daily_content.json -type f -print -quit)"
+          /usr/bin/codesign --verify --deep --strict --verbose=2 "${APP_PATH}"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "${APP_PATH}/Info.plist")" = "${APP_BUNDLE_ID}"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "${APP_PATH}/Info.plist")" = "${APP_VERSION}"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "${APP_PATH}/Info.plist")" = "${BUILD_NUMBER}"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :MinimumOSVersion' "${APP_PATH}/Info.plist")" = "16.0"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :ITSAppUsesNonExemptEncryption' "${APP_PATH}/Info.plist")" = "false"
+
+      - name: Create App Store Connect export options
+        shell: bash
+        env:
+          PROFILE_NAME: ${{ steps.signing.outputs.profile_name }}
+        run: |
+          set -euo pipefail
+          plutil -create xml1 "${RUNNER_TEMP}/ExportOptions.plist"
+          /usr/libexec/PlistBuddy -c 'Add :method string app-store-connect' "${RUNNER_TEMP}/ExportOptions.plist"
+          /usr/libexec/PlistBuddy -c 'Add :signingStyle string manual' "${RUNNER_TEMP}/ExportOptions.plist"
+          /usr/libexec/PlistBuddy -c "Add :teamID string ${APPLE_TEAM_ID}" "${RUNNER_TEMP}/ExportOptions.plist"
+          /usr/libexec/PlistBuddy -c 'Add :stripSwiftSymbols bool true' "${RUNNER_TEMP}/ExportOptions.plist"
+          /usr/libexec/PlistBuddy -c 'Add :uploadSymbols bool true' "${RUNNER_TEMP}/ExportOptions.plist"
+          /usr/libexec/PlistBuddy -c 'Add :manageAppVersionAndBuildNumber bool false' "${RUNNER_TEMP}/ExportOptions.plist"
+          /usr/libexec/PlistBuddy -c 'Add :testFlightInternalTestingOnly bool true' "${RUNNER_TEMP}/ExportOptions.plist"
+          /usr/libexec/PlistBuddy -c 'Add :provisioningProfiles dict' "${RUNNER_TEMP}/ExportOptions.plist"
+          /usr/libexec/PlistBuddy -c "Add :provisioningProfiles:${APP_BUNDLE_ID} string ${PROFILE_NAME}" "${RUNNER_TEMP}/ExportOptions.plist"
+
+      - name: Export signed IPA
+        id: export
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodebuild -exportArchive \
+            -archivePath "${RUNNER_TEMP}/ZodiacDaily.xcarchive" \
+            -exportOptionsPlist "${RUNNER_TEMP}/ExportOptions.plist" \
+            -exportPath "${RUNNER_TEMP}/ZodiacDaily-export"
+          IPA_PATH="$(find "${RUNNER_TEMP}/ZodiacDaily-export" -maxdepth 1 -type f -name '*.ipa' -print -quit)"
+          test -n "${IPA_PATH}"
+          echo "ipa_path=${IPA_PATH}" >> "${GITHUB_OUTPUT}"
+
+      - name: Prepare TestFlight evidence
+        id: evidence
+        shell: bash
+        env:
+          BUILD_NUMBER: ${{ inputs.build_number }}
+          IPA_PATH: ${{ steps.export.outputs.ipa_path }}
+        run: |
+          set -euo pipefail
+          SHORT_SHA="${GITHUB_SHA:0:7}"
+          EVIDENCE_DIR="${RUNNER_TEMP}/testflight-evidence"
+          mkdir -p "${EVIDENCE_DIR}"
+          IPA_NAME="ZodiacDaily-v${APP_VERSION}-build-${BUILD_NUMBER}-${SHORT_SHA}-TestFlight.ipa"
+          cp "${IPA_PATH}" "${EVIDENCE_DIR}/${IPA_NAME}"
+          shasum -a 256 "${EVIDENCE_DIR}/${IPA_NAME}" > "${EVIDENCE_DIR}/${IPA_NAME}.sha256"
+          printf '%s\n' \
+            "app=Zodiac Daily" \
+            "marketing_version=${APP_VERSION}" \
+            "build=${BUILD_NUMBER}" \
+            "commit_sha=${GITHUB_SHA}" \
+            "purpose=TestFlight-Internal" \
+            "github_run_number=${GITHUB_RUN_NUMBER}" \
+            "ipa=${IPA_NAME}" \
+            > "${EVIDENCE_DIR}/ZodiacDaily-TestFlight-manifest.txt"
+          echo "evidence_dir=${EVIDENCE_DIR}" >> "${GITHUB_OUTPUT}"
+
+      - name: Store signed TestFlight candidate
+        uses: actions/upload-artifact@v6
+        with:
+          name: ZodiacDaily-v${{ env.APP_VERSION }}-build-${{ inputs.build_number }}-TestFlight-run-${{ github.run_number }}
+          path: ${{ steps.evidence.outputs.evidence_dir }}/*
+          retention-days: 7
+          if-no-files-found: error
+
+      - name: Require upload credentials
+        if: inputs.upload_to_testflight == 'true'
+        shell: bash
+        env:
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
+        run: |
+          set -euo pipefail
+          for NAME in APP_STORE_CONNECT_API_KEY_ID APP_STORE_CONNECT_ISSUER_ID APP_STORE_CONNECT_API_KEY_BASE64; do
+            if [ -z "${!NAME:-}" ]; then
+              echo "Required upload secret is missing: ${NAME}."
+              exit 1
+            fi
+          done
+
+      - name: Upload explicitly authorized build to internal TestFlight
+        if: inputs.upload_to_testflight == 'true'
+        shell: bash
+        env:
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
+          IPA_PATH: ${{ steps.export.outputs.ipa_path }}
+        run: |
+          set -euo pipefail
+          PRIVATE_KEYS_DIR="${HOME}/.appstoreconnect/private_keys"
+          mkdir -p "${PRIVATE_KEYS_DIR}"
+          API_KEY_PATH="${PRIVATE_KEYS_DIR}/AuthKey_${APP_STORE_CONNECT_API_KEY_ID}.p8"
+          cleanup_api_key() {
+            rm -f "${API_KEY_PATH}"
+            rmdir "${PRIVATE_KEYS_DIR}" 2>/dev/null || true
+          }
+          trap cleanup_api_key EXIT
+          printf '%s' "${APP_STORE_CONNECT_API_KEY_BASE64}" | base64 --decode > "${API_KEY_PATH}"
+          chmod 600 "${API_KEY_PATH}"
+          xcrun altool --validate-app \
+            --type ios \
+            --file "${IPA_PATH}" \
+            --apiKey "${APP_STORE_CONNECT_API_KEY_ID}" \
+            --apiIssuer "${APP_STORE_CONNECT_ISSUER_ID}"
+          xcrun altool --upload-app \
+            --type ios \
+            --file "${IPA_PATH}" \
+            --apiKey "${APP_STORE_CONNECT_API_KEY_ID}" \
+            --apiIssuer "${APP_STORE_CONNECT_ISSUER_ID}"
+
+      - name: Remove temporary signing material
+        if: always()
+        shell: bash
+        env:
+          KEYCHAIN_PATH: ${{ steps.signing.outputs.keychain_path }}
+          PROFILE_UUID: ${{ steps.signing.outputs.profile_uuid }}
+        run: |
+          if [ -n "${KEYCHAIN_PATH:-}" ]; then
+            security delete-keychain "${KEYCHAIN_PATH}" || true
+          fi
+          if [ -n "${PROFILE_UUID:-}" ]; then
+            rm -f "${HOME}/Library/MobileDevice/Provisioning Profiles/${PROFILE_UUID}.mobileprovision"
+          fi
