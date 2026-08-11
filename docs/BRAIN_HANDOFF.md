@@ -32,7 +32,8 @@ workspace does not have write access to Brain.
 - Commits de cierre y build: `040ea32` (experiencia aprobada), `b5813ba`
   (workflow IPA), `abcec2b` (compatibilidad iOS) y `0cf1d5f` (validacion de
   contenido empaquetado).
-- Working tree: limpio tras el cierre del build y la descarga verificada.
+- Working tree: limpio tras el commit de la correccion de compilacion y la
+  subida verificada de TestFlight 0.2/1.
 - GitHub: repo publico `Krazel/zodiac-daily-ios`, remoto `origin` configurado y
   rama `main` subida. Actions esta habilitado. El conector GitHub de Codex no
   tiene acceso a este repo concreto, pero no bloquea el flujo actual.
@@ -234,7 +235,7 @@ workspace does not have write access to Brain.
 
 ## Reanudacion 2026-08-11 — Edicion diaria real EN/ES
 
-- Estado local, sin commit ni despliegue: contrato schema 3 con `language`,
+- Estado activo: contrato schema 3 con `language`,
   endpoint `?lang=en|es`, cache KV separada por idioma y cabecera
   `Content-Language`.
 - El Queue consumer obtiene una sola edicion inglesa de 12 signos y crea una
@@ -255,10 +256,13 @@ workspace does not have write access to Brain.
 - Preview real no productiva superada: respuesta castellana con acentos, HTTP
   200, 15 tokens de entrada + 17 de salida y 0,9936 neuronas. El preview se
   detuvo y no cambio recursos productivos.
-- Bloqueos antes de produccion: confirmar la base juridica/riesgo aceptado para
-  traducir contenido FreeAstro, compilar y ejecutar XCTest en macOS, y obtener
-  autorizacion separada de despliegue. Produccion sigue en schema 2 ingles; no
-  se desplego, publico ni subio ninguna build durante este hito.
-- Al ser funcionalidad nueva, la siguiente IPA instalable corresponde a
-  version visible `0.2`, build `1`; las validaciones locales sin artifact no
-  fuerzan el cambio del proyecto todavia.
+- El propietario autorizo el despliegue. Produccion usa schema 3 bilingue en el
+  Worker version `5a2cbd27-fa30-4789-a664-ed72b0a28403`; no se publico la app
+  ni se crearon productos StoreKit.
+- La version visible `0.2`, build `1`, se compilo, probo, analizo, firmo y
+  subio a TestFlight interno desde el commit `4e3518e`. Run GitHub Actions
+  `31522839488` (numero 8), delivery UUID Apple
+  `93b70d57-c420-4b84-a34e-264760a432ca`.
+- App Store Connect muestra la build `En pruebas`, asignada al grupo interno
+  `Testers` y con caducidad de 90 dias. No se creo testing externo, enlace
+  publico, Beta App Review, App Review, IAP ni publicacion.

@@ -2,16 +2,15 @@
 
 Updated: 2026-08-11
 
-Internal TestFlight build `0.1.1` (`1`) is active. This document does not
+Internal TestFlight build `0.2` (`1`) is active. This document does not
 authorize StoreKit products, external testing, App Review, or publication.
 
 ## Recorded scope
 
-- Current internal TestFlight 0.1.1/1: iPhone / iOS 16+, English interface.
-- Next installable candidate: visible version `0.2`, build `1`, with the
-  English/Spanish interface and daily edition selected in
-  Settings. The schema-3 Worker translates the cached provider edition once;
-  production is not yet updated and the candidate is not release-ready.
+- Current internal TestFlight 0.2/1: iPhone / iOS 16+, English/Spanish
+  interface and language-specific daily editions selected in Settings.
+- The production schema-3 Worker caches English and Spanish separately. It
+  translates each provider edition once; user traffic only reads the cache.
 - Registered production bundle identifier: `com.krazel.zodiacdaily`.
 - App Store Connect record: **The Daily Zodiac**, app ID `6800136195`, primary
   language English (U.S.), SKU `zodiac-daily-ios`.
@@ -109,12 +108,12 @@ manifest record app, version, build, commit, purpose, and GitHub run evidence.
 The IPA is intended as input to a local signing/install tool such as Sideloadly;
 it is not directly installable until that tool signs it for the test device.
 
-The deliverable workflow validates bundle ID
-`com.krazel.zodiacdaily`, marketing version `0.1.1`, build `1`, iOS 16 minimum,
-executable, privacy manifest, compiled
-assets, and bundled horoscope content before packaging. Run `31347517648`
-(workflow run 5) completed successfully and produced the verified unsigned
-iOS 16 Local QA IPA. The public remote is `Krazel/zodiac-daily-ios`; the GitHub
+The deliverable workflow currently validates bundle ID
+`com.krazel.zodiacdaily`, marketing version `0.2`, build `1`, iOS 16 minimum,
+executable, privacy manifest, compiled assets, and bundled horoscope content
+before packaging. Historical run `31347517648` (workflow run 5) completed
+successfully for the prior unsigned iOS 16 Local QA IPA. The public remote is
+`Krazel/zodiac-daily-ios`; the GitHub
 connector's repo-specific access remains optional because the existing Git
 credential can push and dispatch this workflow.
 
@@ -122,11 +121,11 @@ credential can push and dispatch this workflow.
 
 The protected manual workflow
 `.github/workflows/build-ios-testflight.yml` compiled, tested, analyzed,
-archived, signed, inspected, exported, and uploaded version `0.1.1` build `1`.
-Run `31488398661` completed successfully from commit `0d648d3`; Apple reports
-the build as `VALID`, iOS 16.0 minimum, no non-exempt encryption, and
-`INTERNAL_ONLY`. The internal `Testers` group has access to all builds and one
-tester. Full non-secret evidence is in `docs/TESTFLIGHT_STATUS.md`.
+archived, signed, inspected, exported, and uploaded version `0.2` build `1`.
+Run `31522839488` completed successfully from commit `4e3518e`; App Store
+Connect reports the build as `En pruebas`, iOS 16.0 minimum, no non-exempt
+encryption, and internal-only. The build is assigned to the internal `Testers`
+group. Full non-secret evidence is in `docs/TESTFLIGHT_STATUS.md`.
 
 No external group, public TestFlight link, Beta App Review, App Review, or App
 Store release was created.
