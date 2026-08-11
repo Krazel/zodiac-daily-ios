@@ -22,6 +22,16 @@
 - Toda pantalla implementada desde una referencia aprobada debe compararse visualmente contra la imagen al mismo tamano/dispositivo. Las diferencias visibles se corrigen o se elevan al propietario si cambian la promesa visual.
 - Una version simplificada solo puede llamarse prototipo funcional o implementacion parcial. No puede presentarse como pantalla final ni candidata visual.
 - Visual-first bloquea la implementacion visual final, pero no bloquea trabajo estructural: motor, reglas, datos, contenido, arquitectura, navegacion interna, persistencia, pruebas, build/CI, privacidad, tienda, documentacion y prototipos internos no definitivos pueden avanzar.
+- `Design/APPROVALS.md` es la fuente de verdad visual durable. Debe existir una
+  sola maestra vigente por pantalla/estado, con ruta, dispositivo/lienzo,
+  orientacion, idioma, fecha y SHA-256. Las maestras vigentes viven en
+  `Design/Approved/`; las propuestas e historico se conservan separadas.
+- Una sustitucion aprobada se anade como nuevo archivo y nueva maestra antes de
+  marcar la anterior como reemplazada; nunca se sobrescribe ni se borra el
+  historico aprobado.
+- Las capturas de App Store usan las maestras solo como direccion de arte. La
+  captura base final debe proceder de la build real y quedar enlazada en el
+  manifiesto con version, build, commit, dispositivo, idioma, fecha y SHA-256.
 
 ## Launch iOS y builds
 

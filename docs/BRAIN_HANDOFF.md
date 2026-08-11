@@ -172,6 +172,12 @@ workspace does not have write access to Brain.
   suscripcion auto-renovable. Antes de crear productos hay que confirmar que el
   estado supporter/mantenimiento es suficiente o convertir el mismo concepto a
   apoyo de pago unico; esto no bloquea el commit local.
+- Registro visual durable creado en `Design/APPROVALS.md`. Las ocho maestras
+  vigentes completas viven en `Design/Approved/` con pantalla/estado,
+  dispositivo/lienzo, orientacion, idioma, fecha y SHA-256. Propuestas e
+  historico permanecen en `Design/Concepts/`; `today-card-back-c1.png` y
+  `settings-c2.png` estan marcadas como reemplazadas sin borrarse. Las capturas
+  de tienda deberan salir de una build real y enlazarse al manifiesto.
 - Flujo Local QA IPA operativo en
   `.github/workflows/build-ios-local-qa.yml`: manual, owner-only, sin secretos y
   sin upload a Apple. Compila en `macos-latest`, valida bundle/version/iOS 16,

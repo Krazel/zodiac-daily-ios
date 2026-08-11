@@ -1,5 +1,9 @@
 # Today screen concepts
 
+This directory contains proposals and retained approval history. It is not the
+canonical current-master directory. See `Design/APPROVALS.md`; current complete
+masters are stored in `Design/Approved/`.
+
 Generated with the built-in image-generation workflow on 2026-08-09. These are
 visual references; critical copy and UI geometry will be recreated natively and
 validated for accessibility after approval.
