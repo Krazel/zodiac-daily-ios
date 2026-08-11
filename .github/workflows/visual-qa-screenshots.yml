@@ -2,11 +2,6 @@ name: Capture Zodiac Daily Visual QA
 
 on:
   workflow_dispatch:
-  # Temporary self-start for the current visual gate. Removed after the
-  # resulting artifact has been inspected so normal runs stay deliberate.
-  push:
-    branches:
-      - main
 
 permissions:
   contents: read

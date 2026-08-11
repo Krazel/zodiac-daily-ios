@@ -1,6 +1,6 @@
 # Visual comparison evidence
 
-Generated: 2026-08-10
+Generated: 2026-08-11
 
 Each PNG contains four panels: approved reference, implementation, 50% overlay,
 and an amplified difference view. The approved device frame was cropped to its
@@ -59,3 +59,25 @@ The validated reverse preserves the approved frame, cosmic material, score
 grid, lucky and Moon sections, static sign essence, Save Card action, and tab
 bar in one viewport. All changing values in this state are sourced from the
 FreeAstroAPI V2 contract; the app does not synthesize missing daily scores.
+
+## Fixed Today and turn affordance validation
+
+- Approved reference: `Design/Approved/today-loaded-front-flip-c3.png`
+- Comparison sheet: `Design/Comparisons/today-front-flip-c3-comparison.png`
+- Long-copy runtime evidence: `Design/Comparisons/today-long-provider-runtime.png`
+- Workflow run: `31496180232`
+- Captured commit: `f203c22`
+- Simulator: iPhone 15 Pro
+- Runtime: iOS 26.5
+- Resolution: 1179 x 2556
+- Mean absolute RGB error: 6.567%
+- Comparison SHA-256: `aecd66167e63c0b3d484250e6dee45e57857370920e4ec551cb93370a883f59f`
+- Long-copy SHA-256: `e3eeb60587e2dc7b2599586998d47a84221617e6dd32da9ae56a46a5de12b4c4`
+
+The final regular-size capture keeps the masthead, sign selector, complete
+front or back, Save Card action, and custom tab bar in one stationary viewport.
+The stress fixture contains 396 characters, which covers the observed live
+provider range of 324-382 characters. It renders the complete reading and the
+visible `TAP FOR MORE` affordance without page movement or clipping at the
+default text size. Compact-height and enlarged-text layouts retain measured
+overflow scrolling so information is not hidden.
