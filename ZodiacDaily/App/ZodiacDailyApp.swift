@@ -4,15 +4,8 @@ import SwiftUI
 struct ZodiacDailyApp: App {
     @StateObject private var model = AppModel()
     @StateObject private var supportStore = SupportStore()
-    @AppStorage(AppLanguage.storageKey) private var appLanguageRawValue: String
-
-    init() {
-        let initialLanguage = AppLanguage.persistedOrPreferred()
-        _appLanguageRawValue = AppStorage(
-            wrappedValue: initialLanguage.rawValue,
-            AppLanguage.storageKey
-        )
-    }
+    @AppStorage(AppLanguage.storageKey) private var appLanguageRawValue =
+        AppLanguage.persistedOrPreferred().rawValue
 
     private var appLanguage: AppLanguage {
         AppLanguage(rawValue: appLanguageRawValue) ?? .english
