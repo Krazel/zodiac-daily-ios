@@ -88,7 +88,7 @@ jobs:
           )"
           STATE_MARKER="${DATA_CONTAINER}/tmp/visual-qa-rendered-state.txt"
 
-          for STATE in sign-selection today today-back saved-empty saved-populated saved-detail settings; do
+          for STATE in sign-selection today today-back today-long saved-empty saved-populated saved-detail settings; do
             xcrun simctl terminate "$UDID" com.krazel.zodiacdaily >/dev/null 2>&1 || true
             rm -f "$STATE_MARKER"
             LAUNCH_OUTPUT="$(

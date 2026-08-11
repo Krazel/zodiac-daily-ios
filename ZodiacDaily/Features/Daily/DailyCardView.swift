@@ -186,6 +186,8 @@ struct FlippableDailyCard: View {
             ZStack {
                 DailyCardView(
                     horoscope: horoscope,
+                    contentSpacing: -35,
+                    readingBottomPadding: 65,
                     fixedHeight: Metrics.height,
                     showsTurnCue: true
                 )

@@ -8,6 +8,7 @@ final class AppModel: ObservableObject {
         case signSelection = "sign-selection"
         case today
         case todayBack = "today-back"
+        case todayLong = "today-long"
         case savedEmpty = "saved-empty"
         case savedPopulated = "saved-populated"
         case savedDetail = "saved-detail"
@@ -161,12 +162,14 @@ final class AppModel: ObservableObject {
         }
     }
 
-    private static func visualQAPiscesCard() -> DailyHoroscope {
-        DailyHoroscope(
+    private static func visualQAPiscesCard(longCopy: Bool = false) -> DailyHoroscope {
+        let regularReading = "You do not need to force the next step. Listen for the rhythm beneath the noise, then move with it."
+        let longReading = "You can move gently without losing momentum. Notice which conversations leave you feeling clearer, then make room for one honest answer before the day becomes busy. A practical choice around work or money benefits from patience rather than pressure. In love, listen for what is meant beneath the words. Protect a quiet hour for rest, reflection, and the small ritual that returns you to yourself."
+        return DailyHoroscope(
             sign: .pisces,
             day: LocalDayKey(rawValue: "2026-08-09")!,
             headline: "Let the Tide Turn",
-            reading: "You do not need to force the next step. Listen for the rhythm beneath the noise, then move with it.",
+            reading: longCopy ? longReading : regularReading,
             details: .provider(
                 focus: "Intuition",
                 keywords: ["Empathy", "Flow", "Imagination"],
@@ -206,8 +209,11 @@ final class AppModel: ObservableObject {
         #if DEBUG
         if Self.visualQAState == .today
             || Self.visualQAState == .todayBack
+            || Self.visualQAState == .todayLong
             || Self.visualQAState == .settings {
-            dailyState = .loaded(Self.visualQAPiscesCard())
+            dailyState = .loaded(
+                Self.visualQAPiscesCard(longCopy: Self.visualQAState == .todayLong)
+            )
             return
         }
         #endif

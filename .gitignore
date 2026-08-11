@@ -19,6 +19,7 @@ Secrets.xcconfig
 # Temporary files
 *.tmp
 *.swp
+.visual-qa/
 
 # Keep project files, assets, non-secret configuration, and Package.resolved
 # versioned when they are added.
