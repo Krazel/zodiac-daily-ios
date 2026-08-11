@@ -84,8 +84,8 @@ local implementation only, not uploads or external activation.
 - Mac/Xcode or a device for StoreKitTest, simulator, signed archive, and icon
   checks. The unsigned Release device build already compiles in GitHub Actions.
 - One subscription group and all three products in App Store Connect.
-- Published Privacy Policy and support URLs. Draft pages are prepared locally
-  in the shared `Krazel/krazel.github.io` site but have not been pushed.
+- Published Privacy Policy and support URLs. Both pages are live in the shared
+  `Krazel/krazel.github.io` site and return HTTP 200.
 - Production signing team, certificates, and provisioning.
 
 ## Local QA IPA workflow
@@ -112,8 +112,8 @@ credential can push and dispatch this workflow.
 - [x] Approve Saved card detail visual.
 - [x] Approve Settings support/review extension visual.
 - [x] Approve app icon C1 and prepare its runtime asset catalog.
-- [x] Prepare shared privacy and support pages locally.
-- [ ] Publish the prepared privacy and support pages and enter their live URLs.
+- [x] Publish shared privacy and support pages.
+- [ ] Enter the two live URLs in App Store Connect.
 - [x] Use Apple's standard EULA; no custom EULA is required for the current
       free core.
 - [ ] Confirm the production signing team for `com.krazel.zodiacdaily`.

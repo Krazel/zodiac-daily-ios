@@ -144,12 +144,12 @@ workspace does not have write access to Brain.
   privacidad no este activa.
 - El proyecto declara `ITSAppUsesNonExemptEncryption = NO`: usa HTTPS estandar
   de Apple y no implementa cifrado propietario/no exento.
-- URLs compartidas planificadas, aun no publicadas:
+- URLs compartidas publicadas y verificadas con HTTP 200:
   `https://krazel.github.io/zodiac-daily/privacy/` y
   `https://krazel.github.io/zodiac-daily/support/`.
-- Las dos paginas ya estan preparadas localmente en el clon de
-  `Krazel/krazel.github.io`; falta autorizacion puntual para publicarlas, cargar
-  las URLs en App Store Connect y publicar la respuesta de privacidad.
+- Publicacion GitHub Pages completada en el commit `0033549` y workflow
+  `31448706655`. Falta cargar las URLs en App Store Connect y publicar la
+  respuesta de privacidad.
 - Falta el contacto personal de App Review (nombre, apellidos, telefono y
   email), que no se puede inventar. Tampoco se ha subido build, enviado review,
   creado IAP, aceptado acuerdos ni publicado la app.
