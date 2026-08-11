@@ -136,23 +136,33 @@ workspace does not have write access to Brain.
 - Ficha completada y guardada: subtitulo `Daily Horoscope & Zodiac`, categoria
   primaria Lifestyle, secundaria Magazines & Newspapers, precio gratis en los
   175 territorios, distribucion publica y disponibilidad Mac/Vision Pro
-  desactivada. Tambien estan guardados promotional text, descripcion, keywords,
-  copyright y notas de revision.
+  desactivada. Estan guardados descripcion, keywords, copyright y notas de
+  revision exactas; promotional text, marketing URL, privacy choices y adjunto
+  opcional estan vacios.
 - Derechos de contenido declarados. Clasificacion completada como 9+ global
   (12+ Vietnam/Brasil), declarando unicamente temas de bienestar. App Privacy
-  esta guardado como `No data collected`, pero no publicado mientras la URL de
-  privacidad no este activa.
+  esta guardado como `No data collected` y la URL publica ya esta cargada, pero
+  la respuesta no se publico por falta de autorizacion expresa de publicacion.
 - El proyecto declara `ITSAppUsesNonExemptEncryption = NO`: usa HTTPS estandar
   de Apple y no implementa cifrado propietario/no exento.
 - URLs compartidas publicadas y verificadas con HTTP 200:
   `https://krazel.github.io/zodiac-daily/privacy/` y
   `https://krazel.github.io/zodiac-daily/support/`.
-- Publicacion GitHub Pages completada en el commit `0033549` y workflow
-  `31448706655`. Falta cargar las URLs en App Store Connect y publicar la
+- Publicacion GitHub Pages minimizada en el commit `450aadf`. Las URLs de
+  privacidad y soporte estan cargadas en App Store Connect; marketing URL y
+  privacy choices quedan vacias. Falta autorizacion expresa para publicar la
   respuesta de privacidad.
-- Falta el contacto personal de App Review (nombre, apellidos, telefono y
-  email), que no se puede inventar. Tampoco se ha subido build, enviado review,
-  creado IAP, aceptado acuerdos ni publicado la app.
+- El contacto obligatorio de App Review esta completo solo en la seccion
+  privada de Apple; sus valores no se replican en paginas ni repositorio.
+  Tampoco se ha subido build, enviado review, creado IAP, aceptado acuerdos ni
+  publicado la app.
+- Auditoria de minimizacion `docs/DATA_MINIMIZATION_AUDIT.md`: build 0.1.1/1
+  sin permisos, cuenta, anuncios, analytics ni SDKs terceros; signo/cartas/
+  ajustes locales; unica peticion de contenido con fecha; StoreKit presente sin
+  productos activos. App Store Privacy `No data collected` sigue siendo exacto.
+- Cumplimiento DSA de la UE esta enviado a Apple y figura `En revision`. No se
+  cambia la condicion para eludir divulgacion; si Apple exige datos de trader,
+  quedan limitados a su superficie legal y no se duplican publicamente.
 - Support the app esta implementado localmente como extension opcional de
   Settings con StoreKit 2. Today, Saved y el resto del core siguen siempre
   gratis.

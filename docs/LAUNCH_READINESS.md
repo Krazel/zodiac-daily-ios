@@ -16,9 +16,9 @@ StoreKit products, uploads, TestFlight, App Review, or publication.
 - Price: free in all 175 App Store territories. Public distribution is enabled;
   Apple silicon Mac and Apple Vision Pro availability are disabled.
 - App slug: `zodiac-daily`.
-- Planned privacy URL:
+- Live privacy URL:
   `https://krazel.github.io/zodiac-daily/privacy/`.
-- Planned support URL:
+- Live support URL:
   `https://krazel.github.io/zodiac-daily/support/`.
 - No ads or AdMob planned.
 - FreeAstroAPI content is fetched through the Zodiac Daily Worker; the app sends
@@ -30,13 +30,19 @@ StoreKit products, uploads, TestFlight, App Review, or publication.
   content category marked absent.
 - App Privacy is saved as `No data collected`. This is accurate under Apple's
   definition because the date request is used in real time and is not retained
-  or associated with an identity. The answer remains unpublished until its
-  public privacy URL is live.
+  or associated with an identity. The live privacy URL is saved; the answer
+  remains unpublished pending explicit publication authorization.
 - Export compliance is declared in the build with
   `ITSAppUsesNonExemptEncryption = NO`; the app implements no proprietary or
   non-exempt encryption and relies only on standard HTTPS provided by Apple.
-- Promotional text, description, keywords, copyright, review notes, and the
-  no-login review state are filled and saved in App Store Connect.
+- Description, keywords, copyright, exact-build review notes, required support
+  and privacy URLs, private review contact, and the no-login state are saved in
+  App Store Connect. Optional promotional text, marketing URL, privacy-choices
+  URL, and attachment are blank.
+- The release data-flow audit is recorded in
+  `docs/DATA_MINIMIZATION_AUDIT.md`: no permissions, accounts, ads, analytics,
+  or third-party SDKs; date-only HTTPS request; local-only sign/cards/settings;
+  StoreKit present but no active product.
 
 ## Voluntary supporter plan
 
@@ -83,10 +89,12 @@ local implementation only, not uploads or external activation.
 
 - Mac/Xcode or a device for StoreKitTest, simulator, signed archive, and icon
   checks. The unsigned Release device build already compiles in GitHub Actions.
-- One subscription group and all three products in App Store Connect.
 - Published Privacy Policy and support URLs. Both pages are live in the shared
   `Krazel/krazel.github.io` site and return HTTP 200.
 - Production signing team, certificates, and provisioning.
+- EU DSA compliance is submitted and currently `In Review`; an unresolved or
+  rejected result blocks EU distribution but does not justify changing trader
+  status or exposing the private review contact publicly.
 
 ## Local QA IPA workflow
 
@@ -113,17 +121,19 @@ credential can push and dispatch this workflow.
 - [x] Approve Settings support/review extension visual.
 - [x] Approve app icon C1 and prepare its runtime asset catalog.
 - [x] Publish shared privacy and support pages.
-- [ ] Enter the two live URLs in App Store Connect.
+- [x] Enter the live privacy and support URLs in App Store Connect; leave the
+      optional privacy-choices and marketing URLs blank.
 - [x] Use Apple's standard EULA; no custom EULA is required for the current
       free core.
 - [ ] Confirm the production signing team for `com.krazel.zodiacdaily`.
 - [x] Record App Store Connect app ID `6800136195`, version `0.1.1`, and build
       `1`. Release is configured for manual publication.
 - [x] Complete age rating, content rights, and export compliance.
-- [ ] Publish the saved `No data collected` App Privacy answer after the privacy
-      URL is live.
-- [ ] Add the owner's App Review contact name, surname, phone, and email; these
-      personal details must not be invented.
+- [ ] Publish the saved `No data collected` App Privacy answer only after
+      explicit authorization.
+- [x] Keep the required App Review contact complete in Apple's private review
+      section; do not copy its values to public pages or repository docs.
+- [ ] Confirm that Apple's EU DSA compliance review has completed successfully.
 - [x] Define supporter product IDs locally.
 - [ ] Create the App Store Connect subscription group/products after explicit
       external authorization.

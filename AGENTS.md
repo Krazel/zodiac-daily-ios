@@ -38,6 +38,19 @@
 - Para lanzamiento iOS, IPA, TestFlight, App Store Connect, App Review, AdMob, StoreKit/IAP, supporter subscriptions, privacidad, soporte, firma, workflows, capturas, icono o checklist de publicacion, leer y aplicar `C:\Users\dmkra\Documents\ChatGPT\Brain\.agents\skills\ios-app-launch\SKILL.md` y sus referencias relevantes.
 - Para crear IPA sin Mac local, leer especialmente `C:\Users\dmkra\Documents\ChatGPT\Brain\.agents\skills\ios-app-launch\references\github-actions-ipa.md`.
 - Para problemas de GitHub, no pedir "autenticar GitHub" genericamente. Leer `C:\Users\dmkra\Documents\ChatGPT\Brain\.agents\skills\ios-app-launch\references\github-project-access.md` y diagnosticar si falla CLI auth, origin, repo, conector, Actions, secrets o workflow.
+- Antes de cada build publicable, actualizar
+  `docs/DATA_MINIMIZATION_AUDIT.md` contra el binario real: datos, SDKs,
+  permisos, almacenamiento, transmisiones, retencion, control y destinatarios.
+- No solicitar campos o permisos especulativos ni publicar nombre completo,
+  domicilio, telefono, cuentas personales o repositorio. Usar el alias de
+  soporte y mantener el contacto obligatorio de App Review solo en el area
+  privada de Apple.
+- Privacidad, soporte, App Store Privacy, metadatos y terminos deben describir
+  exactamente la build, sin clausulas hipoteticas. Mantener vacios los campos
+  opcionales que no cumplan una funcion real.
+- No falsear la condicion DSA para reducir divulgacion. Cualquier dato de trader
+  exigido para la UE se limita a la superficie de cumplimiento de Apple y su
+  estado pendiente bloquea la distribucion territorial afectada.
 
 ## Sistema de apoyo voluntario
 
