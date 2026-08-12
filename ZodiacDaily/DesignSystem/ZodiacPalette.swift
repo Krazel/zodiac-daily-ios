@@ -268,11 +268,73 @@ struct AdaptiveVerticalScrollView<Content: View>: View {
     }
 }
 
+/// A single, non-scrollable layout that scales down only when a regular text
+/// size would otherwise overflow the available height. This removes every
+/// drag and bounce gesture from Today and saved-card detail while keeping all
+/// content visible on shorter iOS 16 devices. Accessibility Dynamic Type keeps
+/// the adaptive scroll fallback so content is never clipped or unreachable.
+struct StationaryFittedVerticalView<Content: View>: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
+    private let content: Content
+    @State private var contentHeight: CGFloat = 0
+
+    init(@ViewBuilder content: () -> Content) {
+        self.content = content()
+    }
+
+    var body: some View {
+        GeometryReader { viewport in
+            if dynamicTypeSize.isAccessibilitySize {
+                AdaptiveVerticalScrollView {
+                    content
+                }
+            } else {
+                let availableHeight = max(viewport.size.height, 1)
+                let fittedScale = contentHeight > 0
+                    ? min(1, availableHeight / contentHeight)
+                    : 1
+
+                content
+                    .frame(width: viewport.size.width)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .background {
+                        GeometryReader { measuredContent in
+                            Color.clear.preference(
+                                key: StationaryContentHeightKey.self,
+                                value: measuredContent.size.height
+                            )
+                        }
+                    }
+                    .scaleEffect(fittedScale, anchor: .top)
+                    .frame(
+                        width: viewport.size.width,
+                        height: contentHeight * fittedScale,
+                        alignment: .top
+                    )
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                    .clipped()
+                    .onPreferenceChange(StationaryContentHeightKey.self) { measuredHeight in
+                        contentHeight = measuredHeight
+                    }
+            }
+        }
+    }
+}
+
 private enum AdaptiveScrollAnchor: Hashable {
     case top
 }
 
 private struct AdaptiveContentHeightKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
+    }
+}
+
+private struct StationaryContentHeightKey: PreferenceKey {
     static var defaultValue: CGFloat = 0
 
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {

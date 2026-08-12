@@ -50,7 +50,9 @@ struct DailyCardView: View {
                     .font(.custom("Didot", size: effectiveHeadlineSize, relativeTo: .largeTitle))
                     .foregroundStyle(ZodiacPalette.text)
                     .multilineTextAlignment(.center)
-                    .fixedSize(horizontal: false, vertical: true)
+                    .lineLimit(fixedHeight == nil ? nil : 3)
+                    .minimumScaleFactor(0.68)
+                    .fixedSize(horizontal: false, vertical: fixedHeight == nil)
 
                 Text("∿")
                     .font(.system(size: 15, weight: .light, design: .serif))
@@ -62,7 +64,9 @@ struct DailyCardView: View {
                     .foregroundStyle(ZodiacPalette.text.opacity(0.94))
                     .multilineTextAlignment(.center)
                     .lineSpacing(usesCompactCopy ? 0 : 1)
-                    .fixedSize(horizontal: false, vertical: true)
+                    .lineLimit(fixedHeight == nil ? nil : (usesCompactCopy ? 17 : 10))
+                    .minimumScaleFactor(usesCompactCopy ? 0.70 : 0.82)
+                    .fixedSize(horizontal: false, vertical: fixedHeight == nil)
             }
             .padding(.horizontal, 28)
             .padding(.top, usesCompactCopy ? 5 : 8)
@@ -180,21 +184,29 @@ struct DailyCardView: View {
 /// revealing a structured reverse. Saved detail continues to use DailyCardView
 /// directly and is therefore unaffected by the interaction.
 struct FlippableDailyCard: View {
-    private enum Metrics {
-        static let width: CGFloat = 328
-        static let height: CGFloat = 478
-        static let cornerRadius: CGFloat = 25
-    }
-
     let horoscope: DailyHoroscope
+    let width: CGFloat
+    let height: CGFloat
+    let artworkHeight: CGFloat
+
+    private let cornerRadius: CGFloat = 25
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.locale) private var locale
     @State private var isShowingBack: Bool
     @State private var isAnimating = false
 
-    init(horoscope: DailyHoroscope, initiallyShowingBack: Bool = false) {
+    init(
+        horoscope: DailyHoroscope,
+        initiallyShowingBack: Bool = false,
+        width: CGFloat = 328,
+        height: CGFloat = 478,
+        artworkHeight: CGFloat = 296
+    ) {
         self.horoscope = horoscope
+        self.width = width
+        self.height = height
+        self.artworkHeight = artworkHeight
         _isShowingBack = State(initialValue: initiallyShowingBack)
     }
 
@@ -203,12 +215,14 @@ struct FlippableDailyCard: View {
             ZStack {
                 DailyCardView(
                     horoscope: horoscope,
+                    maxWidth: width,
+                    artworkHeight: artworkHeight,
                     contentSpacing: -35,
                     readingBottomPadding: 65,
-                    fixedHeight: Metrics.height,
+                    fixedHeight: height,
                     showsTurnCue: true
                 )
-                    .frame(width: Metrics.width, height: Metrics.height)
+                    .frame(width: width, height: height)
                     .opacity(isShowingBack ? 0 : 1)
                     .rotation3DEffect(
                         .degrees(isShowingBack ? -180 : 0),
@@ -219,7 +233,7 @@ struct FlippableDailyCard: View {
                     .accessibilityHidden(isShowingBack)
 
                 DailyCardBackView(horoscope: horoscope)
-                    .frame(width: Metrics.width, height: Metrics.height)
+                    .frame(width: width, height: height)
                     .opacity(isShowingBack ? 1 : 0)
                     .rotation3DEffect(
                         .degrees(isShowingBack ? 0 : 180),
@@ -229,8 +243,8 @@ struct FlippableDailyCard: View {
                     .allowsHitTesting(isShowingBack)
                     .accessibilityHidden(!isShowingBack)
             }
-            .frame(width: Metrics.width, height: Metrics.height)
-            .contentShape(RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
+            .frame(width: width, height: height)
+            .contentShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
         }
         .buttonStyle(.plain)
         .disabled(isAnimating)
@@ -266,7 +280,6 @@ struct FlippableDailyCard: View {
               let moonSign = details.moonSign,
               let moonPhase = details.moonPhase else {
             return "\(String(localized: "Back", locale: locale)). "
-                + "\(String(localized: "Offline edition. Provider daily details are unavailable.", locale: locale)) "
                 + "\(horoscope.sign.localizedDisplayName(locale: locale)) "
                 + "\(String(localized: "essence", locale: locale)): \(details.signEssence)"
         }
@@ -487,14 +500,15 @@ private struct DailyCardBackView: View {
     private var offlineContent: some View {
         Group {
             detailText(
-                String(localized: "TODAY'S FOCUS", locale: locale),
-                value: String(localized: "OFFLINE EDITION", locale: locale),
+                "\(horoscope.sign.localizedDisplayName(locale: locale).uppercased(with: locale)) "
+                    + String(localized: "ESSENCE", locale: locale),
+                value: details.signEssence,
                 size: 16
             )
             sectionDivider
             Text(
                 String(
-                    localized: "Provider daily scores and lucky details are unavailable.",
+                    localized: "Your complete daily reading is on the front of this card.",
                     locale: locale
                 )
             )
@@ -502,8 +516,6 @@ private struct DailyCardBackView: View {
                 .foregroundStyle(ZodiacPalette.text.opacity(0.96))
                 .multilineTextAlignment(.center)
                 .padding(.vertical, 28)
-            sectionDivider
-            essenceSection
         }
     }
 

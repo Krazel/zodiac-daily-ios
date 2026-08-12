@@ -83,7 +83,9 @@ jobs:
           )"
           STATE_MARKER="${DATA_CONTAINER}/tmp/visual-qa-rendered-state.txt"
 
-          for STATE in sign-selection today today-back today-long saved-empty saved-populated saved-detail settings; do
+          capture_state() {
+            STATE="$1"
+            SCREENSHOT="$2"
             xcrun simctl terminate "$UDID" com.krazel.zodiacdaily >/dev/null 2>&1 || true
             rm -f "$STATE_MARKER"
             LAUNCH_OUTPUT="$(
@@ -101,17 +103,72 @@ jobs:
             ACTUAL_STATE="$(cat "$STATE_MARKER")"
             test "$ACTUAL_STATE" = "$STATE"
 
-            SCREENSHOT="visual-qa/${STATE}.png"
             xcrun simctl io "$UDID" screenshot "$SCREENSHOT"
             WIDTH="$(sips -g pixelWidth "$SCREENSHOT" | awk '/pixelWidth/ {print $2}')"
             HEIGHT="$(sips -g pixelHeight "$SCREENSHOT" | awk '/pixelHeight/ {print $2}')"
             test "$WIDTH" = "1179"
             test "$HEIGHT" = "2556"
+          }
+
+          xcrun simctl spawn "$UDID" defaults write com.krazel.zodiacdaily app-language en
+          for STATE in sign-selection today today-back today-long saved-empty saved-populated saved-detail settings; do
+            capture_state "$STATE" "visual-qa/${STATE}.png"
           done
 
-          printf 'device=iPhone 15 Pro\nruntime=%s\nsize=1179x2556\n' \
+          xcrun simctl spawn "$UDID" defaults write com.krazel.zodiacdaily app-language es
+          for STATE in today today-back today-long; do
+            capture_state "$STATE" "visual-qa/${STATE}-es.png"
+          done
+
+          printf 'device=iPhone 15 Pro\nruntime=%s\nsize=1179x2556\nlanguages=en,es\n' \
             '${{ steps.simulator.outputs.runtime }}' > visual-qa/capture-manifest.txt
           sips -g pixelWidth -g pixelHeight visual-qa/*.png
+
+      - name: Verify stationary layouts on short iPhone
+        run: |
+          set -euo pipefail
+          RUNTIME_ID='${{ steps.simulator.outputs.runtime }}'
+          DEVICE_TYPE_ID="$(xcrun simctl list devicetypes -j | jq -r '
+            [.devicetypes[] | select(.name == "iPhone SE (3rd generation)")]
+            | first | .identifier
+          ')"
+          test -n "$DEVICE_TYPE_ID"
+          test "$DEVICE_TYPE_ID" != "null"
+
+          SHORT_UDID="$(xcrun simctl create ZodiacShortQA "$DEVICE_TYPE_ID" "$RUNTIME_ID")"
+          cleanup_short() {
+            xcrun simctl shutdown "$SHORT_UDID" >/dev/null 2>&1 || true
+            xcrun simctl delete "$SHORT_UDID" >/dev/null 2>&1 || true
+          }
+          trap cleanup_short EXIT
+
+          xcrun simctl boot "$SHORT_UDID"
+          xcrun simctl bootstatus "$SHORT_UDID" -b
+          xcrun simctl ui "$SHORT_UDID" appearance dark
+          xcrun simctl status_bar "$SHORT_UDID" override \
+            --time 9:41 --batteryState charged --batteryLevel 100 \
+            --wifiBars 3 --cellularBars 4
+
+          APP_PATH="$(find build/visual-qa -path '*Debug-iphonesimulator/ZodiacDaily.app' -type d | head -n 1)"
+          xcrun simctl install "$SHORT_UDID" "$APP_PATH"
+          xcrun simctl spawn "$SHORT_UDID" defaults write com.krazel.zodiacdaily app-language es
+          DATA_CONTAINER="$(xcrun simctl get_app_container "$SHORT_UDID" com.krazel.zodiacdaily data)"
+          STATE_MARKER="${DATA_CONTAINER}/tmp/visual-qa-rendered-state.txt"
+
+          for STATE in today today-long saved-detail; do
+            xcrun simctl terminate "$SHORT_UDID" com.krazel.zodiacdaily >/dev/null 2>&1 || true
+            rm -f "$STATE_MARKER"
+            SIMCTL_CHILD_ZODIAC_VISUAL_QA_STATE="$STATE" \
+              xcrun simctl launch --terminate-running-process \
+                "$SHORT_UDID" com.krazel.zodiacdaily >/dev/null
+            sleep 6
+            test -f "$STATE_MARKER"
+            test "$(cat "$STATE_MARKER")" = "$STATE"
+            SCREENSHOT="visual-qa/${STATE}-es-iphone-se.png"
+            xcrun simctl io "$SHORT_UDID" screenshot "$SCREENSHOT"
+            test "$(sips -g pixelWidth "$SCREENSHOT" | awk '/pixelWidth/ {print $2}')" = "750"
+            test "$(sips -g pixelHeight "$SCREENSHOT" | awk '/pixelHeight/ {print $2}')" = "1334"
+          done
 
       - name: Upload visual QA screenshots
         uses: actions/upload-artifact@v4

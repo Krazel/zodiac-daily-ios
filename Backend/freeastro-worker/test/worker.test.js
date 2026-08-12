@@ -268,6 +268,47 @@ test("Workers AI translates every user-facing field into a valid Spanish edition
   assert.equal(isValidBundle(english, "2026-08-09", "es"), false);
 });
 
+test("Spanish translation retries transient AI failures without losing the edition", async () => {
+  const english = validBundle("2026-08-09");
+  let attempts = 0;
+  const waits = [];
+  const ai = {
+    async run(_model, input) {
+      attempts += 1;
+      if (attempts <= 2) throw new Error("transient_ai_failure");
+      return { translated_text: `ES ${input.text}` };
+    },
+  };
+
+  const spanish = await translateBundleToSpanish(english, ai, {
+    wait: async (milliseconds) => waits.push(milliseconds),
+  });
+
+  assert.ok(isValidBundle(spanish, "2026-08-09", "es"));
+  assert.equal(attempts, 98);
+  assert.deepEqual(waits, [250, 750]);
+});
+
+test("Spanish translation removes duplicate translated keywords", async () => {
+  const english = validBundle("2026-08-09");
+  const ai = {
+    async run(_model, input) {
+      const translated = input.text === "Empathy" || input.text === "Flow"
+        ? "Conexión"
+        : `ES ${input.text}`;
+      return { translated_text: translated };
+    },
+  };
+
+  const spanish = await translateBundleToSpanish(english, ai);
+
+  assert.deepEqual(spanish.horoscopes[0].details.keywords, [
+    "Conexión",
+    "ES Imagination",
+  ]);
+  assert.ok(isValidBundle(spanish, "2026-08-09", "es"));
+});
+
 test("queue consumer writes one English and one Spanish exact-date edition", async () => {
   const kv = new MemoryKV();
   let calls = 0;
@@ -368,6 +409,27 @@ test("public cache miss never contacts provider or serves another date", async (
   assert.equal(calls, 0);
   assert.equal(await kv.get("last-valid:v3:en"), JSON.stringify(prior));
   assert.doesNotMatch(JSON.stringify(body), /never-expose-this/);
+});
+
+test("a public miss schedules one bounded queue repair without calling the provider", async () => {
+  const kv = new MemoryKV();
+  const messages = [];
+  const env = {
+    DAILY_CACHE: kv,
+    WARMUP_QUEUE: { send: async (message) => messages.push(message) },
+  };
+  const request = new Request(
+    "https://example.test/v1/daily/2026-08-09?lang=es",
+  );
+  const options = { now: () => new Date("2026-08-09T12:00:00Z") };
+
+  const first = await handleRequest(request, env, options);
+  const second = await handleRequest(request, env, options);
+
+  assert.equal(first.status, 503);
+  assert.equal(second.status, 503);
+  assert.deepEqual(messages, [{ schema_version: 3, date: "2026-08-09" }]);
+  assert.equal(await kv.get("repair:v3:es:2026-08-09"), "1");
 });
 
 test("public language selection never substitutes the wrong-language cache", async () => {
@@ -475,14 +537,14 @@ test("translation failure keeps English cached and retries never refetch FreeAst
 
   await assert.rejects(warmDate("2026-08-09", env, options), /translation_refresh_failed/);
   assert.equal(providerCalls, 12);
-  assert.equal(aiCalls, 1);
+  assert.equal(aiCalls, 3);
   assert.equal((await getCachedDaily("2026-08-09", env, "en")).language, "en");
   await assert.rejects(getCachedDaily("2026-08-09", env, "es"), /daily_cache_miss/);
   assert.equal(await kv.get("failure:v3:es:2026-08-09"), "1");
 
   await assert.rejects(warmDate("2026-08-09", env, options), /translation_cooldown/);
   assert.equal(providerCalls, 12);
-  assert.equal(aiCalls, 1);
+  assert.equal(aiCalls, 3);
 });
 
 test("invalid, impossible, and distant dates cannot consume provider quota", async () => {

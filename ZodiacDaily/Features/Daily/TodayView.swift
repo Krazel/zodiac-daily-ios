@@ -17,10 +17,10 @@ struct TodayView: View {
             ZStack {
                 MidnightBackground(dimming: 0.35)
 
-                // The page stays completely stationary on the approved device.
-                // Compact screens and accessibility sizes retain a measured
-                // overflow fallback without creating a second card state tree.
-                AdaptiveVerticalScrollView(prefersStationaryLayout: true) {
+                // Today has no scroll container at regular text sizes. The
+                // approved composition scales as one piece on shorter devices
+                // so the card and Save action remain visible without dragging.
+                StationaryFittedVerticalView {
                     todayLayout
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)

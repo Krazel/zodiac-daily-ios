@@ -142,7 +142,7 @@ final class PinnedHoroscopeRepositoryTests: XCTestCase {
         XCTAssertNotEqual(resolvedEnglish.archiveKey, resolvedSpanish.archiveKey)
     }
 
-    func testLegacyPinnedEditionMigratesToEnglishKeyWithoutRefetching() async throws {
+    func testLegacyIncompletePinIsReplacedByCompleteProviderEdition() async throws {
         let day = try XCTUnwrap(LocalDayKey(rawValue: "2026-08-09"))
         let directory = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
@@ -166,9 +166,8 @@ final class PinnedHoroscopeRepositoryTests: XCTestCase {
             }
             """.utf8
         ).write(to: fileURL)
-        let upstream = MutableHoroscopeRepository(
-            makeHoroscope(day: day, headline: "Must not load", version: 2)
-        )
+        let complete = makeHoroscope(day: day, headline: "Complete provider edition", version: 2)
+        let upstream = MutableHoroscopeRepository(complete)
         let repository = PinnedHoroscopeRepository(
             upstream: upstream,
             store: FileBackedSavedCardStore(fileURL: fileURL)
@@ -180,10 +179,10 @@ final class PinnedHoroscopeRepositoryTests: XCTestCase {
             language: .english
         )
 
-        XCTAssertEqual(resolved.headline, "Legacy pinned")
+        XCTAssertEqual(resolved, complete)
         XCTAssertEqual(resolved.archiveKey, "en:scorpio:2026-08-09")
         let upstreamCallCount = await upstream.callCount
-        XCTAssertEqual(upstreamCallCount, 0)
+        XCTAssertEqual(upstreamCallCount, 1)
     }
 
     private func makeHoroscope(
@@ -196,6 +195,19 @@ final class PinnedHoroscopeRepositoryTests: XCTestCase {
             day: day,
             headline: headline,
             reading: "A complete and stable daily reading for repository tests.",
+            details: .provider(
+                focus: headline,
+                keywords: ["Clarity", "Focus"],
+                loveScore: 81,
+                careerScore: 84,
+                moneyScore: 76,
+                healthScore: 79,
+                luckyColor: "Indigo",
+                luckyNumber: 8,
+                moonSign: "Capricorn",
+                moonPhase: "Waxing Moon",
+                sign: .scorpio
+            ),
             contentVersion: version
         )
     }

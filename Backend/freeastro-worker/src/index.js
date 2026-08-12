@@ -27,6 +27,7 @@ const MAX_TRANSLATED_READING_CHARACTERS = 700;
 const DAILY_TTL_SECONDS = 400 * 24 * 60 * 60;
 const FAILURE_COOLDOWN_SECONDS = 5 * 60;
 const PROVIDER_INTERVAL_MS = 1_050;
+const TRANSLATION_RETRY_DELAYS_MS = Object.freeze([250, 750]);
 const inFlight = new Map();
 
 export default {
@@ -153,6 +154,12 @@ export async function handleRequest(request, env, options = {}) {
       "X-Zodiac-Content-State": "fresh",
     });
   } catch {
+    const repair = requestMissingEditionRepair(date, language, env);
+    if (options.context?.waitUntil) {
+      options.context.waitUntil(repair);
+    } else {
+      await repair;
+    }
     return jsonResponse(
       {
         error: {
@@ -163,6 +170,19 @@ export async function handleRequest(request, env, options = {}) {
       503,
       { "Cache-Control": "no-store", "Retry-After": "300" },
     );
+  }
+}
+
+async function requestMissingEditionRepair(date, language, env) {
+  if (!env?.DAILY_CACHE || !env?.WARMUP_QUEUE) return;
+  const key = repairCacheKey(date, language);
+
+  try {
+    if (await env.DAILY_CACHE.get(key)) return;
+    await env.DAILY_CACHE.put(key, "1", { expirationTtl: FAILURE_COOLDOWN_SECONDS });
+    await env.WARMUP_QUEUE.send({ schema_version: CACHE_SCHEMA_VERSION, date });
+  } catch {
+    // Repair scheduling must never change the public fallback response.
   }
 }
 
@@ -352,12 +372,23 @@ export async function translateBundleToSpanish(english, ai, options = {}) {
   const now = options.now?.() ?? new Date();
   const horoscopes = [];
   for (const horoscope of english.horoscopes) {
-    const headline = await translateText(horoscope.headline, ai);
-    const reading = await translateText(horoscope.reading, ai);
-    const keywords = [];
-    for (const keyword of horoscope.details.keywords) {
-      keywords.push(await translateText(keyword, ai));
+    const sourceFields = [
+      horoscope.headline,
+      horoscope.reading,
+      ...horoscope.details.keywords,
+      horoscope.details.lucky_color,
+      horoscope.details.moon_sign,
+      horoscope.details.moon_phase,
+    ];
+    const translatedFields = [];
+    for (const source of sourceFields) {
+      translatedFields.push(await translateText(source, ai, options));
     }
+
+    const [headline, reading, ...translatedDetails] = translatedFields;
+    const keywordCount = horoscope.details.keywords.length;
+    const keywords = deduplicateKeywords(translatedDetails.slice(0, keywordCount));
+    const [luckyColor, moonSign, moonPhase] = translatedDetails.slice(keywordCount);
 
     horoscopes.push({
       ...horoscope,
@@ -367,9 +398,9 @@ export async function translateBundleToSpanish(english, ai, options = {}) {
         ...horoscope.details,
         focus: headline,
         keywords,
-        lucky_color: await translateText(horoscope.details.lucky_color, ai),
-        moon_sign: await translateText(horoscope.details.moon_sign, ai),
-        moon_phase: await translateText(horoscope.details.moon_phase, ai),
+        lucky_color: luckyColor,
+        moon_sign: moonSign,
+        moon_phase: moonPhase,
       },
     });
   }
@@ -382,15 +413,39 @@ export async function translateBundleToSpanish(english, ai, options = {}) {
   };
 }
 
-async function translateText(text, ai) {
-  const response = await ai.run(TRANSLATION_MODEL, {
-    text,
-    source_lang: "en",
-    target_lang: "es",
+async function translateText(text, ai, options = {}) {
+  const wait = options.wait ?? sleep;
+  let lastError = new Error("translation_invalid_response");
+
+  for (let attempt = 0; attempt <= TRANSLATION_RETRY_DELAYS_MS.length; attempt += 1) {
+    try {
+      const response = await ai.run(TRANSLATION_MODEL, {
+        text,
+        source_lang: "en",
+        target_lang: "es",
+      });
+      const translated = normalizeCardCopy(response?.translated_text);
+      if (translated) return translated;
+      lastError = new Error("translation_invalid_response");
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error("translation_request_failed");
+    }
+
+    const delay = TRANSLATION_RETRY_DELAYS_MS[attempt];
+    if (delay !== undefined) await wait(delay);
+  }
+
+  throw lastError;
+}
+
+function deduplicateKeywords(keywords) {
+  const seen = new Set();
+  return keywords.filter((keyword) => {
+    const normalized = keyword.toLocaleLowerCase("es");
+    if (seen.has(normalized)) return false;
+    seen.add(normalized);
+    return true;
   });
-  const translated = normalizeCardCopy(response?.translated_text);
-  if (!translated) throw new Error("translation_invalid_response");
-  return translated;
 }
 
 export function normalizeProviderResponse(body, expectedSign, expectedDate) {
@@ -504,6 +559,10 @@ function lastValidCacheKey(language) {
 
 function failureCacheKey(date, language) {
   return `failure:v${CACHE_SCHEMA_VERSION}:${language}:${date}`;
+}
+
+function repairCacheKey(date, language) {
+  return `repair:v${CACHE_SCHEMA_VERSION}:${language}:${date}`;
 }
 
 function cleanString(value) {

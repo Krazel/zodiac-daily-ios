@@ -13,12 +13,12 @@ extension PinnedHoroscopeRepositoryError: LocalizedError {
     }
 }
 
-/// Pins the first successfully resolved edition for each sign and local day.
+/// Pins the first complete provider edition for each sign and local day.
 ///
-/// Remote availability can change during a day. Persisting the first result
-/// before returning it keeps the collectible card stable across refreshes and
-/// app relaunches, regardless of whether that first result was remote or the
-/// bundled fallback.
+/// Remote availability can change during a day. Persisting the first complete
+/// result keeps the collectible card stable across refreshes and relaunches.
+/// Bundled emergency editions remain temporary so a later online refresh can
+/// replace them with the provider's complete scores and lucky details.
 public actor PinnedHoroscopeRepository: HoroscopeRepository {
     private let upstream: any HoroscopeRepository
     private let store: any SavedCardStore
@@ -41,7 +41,16 @@ public actor PinnedHoroscopeRepository: HoroscopeRepository {
     ) async throws -> DailyHoroscope {
         let archiveKey = "\(language.rawValue):\(sign.rawValue):\(day.rawValue)"
         if let pinned = try await store.card(id: archiveKey) {
-            return pinned.horoscope
+            if pinned.horoscope.details.hasProviderData {
+                return pinned.horoscope
+            }
+
+            // Older builds pinned the bundled emergency edition for the whole
+            // day. That made provider scores and lucky details remain missing
+            // even after connectivity returned. This cache is derived data,
+            // unlike Saved, so discard only the incomplete pin and retry the
+            // live edition. User-saved snapshots remain untouched.
+            try? await store.remove(id: archiveKey)
         }
 
         let resolved = try await upstream.horoscope(
@@ -54,6 +63,10 @@ public actor PinnedHoroscopeRepository: HoroscopeRepository {
               resolved.day == day,
               resolved.language == language || isPermittedEnglishFallback else {
             throw PinnedHoroscopeRepositoryError.mismatchedEdition
+        }
+
+        guard resolved.details.hasProviderData else {
+            return resolved
         }
 
         do {

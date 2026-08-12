@@ -13,7 +13,7 @@ struct SavedView: View {
             ZStack {
                 MidnightBackground(dimming: 0.40)
 
-                AdaptiveVerticalScrollView {
+                StationaryFittedVerticalView {
                     VStack(spacing: 0) {
                         savedHeader
 
@@ -450,16 +450,11 @@ struct SavedCardDetailView: View {
                         CelestialDivider(width: 122)
                             .padding(.top, 10)
 
-                        DailyCardView(
+                        FlippableDailyCard(
                             horoscope: card.horoscope,
-                            maxWidth: 345,
-                            artworkHeight: 351,
-                            contentSpacing: -44,
-                            headlineSize: 30,
-                            readingBottomPadding: 46,
-                            readingStackSpacing: 4,
-                            symbolSize: 56,
-                            symbolTopPadding: 27
+                            width: 345,
+                            height: 505,
+                            artworkHeight: 351
                         )
                             .padding(.top, 18)
 
@@ -485,7 +480,7 @@ struct SavedCardDetailView: View {
                                 .stroke(Color(red: 1.0, green: 0.27, blue: 0.24), lineWidth: 1.2)
                         }
                         .frame(minHeight: 44)
-                        .padding(.top, 33)
+                        .padding(.top, 20)
                         .accessibilityHint(
                             String(localized: "Deletes this card from your collection", locale: locale)
                         )
@@ -499,7 +494,7 @@ struct SavedCardDetailView: View {
                                 .padding(.top, 14)
                         }
                     }
-                    .padding(.horizontal, 24)
+                    .padding(.horizontal, 15)
                     .padding(.top, 0)
                     .padding(.bottom, 42)
                     .frame(maxWidth: 650)

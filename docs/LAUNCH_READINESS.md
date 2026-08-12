@@ -9,6 +9,9 @@ authorize StoreKit products, external testing, App Review, or publication.
 
 - Current internal TestFlight 0.2/1: iPhone / iOS 16+, English/Spanish
   interface and language-specific daily editions selected in Settings.
+- Next correction candidate: `0.2.1` build `1`. It repairs Spanish edition
+  generation, refreshes incomplete derived daily pins, prevents front-card text
+  overflow, and removes regular-size scrolling from Today and saved detail.
 - The production schema-3 Worker caches English and Spanish separately. It
   translates each provider edition once; user traffic only reads the cache.
 - Registered production bundle identifier: `com.krazel.zodiacdaily`.
@@ -109,7 +112,7 @@ The IPA is intended as input to a local signing/install tool such as Sideloadly;
 it is not directly installable until that tool signs it for the test device.
 
 The deliverable workflow currently validates bundle ID
-`com.krazel.zodiacdaily`, marketing version `0.2`, build `1`, iOS 16 minimum,
+`com.krazel.zodiacdaily`, marketing version `0.2.1`, build `1`, iOS 16 minimum,
 executable, privacy manifest, compiled assets, and bundled horoscope content
 before packaging. Historical run `31347517648` (workflow run 5) completed
 successfully for the prior unsigned iOS 16 Local QA IPA. The public remote is

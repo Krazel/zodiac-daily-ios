@@ -166,26 +166,37 @@ final class AppModel: ObservableObject {
         }
     }
 
-    private static func visualQAPiscesCard(longCopy: Bool = false) -> DailyHoroscope {
-        let regularReading = "You do not need to force the next step. Listen for the rhythm beneath the noise, then move with it."
-        let longReading = "You can move gently without losing momentum. Notice which conversations leave you feeling clearer, then make room for one honest answer before the day becomes busy. A practical choice around work or money benefits from patience rather than pressure. In love, listen for what is meant beneath the words. Protect a quiet hour for rest, reflection, and the small ritual that returns you to yourself."
+    private static func visualQAPiscesCard(
+        longCopy: Bool = false,
+        language: HoroscopeLanguage = .english
+    ) -> DailyHoroscope {
+        let regularReading = language == .spanish
+            ? "No necesitas forzar el siguiente paso. Escucha el ritmo que existe bajo el ruido y avanza con él."
+            : "You do not need to force the next step. Listen for the rhythm beneath the noise, then move with it."
+        let longReading = language == .spanish
+            ? "Puedes avanzar con suavidad sin perder impulso. Observa qué conversaciones te dejan una sensación de mayor claridad y reserva espacio para una respuesta sincera antes de que el día se llene de ruido. Una decisión práctica sobre el trabajo o el dinero se beneficia hoy de la paciencia, no de la presión. En el amor, escucha también lo que se expresa entre líneas. Protege una hora tranquila para descansar, reflexionar y recuperar el pequeño ritual que te devuelve a ti."
+            : "You can move gently without losing momentum. Notice which conversations leave you feeling clearer, then make room for one honest answer before the day becomes busy. A practical choice around work or money benefits from patience rather than pressure. In love, listen for what is meant beneath the words. Protect a quiet hour for rest, reflection, and the small ritual that returns you to yourself."
         return DailyHoroscope(
             sign: .pisces,
             day: LocalDayKey(rawValue: "2026-08-09")!,
-            headline: "Let the Tide Turn",
+            language: language,
+            headline: language == .spanish ? "Deja que cambie la marea" : "Let the Tide Turn",
             reading: longCopy ? longReading : regularReading,
             details: .provider(
-                focus: "Intuition",
-                keywords: ["Empathy", "Flow", "Imagination"],
+                focus: language == .spanish ? "Intuición" : "Intuition",
+                keywords: language == .spanish
+                    ? ["Empatía", "Fluidez", "Imaginación"]
+                    : ["Empathy", "Flow", "Imagination"],
                 loveScore: 83,
                 careerScore: 89,
                 moneyScore: 85,
                 healthScore: 78,
-                luckyColor: "Silver",
+                luckyColor: language == .spanish ? "Plateado" : "Silver",
                 luckyNumber: 61,
-                moonSign: "Capricorn",
-                moonPhase: "Last Quarter",
-                sign: .pisces
+                moonSign: language == .spanish ? "Capricornio" : "Capricorn",
+                moonPhase: language == .spanish ? "Cuarto menguante" : "Last Quarter",
+                sign: .pisces,
+                language: language
             ),
             contentVersion: 1
         )
@@ -230,7 +241,10 @@ final class AppModel: ObservableObject {
             || Self.visualQAState == .todayLong
             || Self.visualQAState == .settings {
             dailyState = .loaded(
-                Self.visualQAPiscesCard(longCopy: Self.visualQAState == .todayLong)
+                Self.visualQAPiscesCard(
+                    longCopy: Self.visualQAState == .todayLong,
+                    language: contentLanguage
+                )
             )
             return
         }

@@ -7,9 +7,11 @@ and falls back automatically to `BundledHoroscopeRepository` on connectivity,
 HTTP, date, or payload errors. Saved cards remain immutable local snapshots;
 the remote repository does not change the save/archive model.
 
-The first successfully resolved card for each language, sign, and local date is pinned in
-the separate `daily-editions.json` archive. This makes remote, fallback, and
-relaunch behavior converge on one collectible card for the whole day. A user's
+The first complete provider card for each language, sign, and local date is
+pinned in the separate `daily-editions.json` archive. Bundled emergency cards
+are no longer pinned: the app retries the live edition when connectivity
+returns, which prevents old local cards from hiding provider scores and lucky
+details for the rest of the day. A user's
 saved-card archive remains separate and, when present for the same sign/day,
 its immutable snapshot is the one displayed.
 Because daily editions are derivable, an unreadable pin archive is rebuilt on
@@ -88,14 +90,19 @@ consumer performs the twelve paced provider requests, validation, and KV write.
 That separation avoids doing the heavier work inside the Workers Free cron
 limit. The consumer uses one-message batches and concurrency one, so duplicate
 messages serialize and recheck KV before they can spend provider quota.
+Workers AI translations retry bounded transient failures and remove duplicate
+translated keywords before validation. If a public request finds a missing
+language/date cache, it schedules one cooldown-protected Queue repair and still
+returns the normal fallback response; the public request itself never calls
+FreeAstroAPI or Workers AI.
 
 The production endpoint is active in the app. The app-side implementation
 neither contacts FreeAstroAPI directly nor contains its key.
 It requests only the local date, `en`/`es`, and the full twelve-sign edition,
 never the selected sign, birth data, account data, or saved cards.
 
-The bilingual schema-3 code is currently a local candidate. The Workers AI
-binding passed a remote-preview-only smoke test on 2026-08-11 with valid
-Spanish and accented characters; the preview was stopped afterward. The
-deployed endpoint remains on the prior English schema until rights review,
-macOS tests, and explicit deployment authorization are complete.
+The bilingual schema-3 Worker is deployed in production. The Workers AI
+binding passed a remote preview smoke test on 2026-08-11 with valid Spanish and
+accented characters. The 0.2.1 correction adds bounded translation retries and
+automatic cache repair; it remains local until its deployment is explicitly
+authorized and verified against a real Spanish edition.
