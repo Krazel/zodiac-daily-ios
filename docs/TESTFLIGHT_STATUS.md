@@ -51,3 +51,19 @@ No secret value is stored in this repository.
 
 The owner-directed correction candidate is `0.2.2` build `1`. It must pass its
 own visual, Core, archive, and exact-binary checks before any new upload.
+
+## Validated 0.2.2 candidate — not uploaded
+
+- App-code commit: `6623459`.
+- Canonical visual-evidence commit: `0611028` (no target source changes).
+- Signed validation workflow: `32175886395`, success.
+- Signed artifact: `ZodiacDaily-v0.2.2-build-1-TestFlight-run-10`.
+- The workflow passed Core tests, Release analysis, signed archive inspection,
+  and IPA export. `upload_to_testflight=false`; no Apple upload occurred.
+- Visual workflow: `32175884780`, success on iPhone 15 Pro and iPhone SE.
+- English/Spanish front, complete provider-data back, long Spanish copy, and
+  stationary compact-height states passed. Current full-screen masters and
+  evidence are recorded in `Design/APPROVALS.md`.
+
+A fresh explicit authorization is still required to run the upload-enabled
+workflow for 0.2.2 build 1.

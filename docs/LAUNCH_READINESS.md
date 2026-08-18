@@ -134,6 +134,12 @@ group. Full non-secret evidence is in `docs/TESTFLIGHT_STATUS.md`.
 No external group, public TestFlight link, Beta App Review, App Review, or App
 Store release was created.
 
+Version `0.2.2` build `1` has also passed the no-upload signed candidate run
+`32175886395` and visual run `32175884780`. The latter captures the current
+English/Spanish Today front, complete provider-data reverse, long Spanish copy,
+and iPhone SE stationary layout. The upload steps were explicitly skipped;
+this candidate is not yet available in TestFlight.
+
 ## Remaining release checklist
 
 - [x] Approve Saved card detail visual.
