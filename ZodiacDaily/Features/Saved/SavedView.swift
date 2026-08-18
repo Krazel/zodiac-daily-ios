@@ -507,30 +507,34 @@ struct SavedCardDetailView: View {
     }
 
     private var detailHeader: some View {
-        ZStack {
-            Text(appLocalized("Saved Card", locale: locale))
-                .font(.custom("Didot", size: 21, relativeTo: .title3))
-                .foregroundStyle(ZodiacPalette.text)
+        GeometryReader { geometry in
+            ZStack {
+                Text(appLocalized("Saved Card", locale: locale))
+                    .font(.custom("Didot", size: 21, relativeTo: .title3))
+                    .foregroundStyle(ZodiacPalette.text)
 
-            HStack {
-                Button {
-                    dismiss()
-                } label: {
-                    HStack(spacing: 4) {
-                        Image(systemName: "chevron.left")
-                            .font(.system(size: 19, weight: .medium))
-                        Text(appLocalized("Saved", locale: locale))
-                            .font(.system(size: 17))
+                HStack {
+                    Button {
+                        dismiss()
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "chevron.left")
+                                .font(.system(size: 19, weight: .medium))
+                            if geometry.size.width >= 390 {
+                                Text(appLocalized("Saved", locale: locale))
+                                    .font(.system(size: 17))
+                            }
+                        }
+                        .foregroundStyle(ZodiacPalette.gold)
+                        .frame(minWidth: 44, minHeight: 44, alignment: .leading)
+                        .contentShape(Rectangle())
                     }
-                    .foregroundStyle(ZodiacPalette.gold)
-                    .frame(minHeight: 44)
-                    .contentShape(Rectangle())
-                }
-                .accessibilityLabel(appLocalized("Back to Saved", locale: locale))
+                    .accessibilityLabel(appLocalized("Back to Saved", locale: locale))
 
-                Spacer()
+                    Spacer()
+                }
+                .padding(.horizontal, 24)
             }
-            .padding(.horizontal, 24)
         }
         .frame(height: 48)
     }

@@ -84,7 +84,10 @@ final class AppModel: ObservableObject {
             .appendingPathComponent("ZodiacDaily", isDirectory: true)
         #if DEBUG
         if let visualQAState {
-            let cards = Self.visualQACards(for: visualQAState)
+            let cards = Self.visualQACards(
+                for: visualQAState,
+                language: contentLanguage
+            )
             savedStore = InMemorySavedCardStore(cards: cards)
             savedCards = cards
         } else {
@@ -126,10 +129,13 @@ final class AppModel: ObservableObject {
     }
 
     #if DEBUG
-    private static func visualQACards(for state: VisualQAState) -> [SavedCard] {
+    private static func visualQACards(
+        for state: VisualQAState,
+        language: HoroscopeLanguage
+    ) -> [SavedCard] {
         guard state == .savedPopulated || state == .savedDetail else { return [] }
 
-        let fixtures: [(ZodiacSign, String, String, String)] = [
+        let englishFixtures: [(ZodiacSign, String, String, String)] = [
             (
                 .pisces,
                 "2026-08-09",
@@ -149,6 +155,27 @@ final class AppModel: ObservableObject {
                 "A broader path is opening. Follow the direction that gives your spirit room to expand."
             )
         ]
+        let spanishFixtures: [(ZodiacSign, String, String, String)] = [
+            (
+                .pisces,
+                "2026-08-09",
+                "Deja que cambie la marea",
+                "No necesitas forzar el siguiente paso. Escucha el ritmo bajo el ruido y avanza con él."
+            ),
+            (
+                .scorpio,
+                "2026-08-08",
+                "Confía en la respuesta serena",
+                "La respuesta llega cuando todo se aquieta. Deja espacio para escuchar tu intuición."
+            ),
+            (
+                .sagittarius,
+                "2026-08-06",
+                "Elige el camino más amplio",
+                "Se abre una ruta mayor. Sigue la dirección que permite que tu espíritu se expanda."
+            )
+        ]
+        let fixtures = language == .spanish ? spanishFixtures : englishFixtures
 
         return fixtures.compactMap { fixture in
             let (sign, rawDay, headline, reading) = fixture
@@ -157,6 +184,7 @@ final class AppModel: ObservableObject {
                 horoscope: DailyHoroscope(
                     sign: sign,
                     day: day,
+                    language: language,
                     headline: headline,
                     reading: reading,
                     contentVersion: 1
