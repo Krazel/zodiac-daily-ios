@@ -154,12 +154,10 @@ export async function handleRequest(request, env, options = {}) {
       "X-Zodiac-Content-State": "fresh",
     });
   } catch {
-    const repair = requestMissingEditionRepair(date, language, env);
-    if (options.context?.waitUntil) {
-      options.context.waitUntil(repair);
-    } else {
-      await repair;
-    }
+    // Confirm the lightweight Queue handoff before returning the fallback.
+    // This never calls the provider or AI from a public request, but prevents
+    // the repair message from being lost when a request context ends early.
+    await requestMissingEditionRepair(date, language, env);
     return jsonResponse(
       {
         error: {
@@ -181,7 +179,12 @@ async function requestMissingEditionRepair(date, language, env) {
     if (await env.DAILY_CACHE.get(key)) return;
     await env.DAILY_CACHE.put(key, "1", { expirationTtl: FAILURE_COOLDOWN_SECONDS });
     await env.WARMUP_QUEUE.send({ schema_version: CACHE_SCHEMA_VERSION, date });
-  } catch {
+  } catch (error) {
+    console.error("missing edition repair failed", {
+      date,
+      language,
+      code: error instanceof Error ? error.message : "unknown",
+    });
     // Repair scheduling must never change the public fallback response.
   }
 }
