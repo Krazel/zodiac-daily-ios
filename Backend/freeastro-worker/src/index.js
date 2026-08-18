@@ -27,7 +27,11 @@ const MAX_TRANSLATED_READING_CHARACTERS = 700;
 const DAILY_TTL_SECONDS = 400 * 24 * 60 * 60;
 const FAILURE_COOLDOWN_SECONDS = 5 * 60;
 const PROVIDER_INTERVAL_MS = 1_050;
-const TRANSLATION_RETRY_DELAYS_MS = Object.freeze([250, 750]);
+// One in-call retry keeps even the largest supported sign below the Worker
+// subrequest ceiling. Cloudflare Queue retries provide the outer retry layer.
+const TRANSLATION_RETRY_DELAYS_MS = Object.freeze([500]);
+const QUEUE_TASK_WARM_DATE = "warm_date";
+const QUEUE_TASK_TRANSLATE_SIGN = "translate_sign";
 const inFlight = new Map();
 
 export default {
@@ -51,7 +55,11 @@ export default {
 export async function handleScheduled(controller, env) {
   if (!env?.WARMUP_QUEUE) throw new Error("warmup_queue_not_configured");
   const date = scheduledTargetDate(controller.scheduledTime, controller.cron);
-  await env.WARMUP_QUEUE.send({ schema_version: CACHE_SCHEMA_VERSION, date });
+  await env.WARMUP_QUEUE.send({
+    schema_version: CACHE_SCHEMA_VERSION,
+    task: QUEUE_TASK_WARM_DATE,
+    date,
+  });
 }
 
 export async function handleQueue(batch, env, options = {}) {
@@ -62,7 +70,20 @@ export async function handleQueue(batch, env, options = {}) {
       continue;
     }
 
-    await warmDate(body.date, env, options);
+    if (body.task === QUEUE_TASK_TRANSLATE_SIGN) {
+      if (!SIGNS.includes(body.sign)) {
+        message?.ack?.();
+        continue;
+      }
+      await translateSignForDate(body.date, body.sign, env, options);
+    } else if (body.task === undefined || body.task === QUEUE_TASK_WARM_DATE) {
+      // Messages created by schema-v3 deployments before task names existed
+      // remain valid warm-date messages.
+      await warmDate(body.date, env, options);
+    } else {
+      message?.ack?.();
+      continue;
+    }
     message?.ack?.();
   }
 }
@@ -178,7 +199,11 @@ async function requestMissingEditionRepair(date, language, env) {
   try {
     if (await env.DAILY_CACHE.get(key)) return;
     await env.DAILY_CACHE.put(key, "1", { expirationTtl: FAILURE_COOLDOWN_SECONDS });
-    await env.WARMUP_QUEUE.send({ schema_version: CACHE_SCHEMA_VERSION, date });
+    await env.WARMUP_QUEUE.send({
+      schema_version: CACHE_SCHEMA_VERSION,
+      task: QUEUE_TASK_WARM_DATE,
+      date,
+    });
   } catch (error) {
     console.error("missing edition repair failed", {
       date,
@@ -198,7 +223,7 @@ export async function getCachedDaily(date, env, language = "en") {
 }
 
 export async function warmDate(date, env, options = {}) {
-  if (!env?.DAILY_CACHE || !secretValue(env?.FREEASTRO_API_KEY) || !env?.AI) {
+  if (!env?.DAILY_CACHE || !secretValue(env?.FREEASTRO_API_KEY) || !env?.WARMUP_QUEUE) {
     throw new Error("service_not_configured");
   }
 
@@ -233,18 +258,21 @@ async function refreshDate(date, env, options) {
   }
 
   let spanish;
-  let spanishCache = "hit";
   try {
     spanish = await getCachedDaily(date, env, "es");
   } catch {
-    spanishCache = "miss";
-    spanish = await refreshSpanishDate(english, env, options);
+    await enqueueSpanishTranslations(english, env);
+    return {
+      payload: english,
+      translations: { es: null },
+      cache: "miss",
+    };
   }
 
   return {
     payload: english,
     translations: { es: spanish },
-    cache: englishCache === "hit" && spanishCache === "hit" ? "hit" : "miss",
+    cache: englishCache === "hit" ? "hit" : "miss",
   };
 }
 
@@ -272,25 +300,81 @@ async function refreshEnglishDate(date, env, options) {
   }
 }
 
-async function refreshSpanishDate(english, env, options) {
-  const date = english.content_date;
-  if (await env.DAILY_CACHE.get(failureCacheKey(date, "es"))) {
-    throw new Error("translation_cooldown");
+async function enqueueSpanishTranslations(english, env) {
+  if (!env?.WARMUP_QUEUE) throw new Error("warmup_queue_not_configured");
+  for (const sign of SIGNS) {
+    await env.WARMUP_QUEUE.send({
+      schema_version: CACHE_SCHEMA_VERSION,
+      task: QUEUE_TASK_TRANSLATE_SIGN,
+      date: english.content_date,
+      sign,
+    });
   }
+}
+
+export async function translateSignForDate(date, sign, env, options = {}) {
+  if (!env?.DAILY_CACHE || !env?.AI) throw new Error("service_not_configured");
+  if (!SIGNS.includes(sign)) throw new Error("unsupported_sign");
 
   try {
-    const payload = await translateBundleToSpanish(english, env.AI, options);
-    if (!isValidBundle(payload, date, "es")) throw new Error("invalid_translated_bundle");
-    await writePayload(env.DAILY_CACHE, payload);
-    return payload;
+    return await getCachedDaily(date, env, "es");
+  } catch {
+    // Continue until all twelve sign fragments can be assembled atomically.
+  }
+
+  const failureKey = failureCacheKey(date, "es", sign);
+  if (await env.DAILY_CACHE.get(failureKey)) throw new Error("translation_cooldown");
+
+  try {
+    const english = await getCachedDaily(date, env, "en");
+    const source = english.horoscopes.find((horoscope) => horoscope.sign === sign);
+    if (!source) throw new Error("missing_english_sign");
+
+    const partialKey = translationPartCacheKey(date, sign);
+    let translated = await readPayload(env.DAILY_CACHE, partialKey);
+    if (!isValidHoroscope(translated, date, "es")) {
+      translated = await translateHoroscopeToSpanish(source, env.AI, options);
+      if (!isValidHoroscope(translated, date, "es")) {
+        throw new Error("invalid_translated_sign");
+      }
+      await env.DAILY_CACHE.put(partialKey, JSON.stringify(translated), {
+        expirationTtl: DAILY_TTL_SECONDS,
+      });
+    }
+
+    return await assembleSpanishEdition(english, env.DAILY_CACHE, options);
   } catch (error) {
-    await recordFailure(env.DAILY_CACHE, date, "es");
-    console.error("translation refresh failed", {
+    await recordFailure(env.DAILY_CACHE, date, "es", sign);
+    console.error("translation sign failed", {
       date,
+      sign,
       code: error instanceof Error ? error.message : "unknown",
     });
-    throw new Error("translation_refresh_failed");
+    throw new Error("translation_sign_failed");
   }
+}
+
+async function assembleSpanishEdition(english, kv, options = {}) {
+  const horoscopes = await Promise.all(
+    SIGNS.map((sign) => readPayload(kv, translationPartCacheKey(english.content_date, sign))),
+  );
+  if (!horoscopes.every((horoscope) =>
+    isValidHoroscope(horoscope, english.content_date, "es")
+  )) {
+    return null;
+  }
+
+  const payload = {
+    ...english,
+    language: "es",
+    generated_at: (options.now?.() ?? new Date()).toISOString(),
+    horoscopes,
+  };
+  if (!isValidBundle(payload, english.content_date, "es")) {
+    throw new Error("invalid_translated_bundle");
+  }
+  await writePayload(kv, payload);
+  return payload;
 }
 
 async function writePayload(kv, payload) {
@@ -302,9 +386,9 @@ async function writePayload(kv, payload) {
   ]);
 }
 
-async function recordFailure(kv, date, language) {
+async function recordFailure(kv, date, language, sign = null) {
   try {
-    await kv.put(failureCacheKey(date, language), "1", {
+    await kv.put(failureCacheKey(date, language, sign), "1", {
       expirationTtl: FAILURE_COOLDOWN_SECONDS,
     });
   } catch {
@@ -375,37 +459,7 @@ export async function translateBundleToSpanish(english, ai, options = {}) {
   const now = options.now?.() ?? new Date();
   const horoscopes = [];
   for (const horoscope of english.horoscopes) {
-    const sourceFields = [
-      horoscope.headline,
-      horoscope.reading,
-      ...horoscope.details.keywords,
-      horoscope.details.lucky_color,
-      horoscope.details.moon_sign,
-      horoscope.details.moon_phase,
-    ];
-    const translatedFields = [];
-    for (const source of sourceFields) {
-      translatedFields.push(await translateText(source, ai, options));
-    }
-
-    const [headline, reading, ...translatedDetails] = translatedFields;
-    const keywordCount = horoscope.details.keywords.length;
-    const keywords = deduplicateKeywords(translatedDetails.slice(0, keywordCount));
-    const [luckyColor, moonSign, moonPhase] = translatedDetails.slice(keywordCount);
-
-    horoscopes.push({
-      ...horoscope,
-      headline,
-      reading,
-      details: {
-        ...horoscope.details,
-        focus: headline,
-        keywords,
-        lucky_color: luckyColor,
-        moon_sign: moonSign,
-        moon_phase: moonPhase,
-      },
-    });
+    horoscopes.push(await translateHoroscopeToSpanish(horoscope, ai, options));
   }
 
   return {
@@ -413,6 +467,40 @@ export async function translateBundleToSpanish(english, ai, options = {}) {
     language: "es",
     generated_at: now.toISOString(),
     horoscopes,
+  };
+}
+
+async function translateHoroscopeToSpanish(horoscope, ai, options = {}) {
+  const sourceFields = [
+    horoscope.headline,
+    horoscope.reading,
+    ...horoscope.details.keywords,
+    horoscope.details.lucky_color,
+    horoscope.details.moon_sign,
+    horoscope.details.moon_phase,
+  ];
+  const translatedFields = [];
+  for (const source of sourceFields) {
+    translatedFields.push(await translateText(source, ai, options));
+  }
+
+  const [headline, reading, ...translatedDetails] = translatedFields;
+  const keywordCount = horoscope.details.keywords.length;
+  const keywords = deduplicateKeywords(translatedDetails.slice(0, keywordCount));
+  const [luckyColor, moonSign, moonPhase] = translatedDetails.slice(keywordCount);
+
+  return {
+    ...horoscope,
+    headline,
+    reading,
+    details: {
+      ...horoscope.details,
+      focus: headline,
+      keywords,
+      lucky_color: luckyColor,
+      moon_sign: moonSign,
+      moon_phase: moonPhase,
+    },
   };
 }
 
@@ -519,27 +607,29 @@ export function isValidBundle(value, expectedContentDate, expectedLanguage = "en
   const signs = new Set();
   for (const horoscope of value.horoscopes) {
     if (!SIGNS.includes(horoscope?.sign) || signs.has(horoscope.sign)) return false;
-    const headline = normalizeCardCopy(horoscope.headline);
-    const reading = normalizeCardCopy(horoscope.reading);
-    if (!headline || !reading) return false;
-    if (headline !== horoscope.headline || reading !== horoscope.reading) return false;
-    const headlineLimit = expectedLanguage === "es"
-      ? MAX_TRANSLATED_HEADLINE_CHARACTERS
-      : MAX_HEADLINE_CHARACTERS;
-    const readingLimit = expectedLanguage === "es"
-      ? MAX_TRANSLATED_READING_CHARACTERS
-      : MAX_READING_CHARACTERS;
-    if (headline.length > headlineLimit) return false;
-    if (
-      reading.length < MIN_READING_CHARACTERS ||
-      reading.length > readingLimit
-    ) return false;
-    if (!isValidProviderDetails(horoscope.details)) return false;
-    if (horoscope.content_version !== Number(expectedContentDate.replaceAll("-", ""))) return false;
+    if (!isValidHoroscope(horoscope, expectedContentDate, expectedLanguage)) return false;
     signs.add(horoscope.sign);
   }
 
   return signs.size === SIGNS.length;
+}
+
+function isValidHoroscope(horoscope, expectedContentDate, expectedLanguage) {
+  if (!SIGNS.includes(horoscope?.sign)) return false;
+  const headline = normalizeCardCopy(horoscope.headline);
+  const reading = normalizeCardCopy(horoscope.reading);
+  if (!headline || !reading) return false;
+  if (headline !== horoscope.headline || reading !== horoscope.reading) return false;
+  const headlineLimit = expectedLanguage === "es"
+    ? MAX_TRANSLATED_HEADLINE_CHARACTERS
+    : MAX_HEADLINE_CHARACTERS;
+  const readingLimit = expectedLanguage === "es"
+    ? MAX_TRANSLATED_READING_CHARACTERS
+    : MAX_READING_CHARACTERS;
+  if (headline.length > headlineLimit) return false;
+  if (reading.length < MIN_READING_CHARACTERS || reading.length > readingLimit) return false;
+  if (!isValidProviderDetails(horoscope.details)) return false;
+  return horoscope.content_version === Number(expectedContentDate.replaceAll("-", ""));
 }
 
 async function readPayload(kv, key) {
@@ -560,12 +650,17 @@ function lastValidCacheKey(language) {
   return `last-valid:v${CACHE_SCHEMA_VERSION}:${language}`;
 }
 
-function failureCacheKey(date, language) {
-  return `failure:v${CACHE_SCHEMA_VERSION}:${language}:${date}`;
+function failureCacheKey(date, language, sign = null) {
+  const suffix = sign ? `:${sign}` : "";
+  return `failure:v${CACHE_SCHEMA_VERSION}:${language}:${date}${suffix}`;
 }
 
 function repairCacheKey(date, language) {
   return `repair:v${CACHE_SCHEMA_VERSION}:${language}:${date}`;
+}
+
+function translationPartCacheKey(date, sign) {
+  return `translation-part:v${CACHE_SCHEMA_VERSION}:es:${date}:${sign}`;
 }
 
 function cleanString(value) {

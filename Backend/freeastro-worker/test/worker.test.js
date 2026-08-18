@@ -97,6 +97,18 @@ function fakeAI(calls = []) {
   };
 }
 
+async function drainQueuedMessages(messages, env, options = {}) {
+  let acknowledgements = 0;
+  while (messages.length > 0) {
+    const body = messages.shift();
+    await handleQueue({ messages: [{
+      body,
+      ack: () => { acknowledgements += 1; },
+    }] }, env, options);
+  }
+  return acknowledgements;
+}
+
 test("provider responses normalize to the exact app item contract", () => {
   const item = normalizeProviderResponse(providerBody("aries", "2026-08-09"), "aries", "2026-08-09");
   assert.deepEqual(Object.keys(item), ["sign", "headline", "reading", "details", "content_version"]);
@@ -190,7 +202,11 @@ test("cron only enqueues warm-up work and never calls the provider", async () =>
     { WARMUP_QUEUE: { send: async (message) => messages.push(message) } },
   );
 
-  assert.deepEqual(messages, [{ schema_version: 3, date: "2026-08-10" }]);
+  assert.deepEqual(messages, [{
+    schema_version: 3,
+    task: "warm_date",
+    date: "2026-08-10",
+  }]);
 });
 
 test("a provider sign mismatch is rejected", () => {
@@ -275,7 +291,7 @@ test("Spanish translation retries transient AI failures without losing the editi
   const ai = {
     async run(_model, input) {
       attempts += 1;
-      if (attempts <= 2) throw new Error("transient_ai_failure");
+      if (attempts === 1) throw new Error("transient_ai_failure");
       return { translated_text: `ES ${input.text}` };
     },
   };
@@ -285,8 +301,8 @@ test("Spanish translation retries transient AI failures without losing the editi
   });
 
   assert.ok(isValidBundle(spanish, "2026-08-09", "es"));
-  assert.equal(attempts, 98);
-  assert.deepEqual(waits, [250, 750]);
+  assert.equal(attempts, 97);
+  assert.deepEqual(waits, [500]);
 });
 
 test("Spanish translation removes duplicate translated keywords", async () => {
@@ -315,10 +331,12 @@ test("queue consumer writes one English and one Spanish exact-date edition", asy
   let acknowledged = false;
   const observedKeys = [];
   const aiCalls = [];
+  const messages = [];
   const env = {
     FREEASTRO_API_KEY: " secret-value\r\n",
     DAILY_CACHE: kv,
     AI: fakeAI(aiCalls),
+    WARMUP_QUEUE: { send: async (message) => messages.push(message) },
   };
 
   await handleQueue({ messages: [{
@@ -334,6 +352,18 @@ test("queue consumer writes one English and one Spanish exact-date edition", asy
       return Response.json(providerBody(sign, "2026-08-09"));
     },
   });
+  assert.equal(messages.length, 12);
+  assert.ok(messages.every(({ task }) => task === "translate_sign"));
+  let translationAcknowledgements = 0;
+  while (messages.length > 0) {
+    const body = messages.shift();
+    const callsBeforeMessage = aiCalls.length;
+    await handleQueue({ messages: [{
+      body,
+      ack: () => { translationAcknowledgements += 1; },
+    }] }, env, { now: () => new Date("2026-08-08T10:30:00Z") });
+    assert.equal(aiCalls.length - callsBeforeMessage, 8);
+  }
   const cached = await getCachedDaily("2026-08-09", env, "en");
   const translated = await getCachedDaily("2026-08-09", env, "es");
 
@@ -347,6 +377,7 @@ test("queue consumer writes one English and one Spanish exact-date edition", asy
   assert.equal(translated.language, "es");
   assert.match(translated.horoscopes[0].reading, /^ES /);
   assert.equal(aiCalls.length, 96);
+  assert.equal(translationAcknowledgements, 12);
   assert.equal(kv.puts.filter(({ key }) => key.startsWith("daily:")).length, 2);
 });
 
@@ -357,15 +388,25 @@ test("an English cache hit translates Spanish without spending provider quota", 
   });
   let providerCalls = 0;
   const aiCalls = [];
+  const messages = [];
+  const env = {
+    FREEASTRO_API_KEY: "secret",
+    DAILY_CACHE: kv,
+    AI: fakeAI(aiCalls),
+    WARMUP_QUEUE: { send: async (message) => messages.push(message) },
+  };
 
   const result = await warmDate(
     "2026-08-09",
-    { FREEASTRO_API_KEY: "secret", DAILY_CACHE: kv, AI: fakeAI(aiCalls) },
+    env,
     { fetchImpl: async () => { providerCalls += 1; return new Response(); } },
   );
 
   assert.equal(result.cache, "miss");
   assert.equal(providerCalls, 0);
+  assert.equal(aiCalls.length, 0);
+  assert.equal(messages.length, 12);
+  await drainQueuedMessages(messages, env);
   assert.equal(aiCalls.length, 96);
   assert.equal((await getCachedDaily("2026-08-09", { DAILY_CACHE: kv }, "es")).language, "es");
 });
@@ -382,7 +423,12 @@ test("a second scheduled check uses KV and spends no provider quota", async () =
   let calls = 0;
   const result = await warmDate(
     "2026-08-09",
-    { FREEASTRO_API_KEY: "secret", DAILY_CACHE: kv, AI: fakeAI() },
+    {
+      FREEASTRO_API_KEY: "secret",
+      DAILY_CACHE: kv,
+      AI: fakeAI(),
+      WARMUP_QUEUE: { send: async () => undefined },
+    },
     { fetchImpl: async () => { calls += 1; return new Response(); } },
   );
 
@@ -428,7 +474,11 @@ test("a public miss schedules one bounded queue repair without calling the provi
 
   assert.equal(first.status, 503);
   assert.equal(second.status, 503);
-  assert.deepEqual(messages, [{ schema_version: 3, date: "2026-08-09" }]);
+  assert.deepEqual(messages, [{
+    schema_version: 3,
+    task: "warm_date",
+    date: "2026-08-09",
+  }]);
   assert.equal(await kv.get("repair:v3:es:2026-08-09"), "1");
 });
 
@@ -497,7 +547,12 @@ test("scheduled provider failure cools down and preserves only diagnostic last-v
   await assert.rejects(
     warmDate(
       "2026-08-09",
-      { FREEASTRO_API_KEY: "secret", DAILY_CACHE: kv, AI: fakeAI() },
+      {
+        FREEASTRO_API_KEY: "secret",
+        DAILY_CACHE: kv,
+        AI: fakeAI(),
+        WARMUP_QUEUE: { send: async () => undefined },
+      },
       {
         now: () => new Date("2026-08-09T00:15:00Z"),
         wait: async () => undefined,
@@ -516,6 +571,7 @@ test("translation failure keeps English cached and retries never refetch FreeAst
   const kv = new MemoryKV();
   let providerCalls = 0;
   let aiCalls = 0;
+  const messages = [];
   const env = {
     FREEASTRO_API_KEY: "secret",
     DAILY_CACHE: kv,
@@ -525,6 +581,7 @@ test("translation failure keeps English cached and retries never refetch FreeAst
         throw new Error("offline_ai_failure");
       },
     },
+    WARMUP_QUEUE: { send: async (message) => messages.push(message) },
   };
   const options = {
     now: () => new Date("2026-08-09T00:15:00Z"),
@@ -535,16 +592,26 @@ test("translation failure keeps English cached and retries never refetch FreeAst
     },
   };
 
-  await assert.rejects(warmDate("2026-08-09", env, options), /translation_refresh_failed/);
+  const result = await warmDate("2026-08-09", env, options);
+  assert.equal(result.cache, "miss");
+  assert.equal(messages.length, 12);
+  const ariesMessage = messages[0];
+  await assert.rejects(
+    handleQueue({ messages: [{ body: ariesMessage }] }, env, options),
+    /translation_sign_failed/,
+  );
   assert.equal(providerCalls, 12);
-  assert.equal(aiCalls, 3);
+  assert.equal(aiCalls, 2);
   assert.equal((await getCachedDaily("2026-08-09", env, "en")).language, "en");
   await assert.rejects(getCachedDaily("2026-08-09", env, "es"), /daily_cache_miss/);
-  assert.equal(await kv.get("failure:v3:es:2026-08-09"), "1");
+  assert.equal(await kv.get("failure:v3:es:2026-08-09:aries"), "1");
 
-  await assert.rejects(warmDate("2026-08-09", env, options), /translation_cooldown/);
+  await assert.rejects(
+    handleQueue({ messages: [{ body: ariesMessage }] }, env, options),
+    /translation_cooldown/,
+  );
   assert.equal(providerCalls, 12);
-  assert.equal(aiCalls, 3);
+  assert.equal(aiCalls, 2);
 });
 
 test("invalid, impossible, and distant dates cannot consume provider quota", async () => {
