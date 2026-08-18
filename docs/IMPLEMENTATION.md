@@ -120,17 +120,12 @@ The Today masthead has a visible 44-point Settings control while the sign
 selector keeps its direct change-sign action. Settings contains Language,
 Your Sign, Support the app, Restore/Manage Subscription, Rate, Help & Support,
 Privacy, Terms, and About. FreeAstroAPI supplies the source English edition.
-The local schema-3 Worker candidate translates that cached document to Spanish
-once, stores EN and ES separately, and never labels English as Spanish. If ES
-is unavailable, the app tries the same day's remote English edition and then
-its bundled English edition. Saved snapshots include their actual language and
-never overwrite the other language.
-
-This bilingual Worker/app change is local only. Production remains on the
-previous English schema until provider-rights review, macOS/XCTest pass, and
-separate deployment authorization. A non-production Workers AI smoke test on
-2026-08-11 returned valid Spanish with accents and reported 0.9936 neurons for
-a 15-token input and 17-token output; it did not alter production.
+The production schema-3 Worker translates that cached document to Spanish once,
+stores EN and ES separately, and never labels English as Spanish. If a Spanish
+edition has not yet been pinned and the service is unavailable, the app reports
+the failure instead of silently changing the reading to English. Saved
+snapshots include their actual language, never overwrite the other language,
+and never replace the live Today edition.
 
 ## Xcode handoff
 

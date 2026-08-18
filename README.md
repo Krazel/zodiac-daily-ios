@@ -13,19 +13,18 @@ Daily endpoint.
 ## Current status
 
 - Product: MVP defined for iPhone with an English/Spanish interface and daily
-  editions in the selected language. The local candidate translates the
-  provider's English edition once on the server and falls back honestly to the
-  same day's English edition if Spanish is temporarily unavailable.
+  editions in the selected language. The production service translates the
+  provider's English source edition once, caches separate English and Spanish
+  documents, and never changes a Spanish request silently to English.
 - Visuals: the complete C2 references, Settings Support C3, and app icon C1 are
   approved under the owner's advance visual authorization.
 - Code: the approved screens are implemented in the iOS 16 SwiftUI project,
   including final saved-card detail and optional monthly supporter controls.
 - Persistence: saved-card snapshots use an actor-isolated, atomic JSON archive
   in Application Support; the selected sign uses local app preferences.
-- Daily content: production still serves the deployed English schema-2 Worker.
-  The uncommitted schema-3 candidate prepares separate English and Spanish
-  twelve-sign documents, and the app requests `lang=en|es`. Nothing in this
-  bilingual candidate has been deployed.
+- Daily content: the production schema-3 service prepares separate English and
+  Spanish twelve-sign documents, and the app requests `lang=en|es`. Today uses
+  that live/pinned edition; old Saved snapshots cannot replace it.
 - Support: StoreKit 2 loads three equivalent monthly levels using Apple's live
   localized prices. The app remains fully usable for free and includes verified
   entitlement status, restore, and subscription management.

@@ -306,9 +306,10 @@ final class AppModel: ObservableObject {
                   selectedSign == sign,
                   contentLanguage == language,
                   LocalDayKey(date: now(), timeZone: .current) == day else { return }
-            let displayed = savedCards.first { $0.id == horoscope.archiveKey }?.horoscope
-                ?? horoscope
-            dailyState = .loaded(displayed)
+            // Today always shows the freshly resolved edition. Saved cards are
+            // immutable historical snapshots and must never replace the live
+            // card: older snapshots may be English or predate provider scores.
+            dailyState = .loaded(horoscope)
         } catch {
             guard generation == refreshGeneration,
                   selectedSign == sign,

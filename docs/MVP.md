@@ -53,12 +53,14 @@ No permissions are required in the MVP.
 - The user can select a sign, read one stable card for the local day, save it,
   find it after relaunch, and change sign.
 - All 12 signs and daily-key behavior have automated coverage.
-- Core flows work offline without accounts or tracking. Fresh content uses the
-  free daily service when available and bundled content when it is not.
+- Core flows use no accounts or tracking. Fresh content uses the free daily
+  service; English has a bundled emergency edition and resolved Spanish
+  editions remain available from the local daily cache.
 - Approved screens are reproduced faithfully and pass Dynamic Type, VoiceOver,
   contrast, and touch-target checks.
 - English and Spanish interface copy is complete and reviewed; daily provider
-  copy is shown in its actual language and an English fallback is identified.
+  copy stays in the selected language and Spanish never falls back silently to
+  English.
 
 ## Outside the MVP
 

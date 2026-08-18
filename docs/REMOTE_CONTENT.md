@@ -2,18 +2,21 @@
 
 Updated: 2026-08-11
 
-The app can load a fresh daily edition from a Zodiac Daily-owned HTTPS endpoint
-and falls back automatically to `BundledHoroscopeRepository` on connectivity,
-HTTP, date, or payload errors. Saved cards remain immutable local snapshots;
-the remote repository does not change the save/archive model.
+The app loads a fresh daily edition from a Zodiac Daily-owned HTTPS endpoint.
+English requests may use the bundled English emergency edition on connectivity,
+HTTP, date, or payload errors. Spanish requests never change silently to
+English: they use the pinned Spanish provider edition when available, otherwise
+surface an unavailable state until the Spanish service succeeds. Saved cards
+remain immutable local snapshots; the remote repository does not change the
+save/archive model.
 
 The first complete provider card for each language, sign, and local date is
 pinned in the separate `daily-editions.json` archive. Bundled emergency cards
 are no longer pinned: the app retries the live edition when connectivity
 returns, which prevents old local cards from hiding provider scores and lucky
 details for the rest of the day. A user's
-saved-card archive remains separate and, when present for the same sign/day,
-its immutable snapshot is the one displayed.
+saved-card archive remains separate and is displayed only in Saved. A legacy
+saved snapshot never replaces the freshly resolved Today edition.
 Because daily editions are derivable, an unreadable pin archive is rebuilt on
 the next successful resolution. This recovery policy never applies to the
 user's saved-card archive, which is not silently discarded or overwritten.
@@ -103,6 +106,7 @@ never the selected sign, birth data, account data, or saved cards.
 
 The bilingual schema-3 Worker is deployed in production. The Workers AI
 binding passed a remote preview smoke test on 2026-08-11 with valid Spanish and
-accented characters. The 0.2.1 correction adds bounded translation retries and
-automatic cache repair; it remains local until its deployment is explicitly
-authorized and verified against a real Spanish edition.
+accented characters. Production includes bounded translation retries and
+automatic cache repair. Version 0.2.2 keeps the live Today edition separate
+from old Saved snapshots and makes Spanish selection strict rather than
+silently falling back to English.

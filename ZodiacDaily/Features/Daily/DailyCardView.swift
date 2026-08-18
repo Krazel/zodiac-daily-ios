@@ -378,7 +378,7 @@ private struct DailyCardBackView: View {
 
                 Spacer(minLength: 1)
 
-                Image(systemName: "arrow.uturn.backward")
+                Image(systemName: "arrow.clockwise")
                     .font(.system(size: 17, weight: .light))
                     .foregroundStyle(ZodiacPalette.gold)
 

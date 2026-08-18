@@ -1,7 +1,8 @@
 import Foundation
 
-/// Prefers fresh remote content and transparently falls back to the bundled
-/// edition for offline use or any recoverable service/content failure.
+/// Prefers fresh remote content. The bundled emergency edition is English, so
+/// it is used only when English was explicitly requested. A Spanish request
+/// never silently changes language when the service is unavailable.
 public struct FallbackHoroscopeRepository: HoroscopeRepository {
     private let primary: any HoroscopeRepository
     private let fallback: any HoroscopeRepository
@@ -24,19 +25,10 @@ public struct FallbackHoroscopeRepository: HoroscopeRepository {
         } catch is CancellationError {
             throw CancellationError()
         } catch {
+            let primaryError = error
             try Task.checkCancellation()
-            if language == .spanish {
-                do {
-                    return try await primary.horoscope(
-                        for: sign,
-                        day: day,
-                        language: .english
-                    )
-                } catch is CancellationError {
-                    throw CancellationError()
-                } catch {
-                    try Task.checkCancellation()
-                }
+            guard language == .english else {
+                throw primaryError
             }
             return try await fallback.horoscope(for: sign, day: day, language: .english)
         }

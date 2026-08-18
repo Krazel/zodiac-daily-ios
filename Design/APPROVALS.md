@@ -1,6 +1,6 @@
 # Canonical visual approvals
 
-Updated: 2026-08-11
+Updated: 2026-08-18
 
 This file is the source of truth for the complete approved images that govern
 the shipped app. `Design/Approved/` contains only current masters.
@@ -58,6 +58,16 @@ hierarchy: an actual-language `EN`/`ES` marker on saved snapshots and an
 English-fallback label when Spanish is unavailable. These variants remain
 implementation candidates until real EN/ES captures are compared at the same
 device size; they do not replace any current master in this manifest.
+
+## Owner-directed Today correction awaiting runtime evidence
+
+On 2026-08-18 the owner approved four precise changes to the current Today
+direction: the sign capsule opens selection directly, both card faces use the
+same turn icon, the Settings gear has no visible circular surround, and the
+card is slightly smaller to create more space around Save and the tab bar.
+These changes are an implementation candidate until the 0.2.2 real-build
+English/Spanish captures are compared at the declared device sizes. The C3
+front and C2 provider back remain the governing art direction in the meantime.
 
 ## Store screenshot rule
 

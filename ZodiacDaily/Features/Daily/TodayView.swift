@@ -55,10 +55,6 @@ struct TodayView: View {
                     .font(.system(size: 20, weight: .light))
                     .foregroundStyle(ZodiacPalette.gold)
                     .frame(width: 44, height: 44)
-                    .background(ZodiacPalette.midnight.opacity(0.58), in: Circle())
-                    .overlay {
-                        Circle().stroke(ZodiacPalette.gold.opacity(0.82), lineWidth: 0.9)
-                    }
                     .contentShape(Circle())
             }
             .buttonStyle(.plain)
@@ -104,23 +100,8 @@ struct TodayView: View {
     @ViewBuilder
     private var signMenu: some View {
         if let selectedSign = model.selectedSign {
-            Menu {
-                ForEach(ZodiacSign.allCases, id: \.self) { sign in
-                    Button {
-                        model.select(sign)
-                    } label: {
-                        Label(
-                            sign.localizedDisplayName(locale: locale),
-                            systemImage: sign == selectedSign ? "checkmark" : "circle"
-                        )
-                    }
-                }
-
-                Divider()
-
-                Button("About & Settings", systemImage: "gearshape") {
-                    showsSettings = true
-                }
+            Button {
+                showsSignSelection = true
             } label: {
                 HStack(spacing: 14) {
                     Text(selectedSign.symbol)
@@ -142,9 +123,8 @@ struct TodayView: View {
                     Capsule().stroke(ZodiacPalette.gold, lineWidth: 1)
                 }
                 .contentShape(Capsule())
-            } primaryAction: {
-                showsSignSelection = true
             }
+            .buttonStyle(.plain)
             .padding(.top, 22)
             .accessibilityLabel(
                 String(
@@ -197,10 +177,13 @@ struct TodayView: View {
             .accessibilityElement(children: .contain)
 
         case .loaded(let horoscope):
-            VStack(spacing: 10) {
+            VStack(spacing: 16) {
                 FlippableDailyCard(
                     horoscope: horoscope,
-                    initiallyShowingBack: AppModel.visualQAState == .todayBack
+                    initiallyShowingBack: AppModel.visualQAState == .todayBack,
+                    width: 316,
+                    height: 460,
+                    artworkHeight: 285
                 )
 
                 Button {

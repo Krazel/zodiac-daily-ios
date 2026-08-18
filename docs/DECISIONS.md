@@ -29,6 +29,9 @@
 
 ## 2026-08-11 — Server-translated Spanish daily edition
 
+_Availability-fallback policy in this entry was superseded on 2026-08-18; the
+server translation architecture remains current._
+
 - The owner approved creating a real Spanish daily flow while keeping the free
   plan and English as the availability fallback.
 - FreeAstroAPI remains the source of the daily edition. Because its Daily Sign
@@ -44,6 +47,21 @@
   deployment still requires a real non-production translation smoke test,
   confirmation that translating provider copy is permitted, macOS/XCTest, and
   separate deployment authorization.
+
+## 2026-08-18 — Strict Spanish Today edition and legacy snapshot separation
+
+- When Spanish is selected, Today must show the real Spanish schema-3 edition;
+  it no longer changes silently to English after a Spanish service failure.
+- The separately pinned Spanish provider edition remains available offline once
+  resolved. If no Spanish edition has ever been cached and the service is
+  unavailable, the app reports the failure instead of presenting English as
+  the requested experience.
+- Saved cards remain immutable historical snapshots. They are displayed only
+  in Saved and can never replace the freshly resolved Today card, even when a
+  legacy snapshot has the same sign, language, and date.
+- The owner directed the Today correction: a direct sign-selection button,
+  matching turn icons on both faces, an unframed Settings gear, and a slightly
+  smaller card with additional breathing room around Save and the tab bar.
 
 ## 2026-08-09 — Practical visual gate
 
