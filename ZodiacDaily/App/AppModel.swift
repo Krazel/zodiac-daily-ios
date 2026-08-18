@@ -86,7 +86,7 @@ final class AppModel: ObservableObject {
         if let visualQAState {
             let cards = Self.visualQACards(
                 for: visualQAState,
-                language: contentLanguage
+                language: initialAppLanguage.horoscopeLanguage
             )
             savedStore = InMemorySavedCardStore(cards: cards)
             savedCards = cards
