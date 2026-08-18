@@ -376,7 +376,7 @@ struct SettingsView: View {
         AppLanguage(rawValue: appLanguageRawValue) ?? .english
     }
 
-    private func localized(_ key: String.LocalizationValue) -> String {
-        String(localized: key, locale: locale)
+    private func localized(_ key: String) -> String {
+        appLocalized(key, locale: locale)
     }
 }

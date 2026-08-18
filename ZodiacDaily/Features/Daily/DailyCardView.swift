@@ -119,7 +119,7 @@ struct DailyCardView: View {
                             .font(.system(size: 17, weight: .light))
                             .foregroundStyle(ZodiacPalette.gold)
 
-                        Text(String(localized: "TAP FOR MORE", locale: locale))
+                        Text(appLocalized("TAP FOR MORE", locale: locale))
                             .font(.system(size: 7.5, weight: .medium))
                             .tracking(1.7)
                             .foregroundStyle(ZodiacPalette.lavender)
@@ -146,15 +146,12 @@ struct DailyCardView: View {
         let interfaceIsSpanish = locale.identifier.lowercased().hasPrefix("es")
 
         if interfaceIsSpanish && horoscope.language == .english {
-            return String(
-                localized: "TODAY’S READING · ENGLISH FALLBACK",
-                locale: locale
-            )
+            return appLocalized("TODAY’S READING · ENGLISH FALLBACK", locale: locale)
         }
         if !interfaceIsSpanish && horoscope.language == .spanish {
-            return String(localized: "TODAY’S READING · SPANISH", locale: locale)
+            return appLocalized("TODAY’S READING · SPANISH", locale: locale)
         }
-        return String(localized: "TODAY’S READING", locale: locale)
+        return appLocalized("TODAY’S READING", locale: locale)
     }
 
     private var usesCompactCopy: Bool {
@@ -250,13 +247,13 @@ struct FlippableDailyCard: View {
         .disabled(isAnimating)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(
-            "\(horoscope.sign.localizedDisplayName(locale: locale)) \(String(localized: "daily card", locale: locale))"
+            "\(horoscope.sign.localizedDisplayName(locale: locale)) \(appLocalized("daily card", locale: locale))"
         )
         .accessibilityValue(isShowingBack ? backAccessibilityValue : frontAccessibilityValue)
         .accessibilityHint(
             isShowingBack
-                ? String(localized: "Double-tap to return to the illustrated reading", locale: locale)
-                : String(localized: "Double-tap to reveal the deeper reading", locale: locale)
+                ? appLocalized("Double-tap to return to the illustrated reading", locale: locale)
+                : appLocalized("Double-tap to reveal the deeper reading", locale: locale)
         )
         .onChange(of: horoscope.archiveKey) { _ in
             isShowingBack = false
@@ -265,7 +262,7 @@ struct FlippableDailyCard: View {
     }
 
     private var frontAccessibilityValue: String {
-        "\(String(localized: "Front", locale: locale)). \(horoscope.headline). \(horoscope.reading)"
+        "\(appLocalized("Front", locale: locale)). \(horoscope.headline). \(horoscope.reading)"
     }
 
     private var backAccessibilityValue: String {
@@ -279,23 +276,23 @@ struct FlippableDailyCard: View {
               let luckyColor = details.luckyColor,
               let moonSign = details.moonSign,
               let moonPhase = details.moonPhase else {
-            return "\(String(localized: "Back", locale: locale)). "
+            return "\(appLocalized("Back", locale: locale)). "
                 + "\(horoscope.sign.localizedDisplayName(locale: locale)) "
-                + "\(String(localized: "essence", locale: locale)): \(details.signEssence)"
+                + "\(appLocalized("essence", locale: locale)): \(details.signEssence)"
         }
-        return "\(String(localized: "Back", locale: locale)). "
-            + "\(String(localized: "Today's focus", locale: locale)): \(details.focus). "
-            + "\(String(localized: "Keywords", locale: locale)): \(details.keywords.joined(separator: ", ")). "
-            + "\(String(localized: "Scores", locale: locale)). "
-            + "\(String(localized: "Love", locale: locale)) \(love), "
-            + "\(String(localized: "career", locale: locale)) \(career), "
-            + "\(String(localized: "money", locale: locale)) \(money), "
-            + "\(String(localized: "health", locale: locale)) \(health). "
-            + "\(String(localized: "Lucky number", locale: locale)) \(luckyNumber), "
-            + "\(String(localized: "lucky color", locale: locale)) \(luckyColor). "
-            + "\(String(localized: "Moon in", locale: locale)) \(moonSign), \(moonPhase). "
+        return "\(appLocalized("Back", locale: locale)). "
+            + "\(appLocalized("Today's focus", locale: locale)): \(details.focus). "
+            + "\(appLocalized("Keywords", locale: locale)): \(details.keywords.joined(separator: ", ")). "
+            + "\(appLocalized("Scores", locale: locale)). "
+            + "\(appLocalized("Love", locale: locale)) \(love), "
+            + "\(appLocalized("career", locale: locale)) \(career), "
+            + "\(appLocalized("money", locale: locale)) \(money), "
+            + "\(appLocalized("health", locale: locale)) \(health). "
+            + "\(appLocalized("Lucky number", locale: locale)) \(luckyNumber), "
+            + "\(appLocalized("lucky color", locale: locale)) \(luckyColor). "
+            + "\(appLocalized("Moon in", locale: locale)) \(moonSign), \(moonPhase). "
             + "\(horoscope.sign.localizedDisplayName(locale: locale)) "
-            + "\(String(localized: "essence", locale: locale)): "
+            + "\(appLocalized("essence", locale: locale)): "
             + details.signEssence
     }
 
@@ -349,7 +346,7 @@ private struct DailyCardBackView: View {
                     .font(.system(size: 36, weight: .ultraLight))
                     .foregroundStyle(ZodiacPalette.gold)
 
-                Text(String(localized: "DEEPER READING", locale: locale))
+                Text(appLocalized("DEEPER READING", locale: locale))
                     .font(.system(size: 9, weight: .semibold))
                     .tracking(3.1)
                     .foregroundStyle(ZodiacPalette.lavender)
@@ -385,7 +382,7 @@ private struct DailyCardBackView: View {
                     .font(.system(size: 17, weight: .light))
                     .foregroundStyle(ZodiacPalette.gold)
 
-                Text(String(localized: "TAP TO TURN THE CARD", locale: locale))
+                Text(appLocalized("TAP TO TURN THE CARD", locale: locale))
                     .font(.system(size: 7.5, weight: .medium))
                     .tracking(1.7)
                     .foregroundStyle(ZodiacPalette.lavender)
@@ -456,11 +453,11 @@ private struct DailyCardBackView: View {
         moonPhase: String
     ) -> some View {
         Group {
-            detailText(String(localized: "TODAY'S FOCUS", locale: locale), value: details.focus.uppercased(), size: 16)
-            detailText(String(localized: "KEYWORDS", locale: locale), value: details.keywords.joined(separator: " · ").uppercased(), size: 11)
+            detailText(appLocalized("TODAY'S FOCUS", locale: locale), value: details.focus.uppercased(), size: 16)
+            detailText(appLocalized("KEYWORDS", locale: locale), value: details.keywords.joined(separator: " · ").uppercased(), size: 11)
             sectionDivider
 
-            Text(String(localized: "DAILY SCORES", locale: locale))
+            Text(appLocalized("DAILY SCORES", locale: locale))
                 .font(.system(size: 8, weight: .semibold))
                 .tracking(2.4)
                 .foregroundStyle(ZodiacPalette.gold)
@@ -469,10 +466,10 @@ private struct DailyCardBackView: View {
                 columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 2),
                 spacing: 7
             ) {
-                scoreCell(String(localized: "LOVE", locale: locale), value: loveScore)
-                scoreCell(String(localized: "CAREER", locale: locale), value: careerScore)
-                scoreCell(String(localized: "MONEY", locale: locale), value: moneyScore)
-                scoreCell(String(localized: "HEALTH", locale: locale), value: healthScore)
+                scoreCell(appLocalized("LOVE", locale: locale), value: loveScore)
+                scoreCell(appLocalized("CAREER", locale: locale), value: careerScore)
+                scoreCell(appLocalized("MONEY", locale: locale), value: moneyScore)
+                scoreCell(appLocalized("HEALTH", locale: locale), value: healthScore)
             }
             .overlay {
                 Rectangle()
@@ -483,15 +480,15 @@ private struct DailyCardBackView: View {
             sectionDivider
 
             HStack(spacing: 0) {
-                luckyDetail(String(localized: "LUCKY NUMBER", locale: locale), value: String(luckyNumber))
+                luckyDetail(appLocalized("LUCKY NUMBER", locale: locale), value: String(luckyNumber))
                 Rectangle()
                     .fill(ZodiacPalette.gold.opacity(0.38))
                     .frame(width: 0.75, height: 28)
-                luckyDetail(String(localized: "LUCKY COLOR", locale: locale), value: luckyColor.uppercased())
+                luckyDetail(appLocalized("LUCKY COLOR", locale: locale), value: luckyColor.uppercased())
             }
 
             sectionDivider
-            detailText(String(localized: "MOON", locale: locale), value: "\(moonSign.uppercased()) · \(moonPhase.uppercased())", size: 11)
+            detailText(appLocalized("MOON", locale: locale), value: "\(moonSign.uppercased()) · \(moonPhase.uppercased())", size: 11)
             Spacer(minLength: 8)
             essenceSection
         }
@@ -501,14 +498,14 @@ private struct DailyCardBackView: View {
         Group {
             detailText(
                 "\(horoscope.sign.localizedDisplayName(locale: locale).uppercased(with: locale)) "
-                    + String(localized: "ESSENCE", locale: locale),
+                    + appLocalized("ESSENCE", locale: locale),
                 value: details.signEssence,
                 size: 16
             )
             sectionDivider
             Text(
-                String(
-                    localized: "Your complete daily reading is on the front of this card.",
+                appLocalized(
+                    "Your complete daily reading is on the front of this card.",
                     locale: locale
                 )
             )
@@ -523,7 +520,7 @@ private struct DailyCardBackView: View {
         VStack(spacing: 2) {
             Text(
                 "\(horoscope.sign.localizedDisplayName(locale: locale).uppercased(with: locale)) "
-                    + String(localized: "ESSENCE", locale: locale)
+                    + appLocalized("ESSENCE", locale: locale)
             )
                 .font(.system(size: 8, weight: .semibold))
                 .tracking(2.2)
@@ -578,8 +575,8 @@ private struct DailyCardBackView: View {
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(
-            "\(title.capitalized(with: locale)) \(String(localized: "score", locale: locale)) "
-                + "\(value) \(String(localized: "out of 100", locale: locale))"
+            "\(title.capitalized(with: locale)) \(appLocalized("score", locale: locale)) "
+                + "\(value) \(appLocalized("out of 100", locale: locale))"
         )
     }
 

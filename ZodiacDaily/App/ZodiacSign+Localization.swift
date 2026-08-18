@@ -22,18 +22,18 @@ extension ZodiacSign {
 
     func localizedDisplayName(locale: Locale) -> String {
         switch self {
-        case .aries: String(localized: "zodiac.aries", locale: locale)
-        case .taurus: String(localized: "zodiac.taurus", locale: locale)
-        case .gemini: String(localized: "zodiac.gemini", locale: locale)
-        case .cancer: String(localized: "zodiac.cancer", locale: locale)
-        case .leo: String(localized: "zodiac.leo", locale: locale)
-        case .virgo: String(localized: "zodiac.virgo", locale: locale)
-        case .libra: String(localized: "zodiac.libra", locale: locale)
-        case .scorpio: String(localized: "zodiac.scorpio", locale: locale)
-        case .sagittarius: String(localized: "zodiac.sagittarius", locale: locale)
-        case .capricorn: String(localized: "zodiac.capricorn", locale: locale)
-        case .aquarius: String(localized: "zodiac.aquarius", locale: locale)
-        case .pisces: String(localized: "zodiac.pisces", locale: locale)
+        case .aries: appLocalized("zodiac.aries", locale: locale)
+        case .taurus: appLocalized("zodiac.taurus", locale: locale)
+        case .gemini: appLocalized("zodiac.gemini", locale: locale)
+        case .cancer: appLocalized("zodiac.cancer", locale: locale)
+        case .leo: appLocalized("zodiac.leo", locale: locale)
+        case .virgo: appLocalized("zodiac.virgo", locale: locale)
+        case .libra: appLocalized("zodiac.libra", locale: locale)
+        case .scorpio: appLocalized("zodiac.scorpio", locale: locale)
+        case .sagittarius: appLocalized("zodiac.sagittarius", locale: locale)
+        case .capricorn: appLocalized("zodiac.capricorn", locale: locale)
+        case .aquarius: appLocalized("zodiac.aquarius", locale: locale)
+        case .pisces: appLocalized("zodiac.pisces", locale: locale)
         }
     }
 }

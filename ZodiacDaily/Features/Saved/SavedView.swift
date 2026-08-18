@@ -30,11 +30,11 @@ struct SavedView: View {
                     .frame(maxWidth: .infinity)
                 }
             }
-            .navigationTitle(String(localized: "Saved", locale: locale))
+            .navigationTitle(appLocalized("Saved", locale: locale))
             .toolbar(.hidden, for: .navigationBar)
             .overlay(alignment: .bottom) {
                 if model.persistenceMessage != nil {
-                    Text(String(localized: "app.error.persistence", locale: locale))
+                    Text(appLocalized("app.error.persistence", locale: locale))
                         .font(.footnote)
                         .foregroundStyle(ZodiacPalette.text)
                         .multilineTextAlignment(.center)
@@ -45,7 +45,7 @@ struct SavedView: View {
                             Capsule().stroke(ZodiacPalette.gold.opacity(0.55), lineWidth: 1)
                         }
                         .padding()
-                        .accessibilityLabel(String(localized: "app.error.persistence", locale: locale))
+                        .accessibilityLabel(appLocalized("app.error.persistence", locale: locale))
                 }
             }
         }
@@ -60,7 +60,7 @@ struct SavedView: View {
                 .offset(y: model.savedCards.isEmpty ? -11 : -3)
                 .padding(.bottom, 5)
 
-            Text(String(localized: "Your Saved Cards", locale: locale))
+            Text(appLocalized("Your Saved Cards", locale: locale))
                 .font(
                     .custom(
                         "Didot",
@@ -107,17 +107,17 @@ struct SavedView: View {
                     Button(role: .destructive) {
                         Task { await model.removeSavedCard(id: card.id) }
                     } label: {
-                        Text(String(localized: "Delete Card", locale: locale))
+                        Text(appLocalized("Delete Card", locale: locale))
                     }
                 }
                 .accessibilityHint(
-                    String(
-                        localized: "Opens this saved card. Use the actions menu to delete it.",
+                    appLocalized(
+                        "Opens this saved card. Use the actions menu to delete it.",
                         locale: locale
                     )
                 )
                 .accessibilityAction(
-                    named: Text(String(localized: "Delete Card", locale: locale))
+                    named: Text(appLocalized("Delete Card", locale: locale))
                 ) {
                     Task { await model.removeSavedCard(id: card.id) }
                 }
@@ -132,20 +132,20 @@ struct SavedView: View {
                 .padding(.top, 6)
                 .accessibilityHidden(true)
 
-            Text(String(localized: "No Cards Yet", locale: locale))
+            Text(appLocalized("No Cards Yet", locale: locale))
                 .font(.custom("Didot", size: 29, relativeTo: .title))
                 .foregroundStyle(ZodiacPalette.text)
                 .padding(.top, 20)
                 .accessibilityAddTraits(.isHeader)
 
-            Text(String(localized: "Save today’s card to begin your collection.", locale: locale))
+            Text(appLocalized("Save today’s card to begin your collection.", locale: locale))
                 .font(.system(size: 15.5))
                 .foregroundStyle(ZodiacPalette.mutedText)
                 .multilineTextAlignment(.center)
                 .padding(.top, 8)
 
             Button(action: onViewToday) {
-                Text(String(localized: "VIEW TODAY’S CARD", locale: locale))
+                Text(appLocalized("VIEW TODAY’S CARD", locale: locale))
                     .font(.system(size: 12, weight: .semibold))
                     .tracking(2.2)
                     .frame(width: 214, height: 38)
@@ -159,15 +159,15 @@ struct SavedView: View {
             .contentShape(Capsule())
             .frame(minHeight: 44)
             .padding(.top, 21)
-            .accessibilityHint(String(localized: "Switches to Today", locale: locale))
+            .accessibilityHint(appLocalized("Switches to Today", locale: locale))
         }
     }
 
     private var collectionSummary: String {
         let count = model.savedCards.count
         let item = count == 1
-            ? String(localized: "card in your collection", locale: locale)
-            : String(localized: "cards in your collection", locale: locale)
+            ? appLocalized("card in your collection", locale: locale)
+            : appLocalized("cards in your collection", locale: locale)
         return "\(count) \(item)"
     }
 }
@@ -313,10 +313,10 @@ private struct SavedCardPreview: View {
     }
 
     private var languageName: String {
-        let key: String.LocalizationValue = card.horoscope.language == .spanish
+        let key: String = card.horoscope.language == .spanish
             ? "language.spanish"
             : "language.english"
-        return String(localized: key, locale: locale)
+        return appLocalized(key, locale: locale)
     }
 }
 
@@ -437,7 +437,7 @@ struct SavedCardDetailView: View {
             VStack(spacing: 0) {
                 detailHeader
 
-                AdaptiveVerticalScrollView {
+                StationaryFittedVerticalView {
                     VStack(spacing: 0) {
                         Text(
                             "\(formattedDate.uppercased()) · "
@@ -462,7 +462,7 @@ struct SavedCardDetailView: View {
                             removeCard()
                         } label: {
                             Label(
-                                String(localized: "REMOVE FROM SAVED", locale: locale),
+                                appLocalized("REMOVE FROM SAVED", locale: locale),
                                 systemImage: "trash"
                             )
                                 .font(.system(size: 13, weight: .semibold))
@@ -482,11 +482,11 @@ struct SavedCardDetailView: View {
                         .frame(minHeight: 44)
                         .padding(.top, 20)
                         .accessibilityHint(
-                            String(localized: "Deletes this card from your collection", locale: locale)
+                            appLocalized("Deletes this card from your collection", locale: locale)
                         )
 
                         if model.persistenceMessage != nil {
-                            Text(String(localized: "app.error.persistence", locale: locale))
+                            Text(appLocalized("app.error.persistence", locale: locale))
                                 .font(.footnote)
                                 .foregroundStyle(ZodiacPalette.lavender)
                                 .multilineTextAlignment(.center)
@@ -508,7 +508,7 @@ struct SavedCardDetailView: View {
 
     private var detailHeader: some View {
         ZStack {
-            Text(String(localized: "Saved Card", locale: locale))
+            Text(appLocalized("Saved Card", locale: locale))
                 .font(.custom("Didot", size: 21, relativeTo: .title3))
                 .foregroundStyle(ZodiacPalette.text)
 
@@ -519,14 +519,14 @@ struct SavedCardDetailView: View {
                     HStack(spacing: 4) {
                         Image(systemName: "chevron.left")
                             .font(.system(size: 19, weight: .medium))
-                        Text(String(localized: "Saved", locale: locale))
+                        Text(appLocalized("Saved", locale: locale))
                             .font(.system(size: 17))
                     }
                     .foregroundStyle(ZodiacPalette.gold)
                     .frame(minHeight: 44)
                     .contentShape(Rectangle())
                 }
-                .accessibilityLabel(String(localized: "Back to Saved", locale: locale))
+                .accessibilityLabel(appLocalized("Back to Saved", locale: locale))
 
                 Spacer()
             }

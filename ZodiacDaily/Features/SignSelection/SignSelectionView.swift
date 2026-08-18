@@ -29,8 +29,8 @@ struct SignSelectionView: View {
                         VStack(spacing: 10) {
                             Text(
                                 requiresSelection
-                                    ? String(localized: "Choose Your Sign", locale: locale)
-                                    : String(localized: "Change Your Sign", locale: locale)
+                                    ? appLocalized("Choose Your Sign", locale: locale)
+                                    : appLocalized("Change Your Sign", locale: locale)
                             )
                                 .font(.custom("Didot", size: 30, relativeTo: .largeTitle))
                                 .foregroundStyle(ZodiacPalette.text)
@@ -39,7 +39,7 @@ struct SignSelectionView: View {
                                 .lineLimit(1)
                                 .accessibilityAddTraits(.isHeader)
 
-                            Text(String(localized: "Your daily card will be written for this sign.", locale: locale))
+                            Text(appLocalized("Your daily card will be written for this sign.", locale: locale))
                                 .font(.system(size: 16))
                                 .foregroundStyle(ZodiacPalette.mutedText)
                                 .multilineTextAlignment(.center)
@@ -66,8 +66,8 @@ struct SignSelectionView: View {
                                     .accessibilityHidden(true)
                                 Text(
                                     requiresSelection
-                                        ? String(localized: "CONTINUE", locale: locale)
-                                        : String(localized: "USE THIS SIGN", locale: locale)
+                                        ? appLocalized("CONTINUE", locale: locale)
+                                        : appLocalized("USE THIS SIGN", locale: locale)
                                 )
                                     .frame(maxWidth: .infinity)
                                 Text("✦")
@@ -87,7 +87,7 @@ struct SignSelectionView: View {
                         .disabled(pendingSign == nil)
                         .opacity(pendingSign == nil ? 0.48 : 1)
                         .accessibilityHint(
-                            String(localized: "Confirms your selected zodiac sign", locale: locale)
+                            appLocalized("Confirms your selected zodiac sign", locale: locale)
                         )
                     }
                     .padding(.horizontal, 16)
@@ -115,7 +115,7 @@ struct SignSelectionView: View {
                     .padding(.top, 8)
                     .padding(.trailing, 12)
                     .accessibilityLabel(
-                        String(localized: "Close sign selection", locale: locale)
+                        appLocalized("Close sign selection", locale: locale)
                     )
                 }
             }
@@ -229,11 +229,11 @@ private struct SignChoiceCard: View {
         .accessibilityLabel(sign.localizedDisplayName(locale: locale))
         .accessibilityValue(
             isSelected
-                ? String(localized: "Selected", locale: locale)
-                : String(localized: "Not selected", locale: locale)
+                ? appLocalized("Selected", locale: locale)
+                : appLocalized("Not selected", locale: locale)
         )
         .accessibilityHint(
-            String(localized: "Selects this sign for your daily card", locale: locale)
+            appLocalized("Selects this sign for your daily card", locale: locale)
         )
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }

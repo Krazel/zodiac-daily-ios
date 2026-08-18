@@ -62,8 +62,8 @@ struct TodayView: View {
                     .contentShape(Circle())
             }
             .buttonStyle(.plain)
-            .accessibilityLabel(String(localized: "common.settings", locale: locale))
-            .accessibilityHint(String(localized: "Opens app settings", locale: locale))
+            .accessibilityLabel(appLocalized("common.settings", locale: locale))
+            .accessibilityHint(appLocalized("Opens app settings", locale: locale))
             .padding(.trailing, 4)
             .offset(y: -1)
         }
@@ -148,15 +148,15 @@ struct TodayView: View {
             .padding(.top, 22)
             .accessibilityLabel(
                 String(
-                    format: String(localized: "today.selected_sign_format", locale: locale),
+                    format: appLocalized("today.selected_sign_format", locale: locale),
                     selectedSign.localizedDisplayName(locale: locale)
                 )
             )
             .accessibilityHint(
-                String(localized: "Double-tap to choose another sign", locale: locale)
+                appLocalized("Double-tap to choose another sign", locale: locale)
             )
             .accessibilityAction(
-                named: Text(String(localized: "Open Settings", locale: locale))
+                named: Text(appLocalized("Open Settings", locale: locale))
             ) {
                 showsSettings = true
             }
@@ -181,7 +181,7 @@ struct TodayView: View {
                     .accessibilityHidden(true)
                 Text("Card unavailable")
                     .font(.headline)
-                Text(String(localized: "app.error.daily_unavailable", locale: locale))
+                Text(appLocalized("app.error.daily_unavailable", locale: locale))
                     .font(.subheadline)
                     .multilineTextAlignment(.center)
                 Button("Try Again") {
@@ -208,8 +208,8 @@ struct TodayView: View {
                 } label: {
                     Label(
                         model.isCurrentCardSaved
-                            ? String(localized: "Saved", locale: locale)
-                            : String(localized: "Save Card", locale: locale),
+                            ? appLocalized("Saved", locale: locale)
+                            : appLocalized("Save Card", locale: locale),
                         systemImage: model.isCurrentCardSaved ? "bookmark.fill" : "bookmark"
                     )
                     .font(.system(size: 13, weight: .semibold))
@@ -232,12 +232,12 @@ struct TodayView: View {
                 )
 
                 if model.persistenceMessage != nil {
-                    Text(String(localized: "app.error.persistence", locale: locale))
+                    Text(appLocalized("app.error.persistence", locale: locale))
                         .font(.footnote)
                         .foregroundStyle(.red)
                         .multilineTextAlignment(.center)
                         .accessibilityLabel(
-                            String(localized: "app.error.persistence", locale: locale)
+                            appLocalized("app.error.persistence", locale: locale)
                         )
                 }
             }

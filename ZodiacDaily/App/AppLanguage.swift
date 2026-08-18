@@ -62,3 +62,22 @@ enum AppLanguage: String, CaseIterable, Identifiable {
         return language
     }
 }
+
+/// Resolves a catalog key from the language selected inside the app rather
+/// than from the iPhone's system language. `String(localized:locale:)` uses
+/// its locale for formatting but still chooses the bundle localization from
+/// the system preferences, which made non-`Text` labels remain in English.
+func appLocalized(_ key: String, locale: Locale) -> String {
+    let normalizedIdentifier = locale.identifier
+        .replacingOccurrences(of: "_", with: "-")
+        .lowercased()
+    let language = normalizedIdentifier == "es" || normalizedIdentifier.hasPrefix("es-")
+        ? "es"
+        : "en"
+
+    guard let path = Bundle.main.path(forResource: language, ofType: "lproj"),
+          let localizedBundle = Bundle(path: path) else {
+        return Bundle.main.localizedString(forKey: key, value: key, table: nil)
+    }
+    return localizedBundle.localizedString(forKey: key, value: key, table: nil)
+}
