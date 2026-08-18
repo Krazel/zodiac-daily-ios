@@ -81,3 +81,26 @@ provider range of 324-382 characters. It renders the complete reading and the
 visible `TAP FOR MORE` affordance without page movement or clipping at the
 default text size. Compact-height and enlarged-text layouts retain measured
 overflow scrolling so information is not hidden.
+
+## Owner-directed Today correction 0.2.2
+
+- Workflow run: `32175884780`
+- Captured commit: `6623459`
+- Simulator: iPhone 15 Pro and iPhone SE (3rd generation)
+- iPhone 15 Pro resolution: 1179 x 2556
+- iPhone SE resolution: 750 x 1334
+- Languages: English and Spanish
+- Current Spanish front master:
+  `Design/Approved/today-loaded-front-flip-c4-es-runtime.png`
+- Current Spanish provider-back master:
+  `Design/Approved/today-loaded-back-provider-c3-es-runtime.png`
+- English evidence: `today-front-en-v0.2.2.png`,
+  `today-back-en-v0.2.2.png`
+- Spanish stress/compact evidence: `today-long-es-v0.2.2.png`,
+  `today-front-es-iphone-se-v0.2.2.png`
+
+The real build keeps the complete card, Save action, and tab bar visible without
+regular-size scrolling. Spanish long copy remains inside the frame. The front
+and back use the same turn icon, the Settings gear has no surrounding circle,
+and the direct sign capsule is implemented as a single button rather than a
+dual-action menu.

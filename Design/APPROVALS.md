@@ -13,8 +13,8 @@ superseded. Approved history is never overwritten or deleted.
 
 | Screen / state | Current master | Device / canvas | Orientation | Language | Approved | SHA-256 | Runtime evidence | Required fidelity / permitted adaptation |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Today / loaded card front | `Design/Approved/today-loaded-front-flip-c3.png` | iPhone full-screen mockup, 862 x 1825 px including device frame | Portrait | English | 2026-08-11 | `8ba5227954cb5ff0c029d59066758385644b24670ef2e1f4c4587ed8d88c00c3` | `Design/Comparisons/today-front-flip-c3-comparison.png`; long-copy evidence: `Design/Comparisons/today-long-provider-runtime.png` | Preserve the complete collectible card, keep Save Card outside it, and preserve the visible gold turn ornament with `TAP FOR MORE` inside the card. At regular text sizes Today must not contain a scroll gesture: shorter screens scale the approved composition to fit. Accessibility Dynamic Type may scroll so content remains reachable. |
-| Today / loaded card back, provider data | `Design/Approved/today-loaded-back-provider-c2.png` | iPhone full-screen mockup, 862 x 1825 px including device frame | Portrait | English | 2026-08-10 | `3933f81e13821b46d07642f6100171ff0a490cd46f2f7aac8476e1183e934ecd` | `Design/Comparisons/today-back-provider-comparison.png` | Preserve the front frame and Today composition. Changing daily fields must be provider-authored; sign essence may be static. Reduce Motion may replace the 3D turn with a short fade. |
+| Today / loaded card front | `Design/Approved/today-loaded-front-flip-c4-es-runtime.png` | iPhone 15 Pro simulator, 1179 x 2556 px | Portrait | Spanish | 2026-08-18 | `0feb8d86fdbeea265ca2bcbbb2539c17c1dd61740228460237df839c8e81274c` | English: `Design/Comparisons/today-front-en-v0.2.2.png`; long Spanish: `Design/Comparisons/today-long-es-v0.2.2.png`; compact: `Design/Comparisons/today-front-es-iphone-se-v0.2.2.png`; workflow `32175884780` | Preserve the complete collectible card, direct sign selector, unframed Settings gear, Save outside the card, matching gold turn icon, and the extra breathing room above the tab bar. At regular text sizes Today has no scroll gesture; shorter screens scale the composition to fit. Accessibility Dynamic Type may scroll so content remains reachable. |
+| Today / loaded card back, provider data | `Design/Approved/today-loaded-back-provider-c3-es-runtime.png` | iPhone 15 Pro simulator, 1179 x 2556 px | Portrait | Spanish | 2026-08-18 | `34098b4657d685be9efbd42dded066bed87e0c6b286ac6e1dffa2577981735b7` | English: `Design/Comparisons/today-back-en-v0.2.2.png`; workflow `32175884780` | Preserve the front frame and Today composition, the same `arrow.clockwise` turn icon as the front, and all provider-authored focus, keywords, scores, lucky, and Moon fields. Sign essence may be static. Reduce Motion may replace the 3D turn with a short fade. |
 | First launch / sign selection | `Design/Approved/sign-selection-c2.png` | iPhone full-screen mockup, 862 x 1824 px including device frame | Portrait | English | 2026-08-09 | `0f10cdc2ceab984f32e14bc74d1a2f13325785d5c9a0846537caa87892190180` | `Design/Comparisons/sign-selection-comparison.png` | Show all 12 signs and no personal-data request. Pisces is the selected example. Native accessibility reflow is permitted. |
 | Saved / empty | `Design/Approved/saved-empty-c2.png` | iPhone full-screen mockup, 862 x 1825 px including device frame | Portrait | English | 2026-08-09 | `0475bcb8f9c7d5f044a9b248e0ebb4c1abb22f12caf3a630d500d6977d8c28d3` | `Design/Comparisons/saved-empty-comparison.png` | Preserve the empty collectible-card outline and route to Today. Native accessibility reflow is permitted. |
 | Saved / populated | `Design/Approved/saved-populated-c2.png` | iPhone full-screen mockup, 862 x 1825 px including device frame | Portrait | English | 2026-08-09 | `8bca65dbf9e07f8efd7e8264f7332ab51a6d430c34248f69b20412d5121f896b` | `Design/Comparisons/saved-populated-comparison.png` | Preserve the separate card-thumbnail archive and approved hierarchy. Native accessibility reflow is permitted. |
@@ -34,6 +34,8 @@ runtime evidence.
 | --- | --- | --- | --- | --- | --- |
 | Today / loaded card front | `Design/Concepts/today-loaded-front-c2-approved-history.png` | Superseded, retained | 2026-08-09 | `Design/Approved/today-loaded-front-flip-c3.png` | C3 preserves the composition and adds the owner-requested visible turn affordance without adding another screen row. |
 | Today / card back | `Design/Concepts/today-card-back-c1.png` | Superseded, retained | 2026-08-10 | `Design/Approved/today-loaded-back-provider-c2.png` | The owner required all changing daily values to come from the real provider rather than local invention. |
+| Today / loaded card front | `Design/Approved/today-loaded-front-flip-c3.png` | Superseded, retained | 2026-08-11 | `Design/Approved/today-loaded-front-flip-c4-es-runtime.png` | C4 records the owner-directed direct selector, matching turn icons, unframed Settings gear, smaller card, and increased action/tab spacing in a real Spanish build. |
+| Today / provider-data card back | `Design/Approved/today-loaded-back-provider-c2.png` | Superseded, retained | 2026-08-10 | `Design/Approved/today-loaded-back-provider-c3-es-runtime.png` | C3 records the same owner-directed composition changes and the complete Spanish provider-data state in a real build. |
 | Settings / About | `Design/Concepts/settings-c2.png` | Superseded, retained | 2026-08-09 | `Design/Approved/settings-support-c3.png` | C3 keeps the approved Settings direction and adds the approved optional support/review section. |
 
 ## Proposal history (not current masters)
@@ -59,15 +61,16 @@ English-fallback label when Spanish is unavailable. These variants remain
 implementation candidates until real EN/ES captures are compared at the same
 device size; they do not replace any current master in this manifest.
 
-## Owner-directed Today correction awaiting runtime evidence
+## Owner-directed Today correction completed
 
 On 2026-08-18 the owner approved four precise changes to the current Today
 direction: the sign capsule opens selection directly, both card faces use the
 same turn icon, the Settings gear has no visible circular surround, and the
 card is slightly smaller to create more space around Save and the tab bar.
-These changes are an implementation candidate until the 0.2.2 real-build
-English/Spanish captures are compared at the declared device sizes. The C3
-front and C2 provider back remain the governing art direction in the meantime.
+The 0.2.2 real-build English/Spanish captures passed on iPhone 15 Pro and the
+stationary compact-height check passed on iPhone SE. The resulting Spanish
+front C4 and provider back C3 are now the complete current masters above; the
+previous English mockups remain retained as superseded approval history.
 
 ## Store screenshot rule
 
