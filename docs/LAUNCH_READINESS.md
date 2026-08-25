@@ -1,15 +1,17 @@
 # iOS launch readiness
 
-Updated: 2026-08-11
+Updated: 2026-08-26
 
-Internal TestFlight build `0.2.1` (`1`) is active. This document does not
-authorize StoreKit products, external testing, App Review, or publication.
+Internal TestFlight delivery `0.2.2` (`1`) was accepted by Apple's upload
+service and is awaiting or completing TestFlight processing. This document
+does not authorize StoreKit products, external testing, App Review, or
+publication.
 
 ## Recorded scope
 
-- Current internal TestFlight 0.2.1/1: iPhone / iOS 16+, English/Spanish
+- Current internal TestFlight delivery 0.2.2/1: iPhone / iOS 16+, English/Spanish
   interface and language-specific daily editions selected in Settings.
-- Next correction candidate: `0.2.2` build `1`. It prevents legacy Saved cards
+- This correction prevents legacy Saved cards
   from replacing the live Spanish edition, makes Spanish strict, repairs the
   direct sign selector, and applies the owner-directed Today spacing and icon
   refinements.
@@ -134,11 +136,13 @@ group. Full non-secret evidence is in `docs/TESTFLIGHT_STATUS.md`.
 No external group, public TestFlight link, Beta App Review, App Review, or App
 Store release was created.
 
-Version `0.2.2` build `1` has also passed the no-upload signed candidate run
+Version `0.2.2` build `1` passed the no-upload signed candidate run
 `32175886395` and visual run `32175884780`. The latter captures the current
 English/Spanish Today front, complete provider-data reverse, long Spanish copy,
-and iPhone SE stationary layout. The upload steps were explicitly skipped;
-this candidate is not yet available in TestFlight.
+and iPhone SE stationary layout. The owner-authorized upload run `32906780701`
+then passed Apple's verification and upload with delivery UUID
+`0543a959-d7a8-456d-8fce-b5b1132b960c`. TestFlight availability follows
+Apple's processing of that accepted delivery.
 
 ## Remaining release checklist
 

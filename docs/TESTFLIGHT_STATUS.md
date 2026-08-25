@@ -1,33 +1,36 @@
 # Internal TestFlight status
 
-Updated: 2026-08-18
+Updated: 2026-08-26
 
-## Available build
+## Latest delivery
 
 - App Store Connect app: **The Daily Zodiac** (`6800136195`).
 - Bundle identifier: `com.krazel.zodiacdaily`.
-- Marketing version: `0.2.1`.
+- Marketing version: `0.2.2`.
 - Build: `1`.
 - Minimum OS: iOS 16.0.
 - Audience: internal TestFlight only.
-- Apple state: `En pruebas` (`Testing`), expiring in 90 days.
+- Apple transport state: verified and accepted for processing on 2026-08-26.
 - Export compliance: `usesNonExemptEncryption = false`.
-- Internal group: `Testers`; the build is assigned to the group.
+- Internal group: `Testers`; availability of this delivery depends on Apple
+  finishing TestFlight processing.
 
 No external testing, Beta App Review, App Review, public TestFlight link, App
 Store publication, subscription product, or public release was created.
 
 ## Build evidence
 
-- Source commit: `090929f6f4dccf8e750ebc34b059aff2e0a9f9a6`.
+- Source commit: `40286ad3dbb9cd71b729d83130f7cd0168938043`.
 - Purpose: `TestFlight-Internal`.
-- GitHub Actions run: `32172428478`, completed successfully.
+- GitHub Actions run: `32906780701`, completed successfully.
 - Workflow artifact:
-  `ZodiacDaily-v0.2.1-build-1-TestFlight-run-9`.
+  `ZodiacDaily-v0.2.2-build-1-TestFlight-run-11`.
 - IPA filename:
-  `ZodiacDaily-v0.2.1-build-1-090929f-TestFlight.ipa`.
+  `ZodiacDaily-v0.2.2-build-1-40286ad-TestFlight.ipa`.
 - Apple delivery UUID:
-  `c2449421-e503-4a93-8501-5b697ae66fdd`.
+  `0543a959-d7a8-456d-8fce-b5b1132b960c`.
+- Apple transport verification: `VERIFY SUCCEEDED with no errors`.
+- Apple transport upload: `UPLOAD SUCCEEDED with no errors`.
 - Cloudflare Worker: production schema 3, English/Spanish.
 
 Signing and App Store Connect credentials are encrypted outside Git. Temporary
@@ -49,10 +52,7 @@ No secret value is stored in this repository.
 - Confirm supporter products remain unavailable because no App Store products
   are active in this build.
 
-The owner-directed correction candidate is `0.2.2` build `1`. It must pass its
-own visual, Core, archive, and exact-binary checks before any new upload.
-
-## Validated 0.2.2 candidate — not uploaded
+## Delivered 0.2.2 correction
 
 - App-code commit: `6623459`.
 - Canonical visual-evidence commit: `0611028` (no target source changes).
@@ -64,6 +64,5 @@ own visual, Core, archive, and exact-binary checks before any new upload.
 - English/Spanish front, complete provider-data back, long Spanish copy, and
   stationary compact-height states passed. Current full-screen masters and
   evidence are recorded in `Design/APPROVALS.md`.
-
-A fresh explicit authorization is still required to run the upload-enabled
-workflow for 0.2.2 build 1.
+- The owner explicitly authorized the internal upload. Upload-enabled workflow
+  `32906780701` delivered the exact version/build to Apple successfully.
