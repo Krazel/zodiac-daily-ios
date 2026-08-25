@@ -120,7 +120,7 @@ it is not directly installable until that tool signs it for the test device.
 
 The deliverable workflow currently validates bundle ID
 `com.krazel.zodiacdaily`, marketing version `0.2.3`, build `1`, iOS 16 minimum,
-the packaged endpoint and App Store ID, executable fallback constants, privacy
+the packaged endpoint and App Store ID, executable endpoint fallback, privacy
 manifest, compiled assets, and bundled horoscope content before packaging.
 Historical run `31347517648` (workflow run 5) completed
 successfully for the prior unsigned iOS 16 Local QA IPA. The public remote is

@@ -281,8 +281,8 @@ workspace does not have write access to Brain.
   Today, exige coincidencia exacta de idioma y muestra Retry en vez de presentar
   una carta de emergencia como lectura real.
 - Los workflows Local QA y TestFlight ahora inspeccionan ambas claves dentro
-  del app bundle y ambas constantes dentro del ejecutable. Una IPA desconectada
-  debe fallar antes del empaquetado o subida.
+  del app bundle y la URL de respaldo dentro del ejecutable. Una IPA
+  desconectada debe fallar antes del empaquetado o subida.
 - La build TestFlight 0.2.2/1 queda marcada como defectuosa y no valida el
   producto. 0.2.3/1 todavia no esta subida; requiere validacion CI y una nueva
   autorizacion expresa antes del upload interno.

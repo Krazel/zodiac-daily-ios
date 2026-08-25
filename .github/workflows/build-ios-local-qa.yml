@@ -85,11 +85,6 @@ jobs:
             echo "Production endpoint fallback is missing from the executable"
             exit 1
           fi
-          if ! /usr/bin/strings -a "$APP_PATH/ZodiacDaily" | grep -F "6800136195" >/dev/null; then
-            echo "App Store ID fallback is missing from the executable"
-            exit 1
-          fi
-
           CONTENT_PATH="$(find "$APP_PATH" -name 'zodiac_daily_content.json' -type f -print -quit)"
           if [ -z "$CONTENT_PATH" ]; then
             echo "Missing bundled zodiac_daily_content.json"

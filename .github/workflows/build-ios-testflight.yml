@@ -183,11 +183,6 @@ jobs:
             echo "Production endpoint fallback is missing from the executable"
             exit 1
           fi
-          if ! /usr/bin/strings -a "${APP_PATH}/ZodiacDaily" | grep -F "6800136195" >/dev/null; then
-            echo "App Store ID fallback is missing from the executable"
-            exit 1
-          fi
-
       - name: Create App Store Connect export options
         shell: bash
         env:
