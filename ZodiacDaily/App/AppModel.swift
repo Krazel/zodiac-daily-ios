@@ -102,17 +102,10 @@ final class AppModel: ObservableObject {
         #endif
 
         do {
-            let bundledRepository = try BundledHoroscopeRepository()
-            let source: any HoroscopeRepository
-            if let baseURL = AppConfiguration.apiBaseURL,
-               let remoteRepository = try? RemoteHoroscopeRepository(baseURL: baseURL) {
-                source = FallbackHoroscopeRepository(
-                    primary: remoteRepository,
-                    fallback: bundledRepository
-                )
-            } else {
-                source = bundledRepository
-            }
+            // Today is provider-backed. Showing bundled English emergency
+            // copy as if it were live hid configuration failures and produced
+            // an empty reverse. A real service failure now shows Retry.
+            let source = try RemoteHoroscopeRepository(baseURL: AppConfiguration.apiBaseURL)
             repository = PinnedHoroscopeRepository(
                 upstream: source,
                 store: FileBackedSavedCardStore(

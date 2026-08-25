@@ -1,14 +1,13 @@
 # Remote daily content
 
-Updated: 2026-08-11
+Updated: 2026-08-26
 
 The app loads a fresh daily edition from a Zodiac Daily-owned HTTPS endpoint.
-English requests may use the bundled English emergency edition on connectivity,
-HTTP, date, or payload errors. Spanish requests never change silently to
-English: they use the pinned Spanish provider edition when available, otherwise
-surface an unavailable state until the Spanish service succeeds. Saved cards
-remain immutable local snapshots; the remote repository does not change the
-save/archive model.
+Today never presents the bundled English emergency edition as if it were live.
+On connectivity, HTTP, date, language, or payload errors it shows an unavailable
+state with Retry. Spanish requests never change silently to English. Saved
+cards remain immutable local snapshots; the remote repository does not change
+the save/archive model.
 
 The first complete provider card for each language, sign, and local date is
 pinned in the separate `daily-editions.json` archive. Bundled emergency cards
@@ -27,8 +26,11 @@ available for that session.
 
 The non-secret Xcode build setting `ZODIAC_DAILY_API_BASE_URL` is set to
 `https://zodiac-daily-content.krazel-zodiac-daily.workers.dev`, without
-credentials, query, or fragment. A FreeAstroAPI key exists only in the
-server-side adapter and must never be copied into the app or its build settings.
+credentials, query, or fragment. The same public address is compiled as a safe
+default. Release workflows inspect both the signed app's `Info.plist` and
+executable and fail if either configuration path is absent. A FreeAstroAPI key
+exists only in the server-side adapter and must never be copied into the app or
+its build settings.
 
 The app requests:
 
@@ -83,7 +85,8 @@ schema 3 without `language` is rejected. Each
 `content_version` must be a positive integer. `requested_date` must exactly
 match the requested local Gregorian day, and `content_date` must always equal
 `requested_date`. A last-valid payload from another date is deliberately
-rejected so the app falls back to its date-correct bundled card. The server
+rejected so the app reports the edition unavailable instead of presenting
+unrelated bundled copy. The server
 caches one validated twelve-sign document per language/date. FreeAstroAPI is
 called only for the English source document; Workers AI translates that cached
 document once to Spanish. App traffic invokes neither service.
@@ -107,6 +110,7 @@ never the selected sign, birth data, account data, or saved cards.
 The bilingual schema-3 Worker is deployed in production. The Workers AI
 binding passed a remote preview smoke test on 2026-08-11 with valid Spanish and
 accented characters. Production includes bounded translation retries and
-automatic cache repair. Version 0.2.2 keeps the live Today edition separate
-from old Saved snapshots and makes Spanish selection strict rather than
-silently falling back to English.
+automatic cache repair. Version 0.2.3 packages and compiles the public endpoint,
+keeps the live Today edition separate from old Saved snapshots, requires an
+exact language match, and refuses to present incomplete emergency content as a
+provider edition.

@@ -142,6 +142,29 @@ final class PinnedHoroscopeRepositoryTests: XCTestCase {
         XCTAssertNotEqual(resolvedEnglish.archiveKey, resolvedSpanish.archiveKey)
     }
 
+    func testSpanishRequestRejectsEnglishEdition() async throws {
+        let day = try XCTUnwrap(LocalDayKey(rawValue: "2026-08-09"))
+        let english = makeHoroscope(day: day, headline: "English only", version: 1)
+        let repository = PinnedHoroscopeRepository(
+            upstream: MutableHoroscopeRepository(english),
+            store: InMemorySavedCardStore()
+        )
+
+        do {
+            _ = try await repository.horoscope(
+                for: .scorpio,
+                day: day,
+                language: .spanish
+            )
+            XCTFail("Expected a mismatched-language error")
+        } catch {
+            XCTAssertEqual(
+                error as? PinnedHoroscopeRepositoryError,
+                .mismatchedEdition
+            )
+        }
+    }
+
     func testLegacyIncompletePinIsReplacedByCompleteProviderEdition() async throws {
         let day = try XCTUnwrap(LocalDayKey(rawValue: "2026-08-09"))
         let directory = FileManager.default.temporaryDirectory

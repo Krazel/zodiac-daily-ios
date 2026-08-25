@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       build_number:
-        description: "Unique build number for marketing version 0.2.2"
+        description: "Unique build number for marketing version 0.2.3"
         required: true
         default: "1"
         type: string
@@ -31,7 +31,7 @@ jobs:
     timeout-minutes: 40
     environment: app-store-production
     env:
-      APP_VERSION: "0.2.2"
+      APP_VERSION: "0.2.3"
       APP_BUNDLE_ID: com.krazel.zodiacdaily
       APPLE_TEAM_ID: B2X6D3A9J9
 
@@ -177,6 +177,10 @@ jobs:
           test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "${APP_PATH}/Info.plist")" = "${BUILD_NUMBER}"
           test "$(/usr/libexec/PlistBuddy -c 'Print :MinimumOSVersion' "${APP_PATH}/Info.plist")" = "16.0"
           test "$(/usr/libexec/PlistBuddy -c 'Print :ITSAppUsesNonExemptEncryption' "${APP_PATH}/Info.plist")" = "false"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :ZodiacDailyAPIBaseURL' "${APP_PATH}/Info.plist")" = "https://zodiac-daily-content.krazel-zodiac-daily.workers.dev"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :ZodiacDailyAppStoreID' "${APP_PATH}/Info.plist")" = "6800136195"
+          /usr/bin/strings "${APP_PATH}/ZodiacDaily" | grep -Fq "zodiac-daily-content.krazel-zodiac-daily.workers.dev"
+          /usr/bin/strings "${APP_PATH}/ZodiacDaily" | grep -Fq "6800136195"
 
       - name: Create App Store Connect export options
         shell: bash

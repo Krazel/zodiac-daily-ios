@@ -55,6 +55,7 @@ jobs:
           BUILD="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$APP_PATH/Info.plist")"
           MINIMUM_IOS="$(/usr/libexec/PlistBuddy -c 'Print :MinimumOSVersion' "$APP_PATH/Info.plist")"
           API_BASE_URL="$(/usr/libexec/PlistBuddy -c 'Print :ZodiacDailyAPIBaseURL' "$APP_PATH/Info.plist")"
+          APP_STORE_ID="$(/usr/libexec/PlistBuddy -c 'Print :ZodiacDailyAppStoreID' "$APP_PATH/Info.plist")"
 
           require_value() {
             if [ "$1" != "$2" ]; then
@@ -72,13 +73,16 @@ jobs:
 
           echo "Validating ${BUNDLE_ID} v${VERSION} (${BUILD}), minimum iOS ${MINIMUM_IOS}"
           require_value "$BUNDLE_ID" "com.krazel.zodiacdaily" "bundle identifier"
-          require_value "$VERSION" "0.2.2" "marketing version"
+          require_value "$VERSION" "0.2.3" "marketing version"
           require_value "$BUILD" "1" "build number"
           require_value "$MINIMUM_IOS" "16.0" "minimum iOS version"
           require_value "$API_BASE_URL" "https://zodiac-daily-content.krazel-zodiac-daily.workers.dev" "API base URL"
+          require_value "$APP_STORE_ID" "6800136195" "App Store ID"
           require_file "$APP_PATH/ZodiacDaily"
           require_file "$APP_PATH/PrivacyInfo.xcprivacy"
           require_file "$APP_PATH/Assets.car"
+          /usr/bin/strings "$APP_PATH/ZodiacDaily" | grep -Fq "zodiac-daily-content.krazel-zodiac-daily.workers.dev"
+          /usr/bin/strings "$APP_PATH/ZodiacDaily" | grep -Fq "6800136195"
 
           CONTENT_PATH="$(find "$APP_PATH" -name 'zodiac_daily_content.json' -type f -print -quit)"
           if [ -z "$CONTENT_PATH" ]; then
@@ -120,7 +124,7 @@ jobs:
       - name: Upload Local QA artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ZodiacDaily-v0.2.2-build-1-${{ github.sha }}-Local-QA-run-${{ github.run_number }}
+          name: ZodiacDaily-v0.2.3-build-1-${{ github.sha }}-Local-QA-run-${{ github.run_number }}
           path: output/*
           if-no-files-found: error
           retention-days: 7

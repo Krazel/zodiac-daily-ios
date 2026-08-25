@@ -1,4 +1,4 @@
-# Brain handoff — 2026-08-10
+# Brain handoff — updated 2026-08-26
 
 Use this block to update `Brain/projects/zodiac-daily.md` while the project
 workspace does not have write access to Brain.
@@ -266,3 +266,23 @@ workspace does not have write access to Brain.
 - App Store Connect muestra la build `En pruebas`, asignada al grupo interno
   `Testers` y con caducidad de 90 dias. No se creo testing externo, enlace
   publico, Beta App Review, App Review, IAP ni publicacion.
+
+## Correccion 2026-08-26 — IPA desconectada
+
+- El propietario informo que Scorpio mostraba solo la esencia inglesa
+  `Intense · Perceptive · Transformative` y el reverso de emergencia.
+- La inspeccion del IPA exacto 0.2.2/1 del run `32906780701` confirmo la causa:
+  el `Info.plist` generado por Xcode omitio `ZodiacDailyAPIBaseURL` y
+  `ZodiacDailyAppStoreID`. La app nunca contacto al Worker y uso el catalogo
+  ingles incorporado sin datos de proveedor. El Worker schema 3 EN/ES estaba
+  sano y devolvia Scorpio completo.
+- La correccion 0.2.3/1 usa un `Info.plist` explicito, compila la URL publica y
+  el App Store ID como valores seguros, usa solo el repositorio remoto para
+  Today, exige coincidencia exacta de idioma y muestra Retry en vez de presentar
+  una carta de emergencia como lectura real.
+- Los workflows Local QA y TestFlight ahora inspeccionan ambas claves dentro
+  del app bundle y ambas constantes dentro del ejecutable. Una IPA desconectada
+  debe fallar antes del empaquetado o subida.
+- La build TestFlight 0.2.2/1 queda marcada como defectuosa y no valida el
+  producto. 0.2.3/1 todavia no esta subida; requiere validacion CI y una nueva
+  autorizacion expresa antes del upload interno.

@@ -2,15 +2,19 @@
 
 Updated: 2026-08-26
 
-Internal TestFlight delivery `0.2.2` (`1`) was accepted by Apple's upload
-service and is awaiting or completing TestFlight processing. This document
-does not authorize StoreKit products, external testing, App Review, or
-publication.
+Internal TestFlight delivery `0.2.2` (`1`) was accepted by Apple but is not a
+valid product candidate: its generated plist omitted the production endpoint,
+so the app displayed English emergency content with an incomplete reverse.
+Correction `0.2.3` (`1`) is being validated locally and in CI. This document
+does not authorize another TestFlight upload, StoreKit products, external
+testing, App Review, or publication.
 
 ## Recorded scope
 
-- Current internal TestFlight delivery 0.2.2/1: iPhone / iOS 16+, English/Spanish
-  interface and language-specific daily editions selected in Settings.
+- Current internal TestFlight delivery 0.2.2/1: known disconnected build; do
+  not use it for acceptance testing.
+- Correction candidate 0.2.3/1: iPhone / iOS 16+, English/Spanish interface and
+  language-specific daily editions selected in Settings.
 - This correction prevents legacy Saved cards
   from replacing the live Spanish edition, makes Spanish strict, repairs the
   direct sign selector, and applies the owner-directed Today spacing and icon
@@ -115,9 +119,10 @@ The IPA is intended as input to a local signing/install tool such as Sideloadly;
 it is not directly installable until that tool signs it for the test device.
 
 The deliverable workflow currently validates bundle ID
-`com.krazel.zodiacdaily`, marketing version `0.2.2`, build `1`, iOS 16 minimum,
-executable, privacy manifest, compiled assets, and bundled horoscope content
-before packaging. Historical run `31347517648` (workflow run 5) completed
+`com.krazel.zodiacdaily`, marketing version `0.2.3`, build `1`, iOS 16 minimum,
+the packaged endpoint and App Store ID, executable fallback constants, privacy
+manifest, compiled assets, and bundled horoscope content before packaging.
+Historical run `31347517648` (workflow run 5) completed
 successfully for the prior unsigned iOS 16 Local QA IPA. The public remote is
 `Krazel/zodiac-daily-ios`; the GitHub
 connector's repo-specific access remains optional because the existing Git
@@ -143,6 +148,10 @@ and iPhone SE stationary layout. The owner-authorized upload run `32906780701`
 then passed Apple's verification and upload with delivery UUID
 `0543a959-d7a8-456d-8fce-b5b1132b960c`. TestFlight availability follows
 Apple's processing of that accepted delivery.
+
+Post-delivery inspection found that the 0.2.2 IPA omitted both custom plist
+values, so it could not contact the Worker. Version 0.2.3 build 1 is the
+corrective candidate; no upload is authorized or recorded yet.
 
 ## Remaining release checklist
 

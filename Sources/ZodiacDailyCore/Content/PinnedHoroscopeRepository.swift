@@ -58,10 +58,9 @@ public actor PinnedHoroscopeRepository: HoroscopeRepository {
             day: day,
             language: language
         )
-        let isPermittedEnglishFallback = language == .spanish && resolved.language == .english
         guard resolved.sign == sign,
               resolved.day == day,
-              resolved.language == language || isPermittedEnglishFallback else {
+              resolved.language == language else {
             throw PinnedHoroscopeRepositoryError.mismatchedEdition
         }
 

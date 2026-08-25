@@ -66,3 +66,18 @@ No secret value is stored in this repository.
   evidence are recorded in `Design/APPROVALS.md`.
 - The owner explicitly authorized the internal upload. Upload-enabled workflow
   `32906780701` delivered the exact version/build to Apple successfully.
+
+## Known defect in delivered 0.2.2
+
+Inspection of the exact signed IPA showed that Xcode omitted the custom
+`ZodiacDailyAPIBaseURL` and `ZodiacDailyAppStoreID` values from the generated
+`Info.plist`. Consequently, 0.2.2 never contacted the production Worker: it
+displayed bundled English emergency copy and the incomplete reverse. The Worker
+and its English/Spanish schema-3 editions remained healthy. Build 0.2.2 must not
+be used for product acceptance.
+
+Correction candidate `0.2.3` build `1` uses an explicit plist plus a compiled
+public endpoint fallback, requires exact-language provider content, refuses to
+present bundled emergency copy as live Today content, and adds signed-archive
+checks that fail if either value is absent. It has not been uploaded to
+TestFlight.
