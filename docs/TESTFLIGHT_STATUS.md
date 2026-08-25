@@ -79,5 +79,9 @@ be used for product acceptance.
 Correction candidate `0.2.3` build `1` uses an explicit plist plus a compiled
 public endpoint fallback, requires exact-language provider content, refuses to
 present bundled emergency copy as live Today content, and adds signed-archive
-checks that fail if either value is absent. It has not been uploaded to
-TestFlight.
+checks that fail if either value is absent. Local QA workflow `32912659741`
+passed 65 Core tests, the unsigned Release build, packaged-value inspection,
+and IPA packaging from commit `fb65eb9`. Artifact
+`ZodiacDaily-v0.2.3-build-1-fb65eb9474a3060d689c0134fde39582b0e0f575-Local-QA-run-11`
+has digest `sha256:c102ab8f0172c24c086ae4b1dae07660ce2e7fa2afb01d7f04d0fd97c6b6fd3d`.
+It has not been uploaded to TestFlight.

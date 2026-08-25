@@ -87,6 +87,8 @@ a release blocker for EU distribution.
 - StoreKit boundary: `ZodiacDaily/Store/SupportStore.swift`
 - Privacy Manifest: `ZodiacDaily/Resources/PrivacyInfo.xcprivacy`
 - Xcode target settings: `ZodiacDaily.xcodeproj/project.pbxproj`
+- Exact 0.2.3/1 Local QA validation: GitHub Actions run `32912659741`, commit
+  `fb65eb9`; 65 Core tests and packaged configuration inspection passed.
 - Public-page minimization commit in `Krazel/krazel.github.io`: `450aadf`
 
 ## Gate

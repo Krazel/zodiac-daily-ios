@@ -284,5 +284,9 @@ workspace does not have write access to Brain.
   del app bundle y la URL de respaldo dentro del ejecutable. Una IPA
   desconectada debe fallar antes del empaquetado o subida.
 - La build TestFlight 0.2.2/1 queda marcada como defectuosa y no valida el
-  producto. 0.2.3/1 todavia no esta subida; requiere validacion CI y una nueva
-  autorizacion expresa antes del upload interno.
+  producto. 0.2.3/1 paso el run Local QA `32912659741` desde `fb65eb9`: 65
+  pruebas Core, build Release, inspeccion de valores empaquetados y creacion de
+  IPA sin firma de distribucion. El artefacto tiene digest
+  `sha256:c102ab8f0172c24c086ae4b1dae07660ce2e7fa2afb01d7f04d0fd97c6b6fd3d`.
+  Todavia no esta subida; requiere una nueva autorizacion expresa antes del
+  upload interno.

@@ -128,6 +128,12 @@ successfully for the prior unsigned iOS 16 Local QA IPA. The public remote is
 connector's repo-specific access remains optional because the existing Git
 credential can push and dispatch this workflow.
 
+Correction run `32912659741` completed successfully from commit `fb65eb9` for
+0.2.3/1: 65 Core tests passed, the unsigned Release app built, the packaged
+endpoint and App Store ID matched, the executable endpoint fallback was found,
+and the versioned Local QA IPA artifact was stored. This is validation only and
+did not sign with distribution credentials or contact App Store Connect.
+
 ## Internal TestFlight
 
 The protected manual workflow
