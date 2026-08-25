@@ -179,8 +179,14 @@ jobs:
           test "$(/usr/libexec/PlistBuddy -c 'Print :ITSAppUsesNonExemptEncryption' "${APP_PATH}/Info.plist")" = "false"
           test "$(/usr/libexec/PlistBuddy -c 'Print :ZodiacDailyAPIBaseURL' "${APP_PATH}/Info.plist")" = "https://zodiac-daily-content.krazel-zodiac-daily.workers.dev"
           test "$(/usr/libexec/PlistBuddy -c 'Print :ZodiacDailyAppStoreID' "${APP_PATH}/Info.plist")" = "6800136195"
-          /usr/bin/strings "${APP_PATH}/ZodiacDaily" | grep -F "zodiac-daily-content.krazel-zodiac-daily.workers.dev" >/dev/null
-          /usr/bin/strings "${APP_PATH}/ZodiacDaily" | grep -F "6800136195" >/dev/null
+          if ! /usr/bin/strings -a "${APP_PATH}/ZodiacDaily" | grep -F "zodiac-daily-content.krazel-zodiac-daily.workers.dev" >/dev/null; then
+            echo "Production endpoint fallback is missing from the executable"
+            exit 1
+          fi
+          if ! /usr/bin/strings -a "${APP_PATH}/ZodiacDaily" | grep -F "6800136195" >/dev/null; then
+            echo "App Store ID fallback is missing from the executable"
+            exit 1
+          fi
 
       - name: Create App Store Connect export options
         shell: bash

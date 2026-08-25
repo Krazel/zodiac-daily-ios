@@ -81,8 +81,14 @@ jobs:
           require_file "$APP_PATH/ZodiacDaily"
           require_file "$APP_PATH/PrivacyInfo.xcprivacy"
           require_file "$APP_PATH/Assets.car"
-          /usr/bin/strings "$APP_PATH/ZodiacDaily" | grep -F "zodiac-daily-content.krazel-zodiac-daily.workers.dev" >/dev/null
-          /usr/bin/strings "$APP_PATH/ZodiacDaily" | grep -F "6800136195" >/dev/null
+          if ! /usr/bin/strings -a "$APP_PATH/ZodiacDaily" | grep -F "zodiac-daily-content.krazel-zodiac-daily.workers.dev" >/dev/null; then
+            echo "Production endpoint fallback is missing from the executable"
+            exit 1
+          fi
+          if ! /usr/bin/strings -a "$APP_PATH/ZodiacDaily" | grep -F "6800136195" >/dev/null; then
+            echo "App Store ID fallback is missing from the executable"
+            exit 1
+          fi
 
           CONTENT_PATH="$(find "$APP_PATH" -name 'zodiac_daily_content.json' -type f -print -quit)"
           if [ -z "$CONTENT_PATH" ]; then
