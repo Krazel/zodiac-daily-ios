@@ -288,5 +288,11 @@ workspace does not have write access to Brain.
   pruebas Core, build Release, inspeccion de valores empaquetados y creacion de
   IPA sin firma de distribucion. El artefacto tiene digest
   `sha256:c102ab8f0172c24c086ae4b1dae07660ce2e7fa2afb01d7f04d0fd97c6b6fd3d`.
-  Todavia no esta subida; requiere una nueva autorizacion expresa antes del
-  upload interno.
+  El propietario autorizo el upload interno. Run `32915420982`: 65 pruebas,
+  analisis Release, firma, inspeccion del endpoint dentro del archive, export,
+  verificacion y subida Apple correctas. Delivery UUID
+  `a8f5f3b7-d5df-4a4d-9427-5a421f7aebe3`.
+- El run de inspeccion App Store Connect `32915848511` confirma 0.2.3/1
+  `VALID`, iOS 16.0, `INTERNAL_ONLY`, no caducada, sin cifrado no exento y con
+  acceso automatico para el grupo interno `Testers` (dos testers). No se creo
+  testing externo, enlace publico, App Review ni publicacion.

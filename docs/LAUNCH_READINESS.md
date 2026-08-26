@@ -2,18 +2,17 @@
 
 Updated: 2026-08-26
 
-Internal TestFlight delivery `0.2.2` (`1`) was accepted by Apple but is not a
-valid product candidate: its generated plist omitted the production endpoint,
-so the app displayed English emergency content with an incomplete reverse.
-Correction `0.2.3` (`1`) is being validated locally and in CI. This document
-does not authorize another TestFlight upload, StoreKit products, external
-testing, App Review, or publication.
+Internal TestFlight correction `0.2.3` (`1`) is processed as `VALID` and is
+available to the automatic internal `Testers` group. It replaces the invalid
+0.2.2 product candidate whose generated plist omitted the production endpoint.
+This document does not authorize StoreKit products, external testing, App
+Review, or publication.
 
 ## Recorded scope
 
-- Current internal TestFlight delivery 0.2.2/1: known disconnected build; do
-  not use it for acceptance testing.
-- Correction candidate 0.2.3/1: iPhone / iOS 16+, English/Spanish interface and
+- Historical internal TestFlight delivery 0.2.2/1: known disconnected build;
+  do not use it for acceptance testing.
+- Current internal TestFlight 0.2.3/1: iPhone / iOS 16+, English/Spanish interface and
   language-specific daily editions selected in Settings.
 - This correction prevents legacy Saved cards
   from replacing the live Spanish edition, makes Spanish strict, repairs the
@@ -157,7 +156,12 @@ Apple's processing of that accepted delivery.
 
 Post-delivery inspection found that the 0.2.2 IPA omitted both custom plist
 values, so it could not contact the Worker. Version 0.2.3 build 1 is the
-corrective candidate; no upload is authorized or recorded yet.
+corrective build. Upload run `32915420982` passed 65 tests, Release analysis,
+signed archive configuration checks, export, Apple verification, and Apple
+upload. Delivery UUID: `a8f5f3b7-d5df-4a4d-9427-5a421f7aebe3`.
+Read-only App Store Connect run `32915848511` confirmed `VALID`, iOS 16.0,
+`INTERNAL_ONLY`, not expired, and automatic access for the internal `Testers`
+group.
 
 ## Remaining release checklist
 

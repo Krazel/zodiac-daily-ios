@@ -6,31 +6,36 @@ Updated: 2026-08-26
 
 - App Store Connect app: **The Daily Zodiac** (`6800136195`).
 - Bundle identifier: `com.krazel.zodiacdaily`.
-- Marketing version: `0.2.2`.
+- Marketing version: `0.2.3`.
 - Build: `1`.
 - Minimum OS: iOS 16.0.
 - Audience: internal TestFlight only.
-- Apple transport state: verified and accepted for processing on 2026-08-26.
+- Apple processing state: `VALID`.
 - Export compliance: `usesNonExemptEncryption = false`.
-- Internal group: `Testers`; availability of this delivery depends on Apple
-  finishing TestFlight processing.
+- Internal group: `Testers`; `hasAccessToAllBuilds = true`, two internal
+  testers, audience `INTERNAL_ONLY`.
 
 No external testing, Beta App Review, App Review, public TestFlight link, App
 Store publication, subscription product, or public release was created.
 
 ## Build evidence
 
-- Source commit: `40286ad3dbb9cd71b729d83130f7cd0168938043`.
+- Source commit: `b63c908ddb3894d0e9d64787c81cb345af5607ce`.
 - Purpose: `TestFlight-Internal`.
-- GitHub Actions run: `32906780701`, completed successfully.
+- GitHub Actions run: `32915420982`, completed successfully.
 - Workflow artifact:
-  `ZodiacDaily-v0.2.2-build-1-TestFlight-run-11`.
+  `ZodiacDaily-v0.2.3-build-1-TestFlight-run-12`.
 - IPA filename:
-  `ZodiacDaily-v0.2.2-build-1-40286ad-TestFlight.ipa`.
+  `ZodiacDaily-v0.2.3-build-1-b63c908-TestFlight.ipa`.
 - Apple delivery UUID:
-  `0543a959-d7a8-456d-8fce-b5b1132b960c`.
+  `a8f5f3b7-d5df-4a4d-9427-5a421f7aebe3`.
 - Apple transport verification: `VERIFY SUCCEEDED with no errors`.
 - Apple transport upload: `UPLOAD SUCCEEDED with no errors`.
+- Artifact digest:
+  `sha256:77d83f40da66610170729977e50e88abc1c6a31ae69055b64cd2b679003f2fde`.
+- App Store Connect inspection run: `32915848511`, success; version/build
+  `0.2.3 (1)`, `VALID`, iOS 16.0 minimum, not expired, no non-exempt
+  encryption, internal only, automatic access for `Testers`.
 - Cloudflare Worker: production schema 3, English/Spanish.
 
 Signing and App Store Connect credentials are encrypted outside Git. Temporary
@@ -76,7 +81,7 @@ displayed bundled English emergency copy and the incomplete reverse. The Worker
 and its English/Spanish schema-3 editions remained healthy. Build 0.2.2 must not
 be used for product acceptance.
 
-Correction candidate `0.2.3` build `1` uses an explicit plist plus a compiled
+The delivered correction `0.2.3` build `1` uses an explicit plist plus a compiled
 public endpoint fallback, requires exact-language provider content, refuses to
 present bundled emergency copy as live Today content, and adds signed-archive
 checks that fail if either value is absent. Local QA workflow `32912659741`
@@ -84,4 +89,6 @@ passed 65 Core tests, the unsigned Release build, packaged-value inspection,
 and IPA packaging from commit `fb65eb9`. Artifact
 `ZodiacDaily-v0.2.3-build-1-fb65eb9474a3060d689c0134fde39582b0e0f575-Local-QA-run-11`
 has digest `sha256:c102ab8f0172c24c086ae4b1dae07660ce2e7fa2afb01d7f04d0fd97c6b6fd3d`.
-It has not been uploaded to TestFlight.
+The correction was subsequently signed, inspected, uploaded, processed, and
+made available to the automatic internal group by runs `32915420982` and
+`32915848511`.

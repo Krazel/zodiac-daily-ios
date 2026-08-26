@@ -89,6 +89,10 @@ a release blocker for EU distribution.
 - Xcode target settings: `ZodiacDaily.xcodeproj/project.pbxproj`
 - Exact 0.2.3/1 Local QA validation: GitHub Actions run `32912659741`, commit
   `fb65eb9`; 65 Core tests and packaged configuration inspection passed.
+- Exact delivered TestFlight binary: run `32915420982`, source commit
+  `b63c908`, delivery UUID `a8f5f3b7-d5df-4a4d-9427-5a421f7aebe3`;
+  App Store Connect inspection `32915848511` confirmed `VALID` and internal
+  only.
 - Public-page minimization commit in `Krazel/krazel.github.io`: `450aadf`
 
 ## Gate
