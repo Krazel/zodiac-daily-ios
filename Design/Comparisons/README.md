@@ -104,3 +104,20 @@ regular-size scrolling. Spanish long copy remains inside the frame. The front
 and back use the same turn icon, the Settings gear has no surrounding circle,
 and the direct sign capsule is implemented as a single button rather than a
 dual-action menu.
+
+## Settings performance and one-tap sign-change validation
+
+- Workflow run: `32917443740`
+- Captured commit: `9bd4d33`
+- Simulator: iPhone 15 Pro and iPhone SE (3rd generation)
+- Artifact: `ZodiacDaily-Visual-QA-31`
+- Artifact SHA-256 digest:
+  `323058cbbb2c3e7d057b7137faae9a654a5879b9f48b6db076d6e64f9b211b48`
+
+The run passed 65 Core tests, compiled the full visual-QA app, captured every
+approved state in English plus the Spanish Today states, and verified the
+stationary Today, long-copy Today, and saved-detail layouts on iPhone SE. The
+code caches immutable localization bundles, builds Settings sections lazily,
+and applies sign changes immediately when the selector is opened from Today or
+Settings. First launch retains the approved explicit Continue action. The C5
+card-frame proposals remain unapproved and were not implemented by this run.

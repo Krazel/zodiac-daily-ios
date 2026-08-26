@@ -54,6 +54,14 @@ specifications:
 - `today-settings-entry-c4.png` — complete Today proposal showing the visible
   Settings entry while retaining the sign selector's direct action; SHA-256
   `45afee32eac0ab2fd92345b7b58babcd74aa0494aaa9f32be4c0e470d876fa9f`.
+- `today-readable-frame-c5a.png` — unapproved 853 x 1844 full-screen proposal
+  with a restrained double-line frame, four-point corner stars, and larger
+  reading typography; SHA-256
+  `c7c1e28c4c273ccd5ba8dc3e836cd6957f53167fa5a9c57a1bffb55063dc7387`.
+- `today-readable-frame-c5b.png` — unapproved 853 x 1844 full-screen proposal
+  with an engraved crescent-corner frame, slightly squarer geometry, and the
+  same larger reading target; SHA-256
+  `2086a188263371138f8801c4b27312fc640bb2d32401629dd8f07e2dbd0159b4`.
 
 The schema-3 candidate adds only functional language variants to the existing
 hierarchy: an actual-language `EN`/`ES` marker on saved snapshots and an

@@ -296,3 +296,24 @@ workspace does not have write access to Brain.
   `VALID`, iOS 16.0, `INTERNAL_ONLY`, no caducada, sin cifrado no exento y con
   acceso automatico para el grupo interno `Testers` (dos testers). No se creo
   testing externo, enlace publico, App Review ni publicacion.
+
+## Ajustes posteriores solicitados — rendimiento, signo y legibilidad
+
+- El lag de primera apertura de Settings se rastreo a mas de 50 resoluciones de
+  localizacion que buscaban y reconstruian el bundle de idioma durante la
+  animacion. Commit `9bd4d33` cachea los bundles EN/ES y cambia solo el
+  contenedor exterior de Settings a carga diferida; StoreKit no se recarga al
+  abrir la pantalla y no se modifico.
+- Desde Today o Settings, tocar un signo ahora lo aplica y cierra el selector
+  en el mismo gesto. El primer inicio conserva seleccion pendiente + Continue
+  porque esa es la maestra aprobada.
+- Run visual QA `32917443740`: 65 pruebas, compilacion iOS, capturas de todos
+  los estados y validacion estacionaria de iPhone SE correctas. No genero IPA
+  ni hizo upload a Apple.
+- El texto live llegaba a 9,25–10,5 pt por la heuristica de copy largo dentro de
+  la carta fija. Se prepararon dos propuestas completas sin aprobar:
+  `Design/Concepts/today-readable-frame-c5a.png` (doble linea limpia, recomendada)
+  y `Design/Concepts/today-readable-frame-c5b.png` (esquinas luna grabadas).
+  Ambas aumentan el cuerpo a un objetivo visual de 17–18 pt y recuperan espacio
+  eliminando el aro gris pesado. La UI final de carta queda bloqueada hasta que
+  el propietario elija A o B; C4 sigue siendo la maestra vigente.
