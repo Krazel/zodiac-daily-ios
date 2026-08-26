@@ -1,0 +1,76 @@
+name: Inspect Zodiac Daily TestFlight
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    if: github.actor == github.repository_owner
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: app-store-production
+
+    steps:
+      - name: Checkout approved source
+        uses: actions/checkout@v5
+
+      - name: Require App Store Connect credentials
+        shell: bash
+        env:
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
+        run: |
+          set -euo pipefail
+          for NAME in APP_STORE_CONNECT_API_KEY_ID APP_STORE_CONNECT_ISSUER_ID APP_STORE_CONNECT_API_KEY_BASE64; do
+            if [ -z "${!NAME:-}" ]; then
+              echo "Required TestFlight inspection secret is missing: ${NAME}."
+              exit 1
+            fi
+          done
+
+      - name: Inspect processed internal build
+        shell: bash
+        env:
+          ASC_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          ASC_PRIVATE_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
+        run: |
+          set -euo pipefail
+          KEY_PATH="${RUNNER_TEMP}/zodiac-testflight-inspection.p8"
+          STATUS_PATH="${RUNNER_TEMP}/zodiac-testflight-status.json"
+          cleanup() {
+            rm -f "${KEY_PATH}" "${STATUS_PATH}"
+          }
+          trap cleanup EXIT
+          printf '%s' "${ASC_PRIVATE_KEY_BASE64}" | base64 --decode > "${KEY_PATH}"
+          chmod 600 "${KEY_PATH}"
+          export ASC_PRIVATE_KEY_PATH="${KEY_PATH}"
+
+          STATE="MISSING"
+          for ATTEMPT in $(seq 1 30); do
+            node scripts/inspect-zodiac-testflight.mjs > "${STATUS_PATH}"
+            STATE="$(jq -r '.builds[0].processingState // "MISSING"' "${STATUS_PATH}")"
+            if [ "${STATE}" = "VALID" ]; then
+              cat "${STATUS_PATH}"
+              break
+            fi
+            if [ "${STATE}" != "MISSING" ] && [ "${STATE}" != "PROCESSING" ]; then
+              cat "${STATUS_PATH}"
+              echo "Unexpected TestFlight processing state: ${STATE}."
+              exit 1
+            fi
+            echo "Waiting for TestFlight processing (${ATTEMPT}/30, state ${STATE})..."
+            sleep 30
+          done
+
+          test "${STATE}" = "VALID"
+          jq -e '.betaGroups[] | select(.isInternalGroup == true and .hasAccessToAllBuilds == true)' "${STATUS_PATH}" >/dev/null
+
+      - name: Remove temporary inspection files
+        if: always()
+        shell: bash
+        run: rm -f "${RUNNER_TEMP}/zodiac-testflight-inspection.p8" "${RUNNER_TEMP}/zodiac-testflight-status.json"
