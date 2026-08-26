@@ -295,28 +295,35 @@ struct StationaryFittedVerticalView<Content: View>: View {
                     ? min(1, availableHeight / contentHeight)
                     : 1
 
-                content
-                    .frame(width: viewport.size.width)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .background {
-                        GeometryReader { measuredContent in
-                            Color.clear.preference(
-                                key: StationaryContentHeightKey.self,
-                                value: measuredContent.size.height
-                            )
+                // Keep the unscaled content pinned to the viewport's top edge.
+                // A smaller frame wrapped directly around a transformed view can
+                // recenter overflowing descendants during SwiftUI's second layout
+                // pass (notably the long-reading card on iPhone SE). The explicit
+                // top-aligned container gives the transform a stable origin while
+                // the outer viewport provides the only clipping boundary.
+                ZStack(alignment: .top) {
+                    content
+                        .frame(width: viewport.size.width)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .background {
+                            GeometryReader { measuredContent in
+                                Color.clear.preference(
+                                    key: StationaryContentHeightKey.self,
+                                    value: measuredContent.size.height
+                                )
+                            }
                         }
-                    }
-                    .scaleEffect(fittedScale, anchor: .top)
-                    .frame(
-                        width: viewport.size.width,
-                        height: contentHeight * fittedScale,
-                        alignment: .top
-                    )
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                    .clipped()
-                    .onPreferenceChange(StationaryContentHeightKey.self) { measuredHeight in
-                        contentHeight = measuredHeight
-                    }
+                        .scaleEffect(fittedScale, anchor: .top)
+                }
+                .frame(
+                    width: viewport.size.width,
+                    height: availableHeight,
+                    alignment: .top
+                )
+                .clipped()
+                .onPreferenceChange(StationaryContentHeightKey.self) { measuredHeight in
+                    contentHeight = measuredHeight
+                }
             }
         }
     }
