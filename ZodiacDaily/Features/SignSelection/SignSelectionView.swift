@@ -53,42 +53,40 @@ struct SignSelectionView: View {
                                     isSelected: pendingSign == sign,
                                     usesAccessibleHeight: dynamicTypeSize.isAccessibilitySize
                                 ) {
-                                    pendingSign = sign
+                                    select(sign)
                                 }
                             }
                         }
                         .frame(maxWidth: dynamicTypeSize.isAccessibilitySize ? 354 : 330)
                         .padding(.bottom, 28)
 
-                        Button(action: confirmSelection) {
-                            HStack(spacing: 16) {
-                                Text("✦")
-                                    .accessibilityHidden(true)
-                                Text(
-                                    requiresSelection
-                                        ? appLocalized("CONTINUE", locale: locale)
-                                        : appLocalized("USE THIS SIGN", locale: locale)
-                                )
-                                    .frame(maxWidth: .infinity)
-                                Text("✦")
-                                    .accessibilityHidden(true)
+                        if requiresSelection {
+                            Button(action: confirmSelection) {
+                                HStack(spacing: 16) {
+                                    Text("✦")
+                                        .accessibilityHidden(true)
+                                    Text(appLocalized("CONTINUE", locale: locale))
+                                        .frame(maxWidth: .infinity)
+                                    Text("✦")
+                                        .accessibilityHidden(true)
+                                }
+                                .font(.custom("Didot", size: 15, relativeTo: .headline).weight(.semibold))
+                                .tracking(3)
+                                .frame(width: 283, height: 49)
                             }
-                            .font(.custom("Didot", size: 15, relativeTo: .headline).weight(.semibold))
-                            .tracking(3)
-                            .frame(width: 283, height: 49)
+                            .buttonStyle(.plain)
+                            .foregroundStyle(ZodiacPalette.gold)
+                            .background(ZodiacPalette.cardNavy.opacity(0.78), in: Capsule())
+                            .overlay {
+                                Capsule().stroke(ZodiacPalette.gold, lineWidth: 1.2)
+                            }
+                            .contentShape(Capsule())
+                            .disabled(pendingSign == nil)
+                            .opacity(pendingSign == nil ? 0.48 : 1)
+                            .accessibilityHint(
+                                appLocalized("Confirms your selected zodiac sign", locale: locale)
+                            )
                         }
-                        .buttonStyle(.plain)
-                        .foregroundStyle(ZodiacPalette.gold)
-                        .background(ZodiacPalette.cardNavy.opacity(0.78), in: Capsule())
-                        .overlay {
-                            Capsule().stroke(ZodiacPalette.gold, lineWidth: 1.2)
-                        }
-                        .contentShape(Capsule())
-                        .disabled(pendingSign == nil)
-                        .opacity(pendingSign == nil ? 0.48 : 1)
-                        .accessibilityHint(
-                            appLocalized("Confirms your selected zodiac sign", locale: locale)
-                        )
                     }
                     .padding(.horizontal, 16)
                     .padding(.top, 5)
@@ -139,9 +137,14 @@ struct SignSelectionView: View {
     private func confirmSelection() {
         guard let pendingSign else { return }
         model.select(pendingSign)
-        if !requiresSelection {
-            dismiss()
-        }
+    }
+
+    private func select(_ sign: ZodiacSign) {
+        pendingSign = sign
+        guard !requiresSelection else { return }
+
+        model.select(sign)
+        dismiss()
     }
 
     private var selectionMasthead: some View {

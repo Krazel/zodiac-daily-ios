@@ -75,9 +75,28 @@ func appLocalized(_ key: String, locale: Locale) -> String {
         ? "es"
         : "en"
 
-    guard let path = Bundle.main.path(forResource: language, ofType: "lproj"),
-          let localizedBundle = Bundle(path: path) else {
+    guard let localizedBundle = AppLocalizationBundles.bundle(for: language) else {
         return Bundle.main.localizedString(forKey: key, value: key, table: nil)
     }
     return localizedBundle.localizedString(forKey: key, value: key, table: nil)
+}
+
+/// Loading an `.lproj` bundle performs filesystem work. Settings resolves
+/// dozens of strings while its presentation animation is running, so doing
+/// that lookup for every label caused a visible first-open hitch. Each shipped
+/// bundle is immutable and can be reused safely for the lifetime of the app.
+private enum AppLocalizationBundles {
+    static let english = load("en")
+    static let spanish = load("es")
+
+    static func bundle(for language: String) -> Bundle? {
+        language == "es" ? spanish : english
+    }
+
+    private static func load(_ language: String) -> Bundle? {
+        guard let path = Bundle.main.path(forResource: language, ofType: "lproj") else {
+            return nil
+        }
+        return Bundle(path: path)
+    }
 }

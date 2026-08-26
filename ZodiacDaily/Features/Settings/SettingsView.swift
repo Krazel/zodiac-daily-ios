@@ -17,7 +17,7 @@ struct SettingsView: View {
                     .overlay(ZodiacPalette.settingsDeep.opacity(0.78))
 
                 ScrollView {
-                    VStack(spacing: 10) {
+                    LazyVStack(spacing: 10) {
                         header
                         signSection
                         languageSection
