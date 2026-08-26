@@ -317,3 +317,32 @@ workspace does not have write access to Brain.
   Ambas aumentan el cuerpo a un objetivo visual de 17–18 pt y recuperan espacio
   eliminando el aro gris pesado. La UI final de carta queda bloqueada hasta que
   el propietario elija A o B; C4 sigue siendo la maestra vigente.
+
+## Cierre visual C5B — marco, lectura larga y detalle guardado
+
+- El propietario eligio B para el borde. La implementacion compartida aplica
+  una linea exterior dorada fina, filete interior, geometria mas cuadrada y
+  motivos grabados de luna/estrella en las cuatro esquinas. Frente, reverso y
+  detalle guardado usan el mismo componente fisico; no se modificaron las
+  miniaturas independientes de la coleccion Saved.
+- La lectura normal deja de caer a los 9,25–10,5 pt historicos y prueba primero
+  candidatos medidos de 18/17 pt, reduciendo arte antes que tipografia. El
+  fallback extremo conserva el texto completo para payloads excepcionalmente
+  largos.
+- Run `32961689190` paso pruebas/build y descubrio visualmente un defecto que el
+  chequeo tecnico no detectaba: la lectura larga en iPhone SE desplazaba la
+  cabecera. Se corrigio el anclaje superior del layout estacionario en el
+  commit `95d28aa` y se repitio la validacion completa en la rama temporal
+  `visual-qa/c5b-se-fix`.
+- Run final `32963500029`: 65 pruebas Core, build iOS, frente, reverso, texto
+  largo, Saved detail y todos los estados aprobados capturados; iPhone 15 Pro e
+  iPhone SE correctos. En el SE se ven a la vez cabecera, selector, carta larga
+  completa, Guardar y tabs sin scroll regular. Artifact
+  `ZodiacDaily-Visual-QA-34`, digest
+  `sha256:89a86259d57fec8531bc37913573c86561b49a07dcb9f962755ee17a5e696670`.
+- Las nuevas maestras runtime y sus SHA-256 estan registradas en
+  `Design/APPROVALS.md`; la hoja normalizada propuesta/build/overlay y las
+  capturas compactas quedan en `Design/Comparisons/`. La propuesta C5B y las
+  maestras anteriores se conservan como historial reemplazado.
+- No se genero IPA, no se subio TestFlight y no se realizo ninguna accion en
+  App Store Connect durante este cierre visual.

@@ -121,3 +121,47 @@ code caches immutable localization bundles, builds Settings sections lazily,
 and applies sign changes immediately when the selector is opened from Today or
 Settings. First launch retains the approved explicit Continue action. The C5
 card-frame proposals remain unapproved and were not implemented by this run.
+
+## Approved C5B frame and larger-reading validation
+
+- Approval source: `Design/Approved/today-readable-frame-c5b.png`
+- Current front master: `Design/Approved/today-loaded-front-c5b-es-runtime.png`
+- Current provider-back master:
+  `Design/Approved/today-loaded-back-provider-c5b-es-runtime.png`
+- Current saved-detail master: `Design/Approved/saved-detail-c5b-en-runtime.png`
+- Same-canvas sheet: `Design/Comparisons/today-c5b-runtime-comparison.png`
+  (approved proposal, real build, 50% overlay), SHA-256
+  `e3f74b2c9da166738d06bc70775830040b5b93615ff167c81900308ce7854b4d`
+- Final workflow run: `32963500029`
+- Captured commit: `95d28aa`
+- Artifact: `ZodiacDaily-Visual-QA-34`
+- Artifact digest:
+  `sha256:89a86259d57fec8531bc37913573c86561b49a07dcb9f962755ee17a5e696670`
+- Simulators: iPhone 15 Pro and iPhone SE (3rd generation)
+- Resolutions: 1179 x 2556 and 750 x 1334
+
+The real front and back use one shared C5B component: a thin warm-gold outer
+line, inset hairline, squarer geometry, and four mirrored engraved
+crescent/star corner motifs. The old thick gray rim, brackets, and burst
+corners are absent. The regular Spanish reading renders complete at the
+approved larger target while retaining the C4 masthead, selector, Settings,
+Save action, and tab composition. The provider back preserves focus, keywords,
+four scores, lucky number/color, Moon data, sign essence, and the matching turn
+cue.
+
+The long Spanish fixture is recorded at
+`Design/Comparisons/today-long-c5b-es-runtime.png` (SHA-256
+`13793f9ce0e5704d84a72c59afb9abcf75b369fd8d0ba489c73c8e4b37d03f81`).
+The first C5B run, `32961689190`, exposed a compact-height anchoring defect in
+that stress state. Commit `95d28aa` pinned the transformed page to a stable top
+origin; the repeated run then showed the masthead, selector, complete long
+reading, Save action, and tabs together without a regular-size scroll view.
+Compact evidence is retained in
+`today-c5b-es-iphone-se-runtime.png`,
+`today-long-c5b-es-iphone-se-runtime.png`, and
+`saved-detail-c5b-es-iphone-se-runtime.png` with respective SHA-256 values
+`7b1fd6db2e2a3e6497f3ec8e65be32b59f54ad368e920f8c773931b922163104`,
+`d0c0978fd50eaeb4fb8827ec85aa8c70d7b9aa52d2b4d6cc51bcb6051474fe61`,
+and `52a3f19371026c07052d73327fc5c4be24b1e8aa4dab97aa1c5e61d579a5f964`.
+Accessibility Dynamic Type retains the documented scrolling escape hatch so
+content remains reachable.
