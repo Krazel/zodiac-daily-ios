@@ -182,8 +182,8 @@ struct TodayView: View {
                     horoscope: horoscope,
                     initiallyShowingBack: AppModel.visualQAState == .todayBack,
                     width: 316,
-                    height: 460,
-                    artworkHeight: 285
+                    height: 474,
+                    artworkHeight: 286
                 )
 
                 Button {

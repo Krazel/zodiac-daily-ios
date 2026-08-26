@@ -34,8 +34,9 @@ larger reading type and simplified card frame; neither replaces the C4 master.
 - `today-readable-frame-c5a.png` — unapproved restrained double-line frame with
   four-point corner stars and a larger editorial reading area; SHA-256
   `c7c1e28c4c273ccd5ba8dc3e836cd6957f53167fa5a9c57a1bffb55063dc7387`.
-- `today-readable-frame-c5b.png` — unapproved engraved crescent-corner frame
-  with slightly squarer geometry and the same larger reading target; SHA-256
+- `today-readable-frame-c5b.png` — approved 2026-08-26 for the engraved
+  crescent-corner border and larger reading direction; canonical copy:
+  `Design/Approved/today-readable-frame-c5b.png`; SHA-256
   `2086a188263371138f8801c4b27312fc640bb2d32401629dd8f07e2dbd0159b4`.
 
 Current recommendation: **C2 — Collectible Card**.

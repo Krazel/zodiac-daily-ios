@@ -1,6 +1,6 @@
 # Canonical visual approvals
 
-Updated: 2026-08-18
+Updated: 2026-08-26
 
 This file is the source of truth for the complete approved images that govern
 the shipped app. `Design/Approved/` contains only current masters.
@@ -13,8 +13,8 @@ superseded. Approved history is never overwritten or deleted.
 
 | Screen / state | Current master | Device / canvas | Orientation | Language | Approved | SHA-256 | Runtime evidence | Required fidelity / permitted adaptation |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Today / loaded card front | `Design/Approved/today-loaded-front-flip-c4-es-runtime.png` | iPhone 15 Pro simulator, 1179 x 2556 px | Portrait | Spanish | 2026-08-18 | `0feb8d86fdbeea265ca2bcbbb2539c17c1dd61740228460237df839c8e81274c` | English: `Design/Comparisons/today-front-en-v0.2.2.png`; long Spanish: `Design/Comparisons/today-long-es-v0.2.2.png`; compact: `Design/Comparisons/today-front-es-iphone-se-v0.2.2.png`; workflow `32175884780` | Preserve the complete collectible card, direct sign selector, unframed Settings gear, Save outside the card, matching gold turn icon, and the extra breathing room above the tab bar. At regular text sizes Today has no scroll gesture; shorter screens scale the composition to fit. Accessibility Dynamic Type may scroll so content remains reachable. |
-| Today / loaded card back, provider data | `Design/Approved/today-loaded-back-provider-c3-es-runtime.png` | iPhone 15 Pro simulator, 1179 x 2556 px | Portrait | Spanish | 2026-08-18 | `34098b4657d685be9efbd42dded066bed87e0c6b286ac6e1dffa2577981735b7` | English: `Design/Comparisons/today-back-en-v0.2.2.png`; workflow `32175884780` | Preserve the front frame and Today composition, the same `arrow.clockwise` turn icon as the front, and all provider-authored focus, keywords, scores, lucky, and Moon fields. Sign essence may be static. Reduce Motion may replace the 3D turn with a short fade. |
+| Today / loaded card front | `Design/Approved/today-readable-frame-c5b.png` | Full-screen visual proposal, 853 x 1844 px | Portrait | Spanish | 2026-08-26 | `2086a188263371138f8801c4b27312fc640bb2d32401629dd8f07e2dbd0159b4` | Runtime evidence pending implementation; previous C4 evidence retained below | Preserve the complete stationary Today composition, but replace the heavy gray rim and bracket ornaments with B's thin warm-gold outer line, inset hairline, slightly squarer geometry, and engraved crescent/star corner motifs. Increase the reading toward the approved 17–18 pt visual target by recovering artwork/padding space before scaling type. Keep direct sign selection, unframed Settings gear, Save outside the card, matching turn icon, and tab breathing room. Accessibility Dynamic Type may scroll. |
+| Today / loaded card back, provider data | `Design/Approved/today-loaded-back-provider-c3-es-runtime.png` plus the shared border component from `Design/Approved/today-readable-frame-c5b.png` | iPhone 15 Pro simulator, 1179 x 2556 px + approved 853 x 1844 border proposal | Portrait | Spanish | Border replacement approved 2026-08-26; content 2026-08-18 | Content: `34098b4657d685be9efbd42dded066bed87e0c6b286ac6e1dffa2577981735b7`; border: `2086a188263371138f8801c4b27312fc640bb2d32401629dd8f07e2dbd0159b4` | New runtime evidence pending; prior English content evidence: `Design/Comparisons/today-back-en-v0.2.2.png` | Preserve every provider-authored focus, keyword, score, lucky, Moon, and sign-essence field from C3, but use the exact same approved C5B physical border as the front. Preserve the matching `arrow.clockwise`; Reduce Motion may replace the 3D turn with a short fade. |
 | First launch / sign selection | `Design/Approved/sign-selection-c2.png` | iPhone full-screen mockup, 862 x 1824 px including device frame | Portrait | English | 2026-08-09 | `0f10cdc2ceab984f32e14bc74d1a2f13325785d5c9a0846537caa87892190180` | `Design/Comparisons/sign-selection-comparison.png` | Show all 12 signs and no personal-data request. Pisces is the selected example. Native accessibility reflow is permitted. |
 | Saved / empty | `Design/Approved/saved-empty-c2.png` | iPhone full-screen mockup, 862 x 1825 px including device frame | Portrait | English | 2026-08-09 | `0475bcb8f9c7d5f044a9b248e0ebb4c1abb22f12caf3a630d500d6977d8c28d3` | `Design/Comparisons/saved-empty-comparison.png` | Preserve the empty collectible-card outline and route to Today. Native accessibility reflow is permitted. |
 | Saved / populated | `Design/Approved/saved-populated-c2.png` | iPhone full-screen mockup, 862 x 1825 px including device frame | Portrait | English | 2026-08-09 | `8bca65dbf9e07f8efd7e8264f7332ab51a6d430c34248f69b20412d5121f896b` | `Design/Comparisons/saved-populated-comparison.png` | Preserve the separate card-thumbnail archive and approved hierarchy. Native accessibility reflow is permitted. |
@@ -35,6 +35,7 @@ runtime evidence.
 | Today / loaded card front | `Design/Concepts/today-loaded-front-c2-approved-history.png` | Superseded, retained | 2026-08-09 | `Design/Approved/today-loaded-front-flip-c3.png` | C3 preserves the composition and adds the owner-requested visible turn affordance without adding another screen row. |
 | Today / card back | `Design/Concepts/today-card-back-c1.png` | Superseded, retained | 2026-08-10 | `Design/Approved/today-loaded-back-provider-c2.png` | The owner required all changing daily values to come from the real provider rather than local invention. |
 | Today / loaded card front | `Design/Approved/today-loaded-front-flip-c3.png` | Superseded, retained | 2026-08-11 | `Design/Approved/today-loaded-front-flip-c4-es-runtime.png` | C4 records the owner-directed direct selector, matching turn icons, unframed Settings gear, smaller card, and increased action/tab spacing in a real Spanish build. |
+| Today / loaded card front | `Design/Approved/today-loaded-front-flip-c4-es-runtime.png` | Superseded, retained | 2026-08-18 | `Design/Approved/today-readable-frame-c5b.png` | The owner selected C5B for the card border and requested substantially larger reading type. C4 remains the real-build baseline for all unchanged Today elements. |
 | Today / provider-data card back | `Design/Approved/today-loaded-back-provider-c2.png` | Superseded, retained | 2026-08-10 | `Design/Approved/today-loaded-back-provider-c3-es-runtime.png` | C3 records the same owner-directed composition changes and the complete Spanish provider-data state in a real build. |
 | Settings / About | `Design/Concepts/settings-c2.png` | Superseded, retained | 2026-08-09 | `Design/Approved/settings-support-c3.png` | C3 keeps the approved Settings direction and adds the approved optional support/review section. |
 
@@ -58,9 +59,9 @@ specifications:
   with a restrained double-line frame, four-point corner stars, and larger
   reading typography; SHA-256
   `c7c1e28c4c273ccd5ba8dc3e836cd6957f53167fa5a9c57a1bffb55063dc7387`.
-- `today-readable-frame-c5b.png` — unapproved 853 x 1844 full-screen proposal
-  with an engraved crescent-corner frame, slightly squarer geometry, and the
-  same larger reading target; SHA-256
+- `today-readable-frame-c5b.png` — approved 2026-08-26 for the card border and
+  larger reading direction; the proposal copy is retained here and its
+  canonical copy is `Design/Approved/today-readable-frame-c5b.png`; SHA-256
   `2086a188263371138f8801c4b27312fc640bb2d32401629dd8f07e2dbd0159b4`.
 
 The schema-3 candidate adds only functional language variants to the existing

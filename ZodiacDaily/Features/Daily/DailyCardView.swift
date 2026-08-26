@@ -16,61 +16,18 @@ struct DailyCardView: View {
     var showsTurnCue = false
 
     var body: some View {
-        VStack(spacing: contentSpacing) {
-            CelestialArtwork(sign: horoscope.sign)
-                .frame(height: effectiveArtworkHeight)
-                .overlay(alignment: .top) {
-                    Text(horoscope.sign.symbol)
-                        .font(.system(size: symbolSize, weight: .ultraLight))
-                        .foregroundStyle(ZodiacPalette.gold)
-                        .padding(.top, symbolTopPadding)
-                        .accessibilityHidden(true)
-                }
-
-            VStack(spacing: readingStackSpacing) {
-                Text(readingLabel)
-                    .font(.system(size: 11, weight: .medium))
-                    .tracking(4)
-                    .foregroundStyle(ZodiacPalette.lavender)
-
-                HStack(spacing: 11) {
-                    Rectangle()
-                        .fill(ZodiacPalette.gold.opacity(0.45))
-                        .frame(maxWidth: 50, maxHeight: 1)
-                    Text("✦")
-                        .font(.caption2)
-                        .foregroundStyle(ZodiacPalette.gold)
-                    Rectangle()
-                        .fill(ZodiacPalette.gold.opacity(0.45))
-                        .frame(maxWidth: 50, maxHeight: 1)
-                }
-                .accessibilityHidden(true)
-
-                Text(horoscope.headline)
-                    .font(.custom("Didot", size: effectiveHeadlineSize, relativeTo: .largeTitle))
-                    .foregroundStyle(ZodiacPalette.text)
-                    .multilineTextAlignment(.center)
-                    .lineLimit(fixedHeight == nil ? nil : 3)
-                    .minimumScaleFactor(0.68)
-                    .fixedSize(horizontal: false, vertical: fixedHeight == nil)
-
-                Text("∿")
-                    .font(.system(size: 15, weight: .light, design: .serif))
-                    .foregroundStyle(ZodiacPalette.gold)
-                    .accessibilityHidden(true)
-
-                Text(horoscope.reading)
-                    .font(.system(size: effectiveReadingSize))
-                    .foregroundStyle(ZodiacPalette.text.opacity(0.94))
-                    .multilineTextAlignment(.center)
-                    .lineSpacing(usesCompactCopy ? 0 : 1)
-                    .lineLimit(fixedHeight == nil ? nil : (usesCompactCopy ? 17 : 10))
-                    .minimumScaleFactor(usesCompactCopy ? 0.70 : 0.82)
-                    .fixedSize(horizontal: false, vertical: fixedHeight == nil)
+        Group {
+            if let fixedHeight, showsTurnCue {
+                fittedFrontContent(cardHeight: fixedHeight)
+            } else {
+                frontContent(
+                    artworkHeight: artworkHeight,
+                    headlineSize: headlineSize,
+                    readingSize: 18,
+                    horizontalPadding: 22,
+                    bottomPadding: readingBottomPadding
+                )
             }
-            .padding(.horizontal, 28)
-            .padding(.top, usesCompactCopy ? 5 : 8)
-            .padding(.bottom, effectiveReadingBottomPadding)
         }
         .frame(maxWidth: maxWidth)
         .frame(height: fixedHeight, alignment: .top)
@@ -88,24 +45,7 @@ struct DailyCardView: View {
                 .blendMode(.screen)
                 .accessibilityHidden(true)
         }
-        .clipShape(RoundedRectangle(cornerRadius: 25, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: 25, style: .continuous)
-                .stroke(Color.white.opacity(0.22), lineWidth: 3)
-        }
-        .overlay {
-            RoundedRectangle(cornerRadius: 19, style: .continuous)
-                .inset(by: 10)
-                .stroke(ZodiacPalette.gold, lineWidth: 1.2)
-        }
-        .overlay {
-            RoundedRectangle(cornerRadius: 15, style: .continuous)
-                .inset(by: 15)
-                .stroke(ZodiacPalette.gold.opacity(0.65), lineWidth: 0.7)
-        }
-        .overlay {
-            OrnateCardCorners()
-        }
+        .c5bCardChrome()
         .overlay(alignment: .bottom) {
             if showsTurnCue {
                 ZStack(alignment: .bottom) {
@@ -154,39 +94,136 @@ struct DailyCardView: View {
         return appLocalized("TODAY’S READING", locale: locale)
     }
 
-    private var usesCompactCopy: Bool {
-        showsTurnCue && horoscope.reading.count > 220
+    /// SwiftUI measures the real localized copy in each candidate. The first
+    /// fitting candidate wins: artwork gives way before type, so ordinary and
+    /// current provider-length readings remain at the approved 18/17 pt target
+    /// instead of silently shrinking to the previous 9.25 pt compact size.
+    @ViewBuilder
+    private func fittedFrontContent(cardHeight: CGFloat) -> some View {
+        let preferredArtwork = min(artworkHeight, cardHeight * 0.58)
+        let artworkFloor = max(92, cardHeight * 0.20)
+        let mediumArtwork = max(artworkFloor, preferredArtwork - 48)
+        let compactArtwork = max(artworkFloor, preferredArtwork - 96)
+        let emergencyArtwork = max(62, artworkFloor * 0.72)
+
+        ViewThatFits(in: .vertical) {
+            frontContent(
+                artworkHeight: preferredArtwork,
+                headlineSize: 26,
+                readingSize: 18,
+                horizontalPadding: 22,
+                bottomPadding: 54
+            )
+            frontContent(
+                artworkHeight: mediumArtwork,
+                headlineSize: 26,
+                readingSize: 18,
+                horizontalPadding: 22,
+                bottomPadding: 54
+            )
+            frontContent(
+                artworkHeight: compactArtwork,
+                headlineSize: 26,
+                readingSize: 18,
+                horizontalPadding: 21,
+                bottomPadding: 52
+            )
+            frontContent(
+                artworkHeight: artworkFloor,
+                headlineSize: 25,
+                readingSize: 17,
+                horizontalPadding: 21,
+                bottomPadding: 52
+            )
+            frontContent(
+                artworkHeight: emergencyArtwork,
+                headlineSize: 24,
+                readingSize: 15.5,
+                horizontalPadding: 20,
+                bottomPadding: 50
+            )
+            frontContent(
+                artworkHeight: 48,
+                headlineSize: 22,
+                readingSize: 14,
+                horizontalPadding: 19,
+                bottomPadding: 48
+            )
+        }
     }
 
-    private var effectiveArtworkHeight: CGFloat {
-        guard usesCompactCopy else { return artworkHeight }
-        return min(artworkHeight, horoscope.reading.count > 400 ? 215 : 230)
-    }
+    private func frontContent(
+        artworkHeight: CGFloat,
+        headlineSize: CGFloat,
+        readingSize: CGFloat,
+        horizontalPadding: CGFloat,
+        bottomPadding: CGFloat
+    ) -> some View {
+        VStack(spacing: contentSpacing) {
+            CelestialArtwork(sign: horoscope.sign)
+                .frame(height: artworkHeight)
+                .overlay(alignment: .top) {
+                    Text(horoscope.sign.symbol)
+                        .font(.system(size: symbolSize, weight: .ultraLight))
+                        .foregroundStyle(ZodiacPalette.gold)
+                        .padding(.top, min(symbolTopPadding, max(8, artworkHeight * 0.12)))
+                        .accessibilityHidden(true)
+                }
 
-    private var effectiveHeadlineSize: CGFloat {
-        usesCompactCopy ? min(headlineSize, 22) : headlineSize
-    }
+            VStack(spacing: readingStackSpacing) {
+                Text(readingLabel)
+                    .font(.system(size: 11, weight: .medium))
+                    .tracking(4)
+                    .foregroundStyle(ZodiacPalette.lavender)
 
-    private var effectiveReadingSize: CGFloat {
-        guard usesCompactCopy else { return 13.5 }
-        return horoscope.reading.count > 400 ? 9.25 : 10.5
-    }
+                HStack(spacing: 11) {
+                    Rectangle()
+                        .fill(ZodiacPalette.gold.opacity(0.45))
+                        .frame(maxWidth: 50, maxHeight: 1)
+                    Text("✦")
+                        .font(.caption2)
+                        .foregroundStyle(ZodiacPalette.gold)
+                    Rectangle()
+                        .fill(ZodiacPalette.gold.opacity(0.45))
+                        .frame(maxWidth: 50, maxHeight: 1)
+                }
+                .accessibilityHidden(true)
 
-    private var effectiveReadingBottomPadding: CGFloat {
-        usesCompactCopy ? max(readingBottomPadding, 42) : readingBottomPadding
+                Text(horoscope.headline)
+                    .font(.custom("Didot", size: headlineSize, relativeTo: .largeTitle))
+                    .foregroundStyle(ZodiacPalette.text)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Text("∿")
+                    .font(.system(size: 15, weight: .light, design: .serif))
+                    .foregroundStyle(ZodiacPalette.gold)
+                    .accessibilityHidden(true)
+
+                Text(horoscope.reading)
+                    .font(.system(size: readingSize))
+                    .foregroundStyle(ZodiacPalette.text.opacity(0.96))
+                    .multilineTextAlignment(.center)
+                    .lineSpacing(2)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(.horizontal, horizontalPadding)
+            .padding(.top, 6)
+            .padding(.bottom, bottomPadding)
+        }
+        .fixedSize(horizontal: false, vertical: true)
     }
 }
 
-/// A Today-only wrapper that keeps the approved collectible-card frame while
-/// revealing a structured reverse. Saved detail continues to use DailyCardView
-/// directly and is therefore unaffected by the interaction.
+/// The physical collectible card used by Today and Saved detail. Both routes
+/// share the approved frame, fitting behavior, structured reverse, and turn.
 struct FlippableDailyCard: View {
     let horoscope: DailyHoroscope
     let width: CGFloat
     let height: CGFloat
     let artworkHeight: CGFloat
 
-    private let cornerRadius: CGFloat = 25
+    private let cornerRadius: CGFloat = C5BCardGeometry.outerCornerRadius
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.locale) private var locale
@@ -215,7 +252,7 @@ struct FlippableDailyCard: View {
                     maxWidth: width,
                     artworkHeight: artworkHeight,
                     contentSpacing: -35,
-                    readingBottomPadding: 65,
+                    readingBottomPadding: 54,
                     fixedHeight: height,
                     showsTurnCue: true
                 )
@@ -393,22 +430,7 @@ private struct DailyCardBackView: View {
             .padding(.bottom, 17)
             .frame(maxHeight: .infinity, alignment: .top)
         }
-        .clipShape(RoundedRectangle(cornerRadius: 25, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: 25, style: .continuous)
-                .stroke(Color.white.opacity(0.22), lineWidth: 3)
-        }
-        .overlay {
-            RoundedRectangle(cornerRadius: 19, style: .continuous)
-                .inset(by: 10)
-                .stroke(ZodiacPalette.gold, lineWidth: 1.2)
-        }
-        .overlay {
-            RoundedRectangle(cornerRadius: 15, style: .continuous)
-                .inset(by: 15)
-                .stroke(ZodiacPalette.gold.opacity(0.65), lineWidth: 0.7)
-        }
-        .overlay { OrnateCardCorners() }
+        .c5bCardChrome()
         .shadow(color: .black.opacity(0.75), radius: 18, y: 12)
     }
 
@@ -593,6 +615,160 @@ private struct DailyCardBackView: View {
                 .lineLimit(1)
         }
         .frame(maxWidth: .infinity)
+    }
+}
+
+private enum C5BCardGeometry {
+    static let outerCornerRadius: CGFloat = 14
+    static let outerStrokeWidth: CGFloat = 1
+    static let innerInset: CGFloat = 8
+    static let innerCornerRadius: CGFloat = 8
+    static let motifInset: CGFloat = 10
+}
+
+private extension View {
+    func c5bCardChrome() -> some View {
+        clipShape(
+            RoundedRectangle(
+                cornerRadius: C5BCardGeometry.outerCornerRadius,
+                style: .continuous
+            )
+        )
+        .overlay { C5BCardFrameOverlay() }
+    }
+}
+
+/// The approved B border is one native drawing shared by both physical faces:
+/// a warm-gold outer line, an inset hairline, and four mirrored engraved
+/// crescent/star corners. It replaces the gray rim and bracket ornaments.
+private struct C5BCardFrameOverlay: View {
+    @Environment(\.displayScale) private var displayScale
+
+    var body: some View {
+        Canvas { context, size in
+            let outerHalf = C5BCardGeometry.outerStrokeWidth / 2
+            let outerRect = CGRect(
+                x: outerHalf,
+                y: outerHalf,
+                width: max(0, size.width - C5BCardGeometry.outerStrokeWidth),
+                height: max(0, size.height - C5BCardGeometry.outerStrokeWidth)
+            )
+            let outer = Path(
+                roundedRect: outerRect,
+                cornerRadius: C5BCardGeometry.outerCornerRadius
+            )
+            context.stroke(
+                outer,
+                with: .color(ZodiacPalette.gold.opacity(0.96)),
+                lineWidth: C5BCardGeometry.outerStrokeWidth
+            )
+
+            let hairline = max(1 / max(displayScale, 1), 0.33)
+            let innerRect = outerRect.insetBy(
+                dx: C5BCardGeometry.innerInset,
+                dy: C5BCardGeometry.innerInset
+            )
+            let inner = Path(
+                roundedRect: innerRect,
+                cornerRadius: C5BCardGeometry.innerCornerRadius
+            )
+            context.stroke(
+                inner,
+                with: .color(ZodiacPalette.gold.opacity(0.58)),
+                lineWidth: hairline
+            )
+
+            drawCornerMotifs(in: &context, size: size)
+        }
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+    }
+
+    private func drawCornerMotifs(in context: inout GraphicsContext, size: CGSize) {
+        let inset = C5BCardGeometry.motifInset
+        let placements: [(CGPoint, CGFloat, CGFloat)] = [
+            (CGPoint(x: inset, y: inset), 1, 1),
+            (CGPoint(x: size.width - inset, y: inset), -1, 1),
+            (CGPoint(x: inset, y: size.height - inset), 1, -1),
+            (CGPoint(x: size.width - inset, y: size.height - inset), -1, -1)
+        ]
+
+        for (anchor, scaleX, scaleY) in placements {
+            let transform = CGAffineTransform(
+                a: scaleX,
+                b: 0,
+                c: 0,
+                d: scaleY,
+                tx: anchor.x,
+                ty: anchor.y
+            )
+            drawCorner(in: &context, transform: transform)
+        }
+    }
+
+    private func drawCorner(in context: inout GraphicsContext, transform: CGAffineTransform) {
+        let gold = Color(red: 0.839, green: 0.639, blue: 0.400).opacity(0.88)
+
+        var orbitalLines = Path()
+        orbitalLines.addArc(
+            center: .zero,
+            radius: 18,
+            startAngle: .degrees(0),
+            endAngle: .degrees(90),
+            clockwise: false
+        )
+        orbitalLines.addArc(
+            center: .zero,
+            radius: 23,
+            startAngle: .degrees(0),
+            endAngle: .degrees(90),
+            clockwise: false
+        )
+        context.stroke(
+            orbitalLines.applying(transform),
+            with: .color(gold.opacity(0.62)),
+            lineWidth: 0.55
+        )
+
+        var crescent = Path()
+        crescent.addArc(
+            center: CGPoint(x: 9, y: 9),
+            radius: 5.5,
+            startAngle: .degrees(-78),
+            endAngle: .degrees(78),
+            clockwise: false
+        )
+        crescent.addArc(
+            center: CGPoint(x: 11.5, y: 9),
+            radius: 4.2,
+            startAngle: .degrees(78),
+            endAngle: .degrees(-78),
+            clockwise: true
+        )
+        crescent.closeSubpath()
+        context.stroke(
+            crescent.applying(transform),
+            with: .color(gold),
+            lineWidth: 0.75
+        )
+
+        var star = Path()
+        let starCenter = CGPoint(x: 19.5, y: 4.5)
+        star.move(to: CGPoint(x: starCenter.x, y: starCenter.y - 3.5))
+        star.addLine(to: CGPoint(x: starCenter.x + 1.15, y: starCenter.y - 1.1))
+        star.addLine(to: CGPoint(x: starCenter.x + 3.5, y: starCenter.y))
+        star.addLine(to: CGPoint(x: starCenter.x + 1.15, y: starCenter.y + 1.1))
+        star.addLine(to: CGPoint(x: starCenter.x, y: starCenter.y + 3.5))
+        star.addLine(to: CGPoint(x: starCenter.x - 1.15, y: starCenter.y + 1.1))
+        star.addLine(to: CGPoint(x: starCenter.x - 3.5, y: starCenter.y))
+        star.addLine(to: CGPoint(x: starCenter.x - 1.15, y: starCenter.y - 1.1))
+        star.closeSubpath()
+        context.fill(star.applying(transform), with: .color(gold))
+
+        for point in [CGPoint(x: 4, y: 20), CGPoint(x: 13, y: 18), CGPoint(x: 20, y: 13)] {
+            let dot = Path(ellipseIn: CGRect(x: point.x - 0.8, y: point.y - 0.8, width: 1.6, height: 1.6))
+            context.fill(dot.applying(transform), with: .color(gold.opacity(0.82)))
+        }
     }
 }
 
