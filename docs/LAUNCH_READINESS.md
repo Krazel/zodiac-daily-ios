@@ -2,13 +2,12 @@
 
 Updated: 2026-08-26
 
-Internal TestFlight correction `0.2.3` (`1`) is processed as `VALID` and is
-available to the automatic internal `Testers` group. It replaces the invalid
-0.2.2 product candidate whose generated plist omitted the production endpoint.
-The next authorized internal candidate is `0.3` (`1`): it adds the approved C5B
-card frame and larger measured reading, fixes compact stationary positioning,
-speeds Settings localization, and makes sign changes immediate from Today and
-Settings. Its data flow and monetization state are unchanged.
+Internal TestFlight `0.3` (`1`) is processed as `VALID` and is available to the
+automatic internal `Testers` group. It adds the approved C5B card frame and
+larger measured reading, fixes compact stationary positioning, speeds Settings
+localization, and makes sign changes immediate from Today and Settings. Its data
+flow and monetization state are unchanged. Historical `0.2.3` (`1`) remains the
+correction that replaced the disconnected 0.2.2 candidate.
 This document does not authorize StoreKit products, external testing, App
 Review, or publication.
 
@@ -16,7 +15,7 @@ Review, or publication.
 
 - Historical internal TestFlight delivery 0.2.2/1: known disconnected build;
   do not use it for acceptance testing.
-- Current internal TestFlight 0.2.3/1: iPhone / iOS 16+, English/Spanish interface and
+- Current internal TestFlight 0.3/1: iPhone / iOS 16+, English/Spanish interface and
   language-specific daily editions selected in Settings.
 - This correction prevents legacy Saved cards
   from replacing the live Spanish edition, makes Spanish strict, repairs the
@@ -141,11 +140,12 @@ did not sign with distribution credentials or contact App Store Connect.
 
 The protected manual workflow
 `.github/workflows/build-ios-testflight.yml` compiled, tested, analyzed,
-archived, signed, inspected, exported, and uploaded version `0.2` build `1`.
-Run `31522839488` completed successfully from commit `4e3518e`; App Store
-Connect reports the build as `En pruebas`, iOS 16.0 minimum, no non-exempt
-encryption, and internal-only. The build is assigned to the internal `Testers`
-group. Full non-secret evidence is in `docs/TESTFLIGHT_STATUS.md`.
+archived, signed, inspected, exported, and uploaded version `0.3` build `1`.
+Run `33029296526` completed successfully from commit `77c381c`; App Store
+Connect inspection run `33029584933` reports the build `VALID`, iOS 16.0
+minimum, no non-exempt encryption, internal-only, and available to the
+automatic internal `Testers` group. Full non-secret evidence is in
+`docs/TESTFLIGHT_STATUS.md`.
 
 No external group, public TestFlight link, Beta App Review, App Review, or App
 Store release was created.

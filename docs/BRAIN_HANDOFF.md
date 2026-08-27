@@ -346,3 +346,27 @@ workspace does not have write access to Brain.
   maestras anteriores se conservan como historial reemplazado.
 - No se genero IPA, no se subio TestFlight y no se realizo ninguna accion en
   App Store Connect durante este cierre visual.
+
+## TestFlight interno 0.3/1 — entrega C5B
+
+- El propietario autorizo expresamente GitHub, firma y subida a TestFlight
+  interno el 2026-08-27. No autorizo testing externo, App Review ni publicacion.
+- Se aplico la regla de versionado: el nuevo marco completo, la lectura mayor y
+  el flujo de signo inmediato constituyen una entrega funcional/visual y pasan
+  de `0.2.3` a `0.3`; build `1` por ser el primer binario de esa version.
+- Commit de entrega: `77c381c257f325ad76e47a5f31767a6588035d2d`.
+  Run de build/upload `33029296526`: 65 pruebas, analisis Release, firma,
+  inspeccion de plist/endpoint/privacidad/assets, export, verificacion Apple y
+  upload correctos.
+- IPA: `ZodiacDaily-v0.3-build-1-77c381c-TestFlight.ipa`, SHA-256
+  `e5ac54038aabedac44ec0b259bfceba0d2fd65f91d4f929a01b1d4f6ad6cebaa`.
+  Artifact `ZodiacDaily-v0.3-build-1-TestFlight-run-13`, digest
+  `sha256:81c4492e53098f209fb3835ddcfc938b0788ef7b22e3b4b560925d21cca7d02d`.
+  Delivery UUID Apple `b1bc0813-cc22-4794-b3d6-948e38403673`.
+- Run de inspeccion `33029584933`: App Store Connect confirma `0.3 (1)`
+  `VALID`, iOS 16.0, `INTERNAL_ONLY`, no caducada, sin cifrado no exento y con
+  acceso automatico para el grupo interno `Testers` (dos testers).
+- La auditoria 0.3 sigue exacta: sin permisos, cuenta, anuncios, analytics ni
+  SDKs terceros; signo/cartas/idioma locales; unica peticion de contenido con
+  fecha e idioma; StoreKit presente sin productos activos. No se creo IAP, no
+  se envio App Review y no se publico la app.

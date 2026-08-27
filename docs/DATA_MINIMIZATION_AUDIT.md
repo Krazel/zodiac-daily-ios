@@ -87,11 +87,14 @@ a release blocker for EU distribution.
 - StoreKit boundary: `ZodiacDaily/Store/SupportStore.swift`
 - Privacy Manifest: `ZodiacDaily/Resources/PrivacyInfo.xcprivacy`
 - Xcode target settings: `ZodiacDaily.xcodeproj/project.pbxproj`
-- Exact 0.2.3/1 Local QA validation: GitHub Actions run `32912659741`, commit
-  `fb65eb9`; 65 Core tests and packaged configuration inspection passed.
-- Exact delivered TestFlight binary: run `32915420982`, source commit
-  `b63c908`, delivery UUID `a8f5f3b7-d5df-4a4d-9427-5a421f7aebe3`;
-  App Store Connect inspection `32915848511` confirmed `VALID` and internal
+- Exact 0.3/1 TestFlight validation: GitHub Actions run `33029296526`, source
+  commit `77c381c`; 65 Core tests, Release analysis, signed archive checks,
+  packaged configuration inspection, IPA export, Apple verification, and
+  upload passed. IPA SHA-256:
+  `e5ac54038aabedac44ec0b259bfceba0d2fd65f91d4f929a01b1d4f6ad6cebaa`.
+- Exact delivered TestFlight binary: delivery UUID
+  `b1bc0813-cc22-4794-b3d6-948e38403673`; App Store Connect inspection
+  `33029584933` confirmed `0.3 (1)`, `VALID` and internal
   only.
 - Public-page minimization commit in `Krazel/krazel.github.io`: `450aadf`
 

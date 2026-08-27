@@ -1,12 +1,12 @@
 # Internal TestFlight status
 
-Updated: 2026-08-26
+Updated: 2026-08-27
 
 ## Latest delivery
 
 - App Store Connect app: **The Daily Zodiac** (`6800136195`).
 - Bundle identifier: `com.krazel.zodiacdaily`.
-- Marketing version: `0.2.3`.
+- Marketing version: `0.3`.
 - Build: `1`.
 - Minimum OS: iOS 16.0.
 - Audience: internal TestFlight only.
@@ -20,21 +20,23 @@ Store publication, subscription product, or public release was created.
 
 ## Build evidence
 
-- Source commit: `b63c908ddb3894d0e9d64787c81cb345af5607ce`.
+- Source commit: `77c381c257f325ad76e47a5f31767a6588035d2d`.
 - Purpose: `TestFlight-Internal`.
-- GitHub Actions run: `32915420982`, completed successfully.
+- GitHub Actions run: `33029296526`, completed successfully.
 - Workflow artifact:
-  `ZodiacDaily-v0.2.3-build-1-TestFlight-run-12`.
+  `ZodiacDaily-v0.3-build-1-TestFlight-run-13`.
 - IPA filename:
-  `ZodiacDaily-v0.2.3-build-1-b63c908-TestFlight.ipa`.
+  `ZodiacDaily-v0.3-build-1-77c381c-TestFlight.ipa`.
 - Apple delivery UUID:
-  `a8f5f3b7-d5df-4a4d-9427-5a421f7aebe3`.
+  `b1bc0813-cc22-4794-b3d6-948e38403673`.
 - Apple transport verification: `VERIFY SUCCEEDED with no errors`.
 - Apple transport upload: `UPLOAD SUCCEEDED with no errors`.
 - Artifact digest:
-  `sha256:77d83f40da66610170729977e50e88abc1c6a31ae69055b64cd2b679003f2fde`.
-- App Store Connect inspection run: `32915848511`, success; version/build
-  `0.2.3 (1)`, `VALID`, iOS 16.0 minimum, not expired, no non-exempt
+  `sha256:e5ac54038aabedac44ec0b259bfceba0d2fd65f91d4f929a01b1d4f6ad6cebaa`.
+- Workflow-artifact digest:
+  `sha256:81c4492e53098f209fb3835ddcfc938b0788ef7b22e3b4b560925d21cca7d02d`.
+- App Store Connect inspection run: `33029584933`, success; version/build
+  `0.3 (1)`, `VALID`, iOS 16.0 minimum, not expired, no non-exempt
   encryption, internal only, automatic access for `Testers`.
 - Cloudflare Worker: production schema 3, English/Spanish.
 
@@ -53,6 +55,12 @@ No secret value is stored in this repository.
   separate, stable snapshots.
 - First-launch sign selection and changing signs from Today.
 - Complete front card, card flip, back details, and Reduce Motion.
+- Confirm the C5B thin-gold frame is identical on front, provider back, and
+  Saved detail; verify regular and long readings remain complete.
+- Confirm Today and Saved detail stay stationary at regular text sizes on a
+  short iPhone, while accessibility Dynamic Type remains reachable.
+- Confirm Settings opens smoothly and a sign selected from Today or Settings
+  applies and closes in one tap.
 - Saved empty, populated, remove, and detail states.
 - Confirm supporter products remain unavailable because no App Store products
   are active in this build.
