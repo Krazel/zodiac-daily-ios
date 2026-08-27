@@ -2,7 +2,7 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 
 const bundleIdentifier = "com.krazel.zodiacdaily";
-const expectedMarketingVersion = "0.2.3";
+const expectedMarketingVersion = "0.3";
 const expectedBuildNumber = "1";
 
 const keyId = requiredEnvironment("ASC_KEY_ID").trim();

@@ -5,6 +5,10 @@ Updated: 2026-08-26
 Internal TestFlight correction `0.2.3` (`1`) is processed as `VALID` and is
 available to the automatic internal `Testers` group. It replaces the invalid
 0.2.2 product candidate whose generated plist omitted the production endpoint.
+The next authorized internal candidate is `0.3` (`1`): it adds the approved C5B
+card frame and larger measured reading, fixes compact stationary positioning,
+speeds Settings localization, and makes sign changes immediate from Today and
+Settings. Its data flow and monetization state are unchanged.
 This document does not authorize StoreKit products, external testing, App
 Review, or publication.
 
@@ -118,7 +122,7 @@ The IPA is intended as input to a local signing/install tool such as Sideloadly;
 it is not directly installable until that tool signs it for the test device.
 
 The deliverable workflow currently validates bundle ID
-`com.krazel.zodiacdaily`, marketing version `0.2.3`, build `1`, iOS 16 minimum,
+`com.krazel.zodiacdaily`, marketing version `0.3`, build `1`, iOS 16 minimum,
 the packaged endpoint and App Store ID, executable endpoint fallback, privacy
 manifest, compiled assets, and bundled horoscope content before packaging.
 Historical run `31347517648` (workflow run 5) completed
