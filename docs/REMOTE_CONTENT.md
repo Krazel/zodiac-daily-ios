@@ -108,8 +108,9 @@ It requests only the local date, `en`/`es`, and the full twelve-sign edition,
 never the selected sign, birth data, account data, or saved cards.
 
 The bilingual schema-3 Worker is deployed in production. The Workers AI
-binding passed a remote preview smoke test on 2026-08-11 with valid Spanish and
-accented characters. Production includes bounded translation retries and
+binding passed its original remote preview on 2026-08-11 and the revised
+editorial writer plus bilingual reviewer passed a complete Scorpio preview on
+2026-08-31. Production includes bounded translation retries and
 automatic cache repair. Version 0.2.3 packages and compiles the public endpoint,
 keeps the live Today edition separate from old Saved snapshots, requires an
 exact language match, and refuses to present incomplete emergency content as a

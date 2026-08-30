@@ -12,6 +12,7 @@ final class AppModel: ObservableObject {
         case savedEmpty = "saved-empty"
         case savedPopulated = "saved-populated"
         case savedDetail = "saved-detail"
+        case savedDetailBack = "saved-detail-back"
         case settings
     }
 
@@ -126,7 +127,18 @@ final class AppModel: ObservableObject {
         for state: VisualQAState,
         language: HoroscopeLanguage
     ) -> [SavedCard] {
-        guard state == .savedPopulated || state == .savedDetail else { return [] }
+        if state == .savedDetail || state == .savedDetailBack {
+            let horoscope = visualQAPiscesCard(language: language)
+            return [
+                SavedCard(
+                    horoscope: horoscope,
+                    savedAt: horoscope.day.startDate(
+                        in: TimeZone(secondsFromGMT: 0)!
+                    ) ?? Date()
+                )
+            ]
+        }
+        guard state == .savedPopulated else { return [] }
 
         let englishFixtures: [(ZodiacSign, String, String, String)] = [
             (

@@ -370,3 +370,21 @@ workspace does not have write access to Brain.
   SDKs terceros; signo/cartas/idioma locales; unica peticion de contenido con
   fecha e idioma; StoreKit presente sin productos activos. No se creo IAP, no
   se envio App Review y no se publico la app.
+
+## Correccion editorial castellana pendiente de despliegue
+
+- El 2026-08-27 el propietario rechazo la calidad de la traduccion literal.
+  La causa confirmada era `m2m100`: traducía titular, lectura y metadatos por
+  separado, sin contexto editorial.
+- El Worker local usa ahora una sola adaptacion estructurada por signo con
+  `@cf/openai/gpt-oss-20b`, tono natural de castellano de España y prohibicion
+  expresa de inventar o alterar datos. Una segunda pasada bilingue con
+  `@cf/meta/llama-3.1-8b-instruct-fast` rechaza omisiones, ingles residual,
+  cambios astrologicos o datos nuevos. Las cifras y la identidad del proveedor
+  siguen copiandose directamente del documento ingles.
+- La revision de cache `es-r3` evita reutilizar las traducciones defectuosas sin
+  gastar nuevas llamadas a FreeAstroAPI. La suite del Worker pasa 27/27 y el
+  2026-08-31 se valido en preview remoto un Scorpio completo con ambos modelos.
+- Se pulio tambien la copia fija española para eliminar literalismos y jerga de
+  proveedor. Estos cambios son locales: no se ha desplegado el Worker, subido
+  build ni modificado TestFlight.

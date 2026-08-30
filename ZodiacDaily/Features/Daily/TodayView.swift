@@ -1,12 +1,11 @@
 import SwiftUI
 import ZodiacDailyCore
 
-/// Measured implementation candidate for the owner-approved C2 Today reference.
+/// Stationary implementation of the owner-approved C6 Today composition.
 struct TodayView: View {
     @EnvironmentObject private var model: AppModel
     @Environment(\.locale) private var locale
     @State private var showsSettings: Bool
-    @State private var showsSignSelection = false
 
     init() {
         _showsSettings = State(initialValue: AppModel.visualQAState == .settings)
@@ -30,17 +29,11 @@ struct TodayView: View {
         .sheet(isPresented: $showsSettings) {
             SettingsView()
         }
-        .fullScreenCover(isPresented: $showsSignSelection) {
-            SignSelectionView(requiresSelection: false)
-        }
     }
 
     private var todayLayout: some View {
         VStack(spacing: 0) {
             masthead
-
-            signMenu
-
             dailyContent
         }
         .padding(.horizontal, 16)
@@ -98,60 +91,14 @@ struct TodayView: View {
     }
 
     @ViewBuilder
-    private var signMenu: some View {
-        if let selectedSign = model.selectedSign {
-            Button {
-                showsSignSelection = true
-            } label: {
-                HStack(spacing: 14) {
-                    Text(selectedSign.symbol)
-                        .font(.system(size: 40, weight: .ultraLight))
-                    Text(selectedSign.localizedDisplayName(locale: locale).uppercased(with: locale))
-                        .font(.custom("Didot", size: 18, relativeTo: .title3).weight(.semibold))
-                        .tracking(2)
-                        .minimumScaleFactor(0.62)
-                        .lineLimit(1)
-                        .frame(maxWidth: .infinity)
-                    Image(systemName: "chevron.down")
-                        .font(.system(size: 14, weight: .medium))
-                }
-                .foregroundStyle(ZodiacPalette.paleGold)
-                .padding(.horizontal, 20)
-                .frame(width: 225, height: 51)
-                .background(ZodiacPalette.midnight.opacity(0.72), in: Capsule())
-                .overlay {
-                    Capsule().stroke(ZodiacPalette.gold, lineWidth: 1)
-                }
-                .contentShape(Capsule())
-            }
-            .buttonStyle(.plain)
-            .padding(.top, 22)
-            .accessibilityLabel(
-                String(
-                    format: appLocalized("today.selected_sign_format", locale: locale),
-                    selectedSign.localizedDisplayName(locale: locale)
-                )
-            )
-            .accessibilityHint(
-                appLocalized("Double-tap to choose another sign", locale: locale)
-            )
-            .accessibilityAction(
-                named: Text(appLocalized("Open Settings", locale: locale))
-            ) {
-                showsSettings = true
-            }
-        }
-    }
-
-    @ViewBuilder
     private var dailyContent: some View {
         switch model.dailyState {
         case .idle, .loading:
             ProgressView("Preparing today’s card…")
                 .tint(ZodiacPalette.gold)
                 .foregroundStyle(ZodiacPalette.text)
-                .frame(maxWidth: 328, minHeight: 456)
-                .padding(.top, 39)
+                .frame(maxWidth: 346, minHeight: 560)
+                .padding(.top, 14)
 
         case .failed:
             VStack(spacing: 10) {
@@ -172,19 +119,17 @@ struct TodayView: View {
             }
             .foregroundStyle(ZodiacPalette.text)
             .padding(.horizontal, 24)
-            .frame(maxWidth: 328, minHeight: 456)
-            .padding(.top, 39)
+            .frame(maxWidth: 346, minHeight: 560)
+            .padding(.top, 14)
             .accessibilityElement(children: .contain)
 
         case .loaded(let horoscope):
-            VStack(spacing: 16) {
-                FlippableDailyCard(
-                    horoscope: horoscope,
-                    initiallyShowingBack: AppModel.visualQAState == .todayBack,
-                    width: 316,
-                    height: 474,
-                    artworkHeight: 286
-                )
+            VStack(spacing: 12) {
+                ViewThatFits(in: .horizontal) {
+                    dailyCard(horoscope: horoscope, width: 346, height: 560, artworkHeight: 324)
+                    dailyCard(horoscope: horoscope, width: 332, height: 538, artworkHeight: 312)
+                    dailyCard(horoscope: horoscope, width: 288, height: 467, artworkHeight: 270)
+                }
 
                 Button {
                     Task { await model.toggleCurrentCardSaved() }
@@ -224,8 +169,23 @@ struct TodayView: View {
                         )
                 }
             }
-            .padding(.top, 18)
+            .padding(.top, 14)
         }
+    }
+
+    private func dailyCard(
+        horoscope: DailyHoroscope,
+        width: CGFloat,
+        height: CGFloat,
+        artworkHeight: CGFloat
+    ) -> some View {
+        FlippableDailyCard(
+            horoscope: horoscope,
+            initiallyShowingBack: AppModel.visualQAState == .todayBack,
+            width: width,
+            height: height,
+            artworkHeight: artworkHeight
+        )
     }
 
     private var formattedDay: String {

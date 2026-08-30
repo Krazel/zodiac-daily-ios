@@ -452,11 +452,12 @@ struct SavedCardDetailView: View {
 
                         FlippableDailyCard(
                             horoscope: card.horoscope,
+                            initiallyShowingBack: AppModel.visualQAState == .savedDetailBack,
                             width: 345,
-                            height: 505,
-                            artworkHeight: 351
+                            height: 558,
+                            artworkHeight: 322
                         )
-                            .padding(.top, 18)
+                            .padding(.top, 12)
 
                         Button(role: .destructive) {
                             removeCard()
@@ -480,7 +481,7 @@ struct SavedCardDetailView: View {
                                 .stroke(Color(red: 1.0, green: 0.27, blue: 0.24), lineWidth: 1.2)
                         }
                         .frame(minHeight: 44)
-                        .padding(.top, 20)
+                        .padding(.top, 12)
                         .accessibilityHint(
                             appLocalized("Deletes this card from your collection", locale: locale)
                         )
@@ -496,7 +497,7 @@ struct SavedCardDetailView: View {
                     }
                     .padding(.horizontal, 15)
                     .padding(.top, 0)
-                    .padding(.bottom, 42)
+                    .padding(.bottom, 16)
                     .frame(maxWidth: 650)
                     .frame(maxWidth: .infinity)
                 }

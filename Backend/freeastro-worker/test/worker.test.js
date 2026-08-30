@@ -92,8 +92,40 @@ function fakeAI(calls = []) {
   return {
     async run(model, input) {
       calls.push({ model, input });
-      return { translated_text: `ES ${input.text}` };
+      if (isReviewRequest(input)) return { response: approvedReview() };
+      return { response: editorialResponse(input) };
     },
+  };
+}
+
+function isReviewRequest(input) {
+  return Boolean(input?.response_format?.json_schema?.properties?.faithful);
+}
+
+function approvedReview(overrides = {}) {
+  return {
+    faithful: true,
+    is_spanish: true,
+    preserves_astrology: true,
+    no_new_facts: true,
+    ...overrides,
+  };
+}
+
+function editorialResponse(input, overrides = {}) {
+  const source = JSON.parse(input.messages[1].content);
+  return {
+    headline: `Un nuevo enfoque para ${source.sign}`,
+    reading: `Esta lectura está escrita con naturalidad en castellano y conserva fielmente el sentido completo de la fuente: ${source.reading}`,
+    keywords: source.keywords.map((keyword) => ({
+      Empathy: "Empatía",
+      Flow: "Fluidez",
+      Imagination: "Imaginación",
+    })[keyword] ?? `Idea ${keyword}`),
+    lucky_color: source.lucky_color === "Silver" ? "Plateado" : `Color ${source.lucky_color}`,
+    moon_sign: source.moon_sign === "Capricorn" ? "Capricornio" : `Signo ${source.moon_sign}`,
+    moon_phase: source.moon_phase === "Last Quarter" ? "Cuarto menguante" : `Fase ${source.moon_phase}`,
+    ...overrides,
   };
 }
 
@@ -263,22 +295,28 @@ test("Workers AI translates every user-facing field into a valid Spanish edition
 
   assert.equal(spanish.language, "es");
   assert.equal(spanish.generated_at, "2026-08-08T10:30:00.000Z");
-  assert.equal(spanish.horoscopes[0].headline, "ES aries theme");
-  assert.match(spanish.horoscopes[0].reading, /^ES /);
+  assert.equal(spanish.horoscopes[0].headline, "Un nuevo enfoque para aries");
+  assert.match(spanish.horoscopes[0].reading, /^Esta lectura está escrita con naturalidad/);
   assert.deepEqual(spanish.horoscopes[0].details.keywords, [
-    "ES Empathy",
-    "ES Flow",
-    "ES Imagination",
+    "Empatía",
+    "Fluidez",
+    "Imaginación",
   ]);
   assert.equal(spanish.horoscopes[0].details.focus, spanish.horoscopes[0].headline);
-  assert.equal(spanish.horoscopes[0].details.lucky_color, "ES Silver");
-  assert.equal(spanish.horoscopes[0].details.moon_sign, "ES Capricorn");
-  assert.equal(spanish.horoscopes[0].details.moon_phase, "ES Last Quarter");
+  assert.equal(spanish.horoscopes[0].details.lucky_color, "Plateado");
+  assert.equal(spanish.horoscopes[0].details.moon_sign, "Capricornio");
+  assert.equal(spanish.horoscopes[0].details.moon_phase, "Cuarto menguante");
   assert.equal(spanish.horoscopes[0].details.love_score, 83);
   assert.equal(spanish.horoscopes[0].content_version, 20260809);
-  assert.equal(calls.length, 96);
-  assert.ok(calls.every(({ model }) => model === "@cf/meta/m2m100-1.2b"));
-  assert.ok(calls.every(({ input }) => input.source_lang === "en" && input.target_lang === "es"));
+  assert.equal(calls.length, 24);
+  assert.ok(calls.every(({ input }) => input.response_format.type === "json_schema"));
+  const editorialCalls = calls.filter(({ input }) => !isReviewRequest(input));
+  const reviewCalls = calls.filter(({ input }) => isReviewRequest(input));
+  assert.equal(editorialCalls.length, 12);
+  assert.equal(reviewCalls.length, 12);
+  assert.ok(editorialCalls.every(({ model }) => model === "@cf/openai/gpt-oss-20b"));
+  assert.ok(reviewCalls.every(({ model }) => model === "@cf/meta/llama-3.1-8b-instruct-fast"));
+  assert.ok(editorialCalls.every(({ input }) => input.messages[0].content.includes("castellano de España")));
   assert.ok(isValidBundle(spanish, "2026-08-09", "es"));
   assert.ok(isValidBundle(english, "2026-08-09", "en"));
   assert.equal(isValidBundle(english, "2026-08-09", "es"), false);
@@ -292,7 +330,8 @@ test("Spanish translation retries transient AI failures without losing the editi
     async run(_model, input) {
       attempts += 1;
       if (attempts === 1) throw new Error("transient_ai_failure");
-      return { translated_text: `ES ${input.text}` };
+      if (isReviewRequest(input)) return { response: approvedReview() };
+      return { response: editorialResponse(input) };
     },
   };
 
@@ -301,27 +340,66 @@ test("Spanish translation retries transient AI failures without losing the editi
   });
 
   assert.ok(isValidBundle(spanish, "2026-08-09", "es"));
-  assert.equal(attempts, 97);
+  assert.equal(attempts, 25);
   assert.deepEqual(waits, [500]);
 });
 
-test("Spanish translation removes duplicate translated keywords", async () => {
+test("Spanish editorial quality gate retries duplicate translated keywords", async () => {
   const english = validBundle("2026-08-09");
+  let attempts = 0;
   const ai = {
     async run(_model, input) {
-      const translated = input.text === "Empathy" || input.text === "Flow"
-        ? "Conexión"
-        : `ES ${input.text}`;
-      return { translated_text: translated };
+      attempts += 1;
+      if (isReviewRequest(input)) return { response: approvedReview() };
+      const response = attempts === 1
+        ? editorialResponse(input, { keywords: ["Conexión", "Conexión", "Imaginación"] })
+        : editorialResponse(input);
+      return { response };
     },
   };
 
-  const spanish = await translateBundleToSpanish(english, ai);
+  const waits = [];
+  const spanish = await translateBundleToSpanish(english, ai, {
+    wait: async (milliseconds) => waits.push(milliseconds),
+  });
 
   assert.deepEqual(spanish.horoscopes[0].details.keywords, [
-    "Conexión",
-    "ES Imagination",
+    "Empatía",
+    "Fluidez",
+    "Imaginación",
   ]);
+  assert.equal(attempts, 25);
+  assert.deepEqual(waits, [500]);
+  assert.ok(isValidBundle(spanish, "2026-08-09", "es"));
+});
+
+test("Spanish editorial reviewer rejects untranslated or unfaithful copy", async () => {
+  const english = validBundle("2026-08-09");
+  let editorialCalls = 0;
+  let reviewCalls = 0;
+  const waits = [];
+  const ai = {
+    async run(_model, input) {
+      if (isReviewRequest(input)) {
+        reviewCalls += 1;
+        return {
+          response: reviewCalls === 1
+            ? approvedReview({ is_spanish: false })
+            : approvedReview(),
+        };
+      }
+      editorialCalls += 1;
+      return { response: editorialResponse(input) };
+    },
+  };
+
+  const spanish = await translateBundleToSpanish(english, ai, {
+    wait: async (milliseconds) => waits.push(milliseconds),
+  });
+
+  assert.equal(editorialCalls, 13);
+  assert.equal(reviewCalls, 13);
+  assert.deepEqual(waits, [500]);
   assert.ok(isValidBundle(spanish, "2026-08-09", "es"));
 });
 
@@ -362,7 +440,7 @@ test("queue consumer writes one English and one Spanish exact-date edition", asy
       body,
       ack: () => { translationAcknowledgements += 1; },
     }] }, env, { now: () => new Date("2026-08-08T10:30:00Z") });
-    assert.equal(aiCalls.length - callsBeforeMessage, 8);
+    assert.equal(aiCalls.length - callsBeforeMessage, 2);
   }
   const cached = await getCachedDaily("2026-08-09", env, "en");
   const translated = await getCachedDaily("2026-08-09", env, "es");
@@ -375,8 +453,8 @@ test("queue consumer writes one English and one Spanish exact-date edition", asy
   assert.equal(cached.content_date, "2026-08-09");
   assert.equal(cached.language, "en");
   assert.equal(translated.language, "es");
-  assert.match(translated.horoscopes[0].reading, /^ES /);
-  assert.equal(aiCalls.length, 96);
+  assert.match(translated.horoscopes[0].reading, /^Esta lectura está escrita con naturalidad/);
+  assert.equal(aiCalls.length, 24);
   assert.equal(translationAcknowledgements, 12);
   assert.equal(kv.puts.filter(({ key }) => key.startsWith("daily:")).length, 2);
 });
@@ -407,7 +485,7 @@ test("an English cache hit translates Spanish without spending provider quota", 
   assert.equal(aiCalls.length, 0);
   assert.equal(messages.length, 12);
   await drainQueuedMessages(messages, env);
-  assert.equal(aiCalls.length, 96);
+  assert.equal(aiCalls.length, 24);
   assert.equal((await getCachedDaily("2026-08-09", { DAILY_CACHE: kv }, "es")).language, "es");
 });
 
@@ -418,7 +496,7 @@ test("a second scheduled check uses KV and spends no provider quota", async () =
   });
   const kv = new MemoryKV({
     "daily:v3:en:2026-08-09": JSON.stringify(english),
-    "daily:v3:es:2026-08-09": JSON.stringify(spanish),
+    "daily:v3:es-r3:2026-08-09": JSON.stringify(spanish),
   });
   let calls = 0;
   const result = await warmDate(
@@ -479,7 +557,7 @@ test("a public miss schedules one bounded queue repair without calling the provi
     task: "warm_date",
     date: "2026-08-09",
   }]);
-  assert.equal(await kv.get("repair:v3:es:2026-08-09"), "1");
+  assert.equal(await kv.get("repair:v3:es-r3:2026-08-09"), "1");
 });
 
 test("public language selection never substitutes the wrong-language cache", async () => {
@@ -513,7 +591,7 @@ test("Spanish route returns only the cached Spanish edition and language header"
     now: () => new Date("2026-08-09T00:15:00Z"),
   });
   const kv = new MemoryKV({
-    "daily:v3:es:2026-08-09": JSON.stringify(spanish),
+    "daily:v3:es-r3:2026-08-09": JSON.stringify(spanish),
   });
 
   const response = await handleRequest(
@@ -525,7 +603,7 @@ test("Spanish route returns only the cached Spanish edition and language header"
   assert.equal(response.status, 200);
   assert.equal(response.headers.get("Content-Language"), "es");
   assert.equal(body.language, "es");
-  assert.match(body.horoscopes[0].reading, /^ES /);
+  assert.match(body.horoscopes[0].reading, /^Esta lectura está escrita con naturalidad/);
 });
 
 test("unsupported public languages are rejected before any cache access", async () => {
@@ -604,7 +682,7 @@ test("translation failure keeps English cached and retries never refetch FreeAst
   assert.equal(aiCalls, 2);
   assert.equal((await getCachedDaily("2026-08-09", env, "en")).language, "en");
   await assert.rejects(getCachedDaily("2026-08-09", env, "es"), /daily_cache_miss/);
-  assert.equal(await kv.get("failure:v3:es:2026-08-09:aries"), "1");
+  assert.equal(await kv.get("failure:v3:es-r3:2026-08-09:aries"), "1");
 
   await assert.rejects(
     handleQueue({ messages: [{ body: ariesMessage }] }, env, options),

@@ -16,7 +16,8 @@ struct RootView: View {
 
     var body: some View {
         Group {
-            if AppModel.visualQAState == .savedDetail,
+            if (AppModel.visualQAState == .savedDetail
+                || AppModel.visualQAState == .savedDetailBack),
                let card = model.savedCards.first {
                 NavigationStack {
                     SavedCardDetailView(card: card)

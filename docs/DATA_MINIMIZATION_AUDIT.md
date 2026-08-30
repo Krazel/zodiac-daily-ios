@@ -1,8 +1,8 @@
 # Data and public-information minimization audit
 
-Audited: 2026-08-26
+Audited: 2026-08-31
 
-Release candidate: iOS `0.3` / build `1`
+Release candidate: iOS `0.4` / build `1`
 
 This inventory describes the shipped code and current App Store Connect record,
 not future features. It must be repeated before any later build that adds an
@@ -26,7 +26,7 @@ still be rerun against the exact next build.
 | Review prompt state | The app version already prompted for a review is stored in `UserDefaults`. | Replaced per version; removed with app deletion. | Local only. |
 | Daily content request | One HTTPS `GET /v1/daily/YYYY-MM-DD?lang=en\|es` request. The app sends only the local date and two-letter content language, plus `Accept: application/json`; it sends no selected sign, saved card, birth data, account identifier, advertising identifier, or location. | Date and language are used only to return the edition. Krazel does not retain or associate connection data with a user. | Apple's real-time request exception supports `No data collected`. |
 | Network infrastructure | The hosting layer necessarily handles transient connection metadata such as IP address to route and secure HTTPS. | Not retained or used by Krazel for identity, profiling, analytics, ads, or tracking. | Disclosed concisely in the privacy policy. |
-| StoreKit | Apple StoreKit is present to load product identifiers and verified entitlements. Version `0.3` has no active App Store Connect IAP or subscription products, so no purchase can be made. | No payment details are received or stored by Krazel. Re-audit before activating a product. | Exact review-note disclosure; not a current App Privacy collection. |
+| StoreKit | Apple StoreKit is present to load product identifiers and verified entitlements. Version `0.4` has no active App Store Connect IAP or subscription products, so no purchase can be made. | No payment details are received or stored by Krazel. Re-audit before activating a product. | Exact review-note disclosure; not a current App Privacy collection. |
 | SDKs | SwiftUI, Foundation, Combine, and StoreKit are Apple frameworks. `ZodiacDailyCore` is a local Swift package. No AdMob, analytics, crash-reporting, attribution, social, advertising, or other third-party SDK is linked. | Not applicable. | No SDK disclosure omitted. |
 | Support email | Support is external and voluntary through the public alias `coderappskrazel@gmail.com`. | Used only to answer support; deletion may be requested unless legal retention applies. | Public alias only; no personal owner details. |
 
@@ -51,9 +51,9 @@ or authentication data that is not retained after the real-time request:
 - No full owner name, address, phone, personal account, source repository,
   infrastructure vendor, provider credential, or future purchase clause is
   published on either page.
-- Workers AI receives only provider-authored horoscope text for translation. It
-  receives no user text, selected sign, account, device identifier, or saved
-  card contents.
+- Workers AI receives only provider-authored horoscope text for one daily
+  editorial adaptation and a separate fidelity/language review. It receives no
+  user text, selected sign, account, device identifier, or saved-card contents.
 - The App Store marketing URL and privacy-choices URL are intentionally blank.
   The optional promotional-text field is also blank.
 - The required support and privacy URLs are saved in App Store Connect. The
@@ -61,7 +61,7 @@ or authentication data that is not retained after the real-time request:
 - App Review contact details are filled only in Apple's private required review
   section. Their values are intentionally not copied into this repository or
   any public page.
-- Review notes for the next candidate describe the exact `0.3` build: no login,
+- Review notes for the next candidate describe the exact `0.4` build: no login,
   no permissions, no ads/analytics, date-and-language-only content request,
   local saves, an explicit unavailable/retry state instead of fake offline
   content, and inactive StoreKit products. They contain
@@ -96,13 +96,19 @@ a release blocker for EU distribution.
   `b1bc0813-cc22-4794-b3d6-948e38403673`; App Store Connect inspection
   `33029584933` confirmed `0.3 (1)`, `VALID` and internal
   only.
+- Exact `0.4` evidence is pending the authorized visual-QA and TestFlight
+  workflows. The source inventory adds no SDK, permission, account field,
+  analytics, advertising, tracking, or user-data transmission; it changes only
+  card layout, fixed interface copy, and server-side processing of the same
+  provider-authored daily document.
 - Public-page minimization commit in `Krazel/krazel.github.io`: `450aadf`
 
 ## Gate
 
-The code inventory passes for `0.3` / build `1`. Changes since the delivered
-`0.2.3` binary are limited to interface localization performance, direct sign
-selection, card drawing/layout, and visual evidence; they add no SDK,
+The code inventory passes for the `0.4` / build `1` source candidate. Changes
+since the delivered `0.3` binary are limited to removing Today sign selection,
+enlarging/recomposing the shared card, editing fixed Spanish copy, and replacing
+literal translation with server-side editorial adaptation plus review. They add no SDK,
 permission, storage category, transmission, account field, analytics, ad, or
 tracking behavior. Before submission, verify the
 selected binary still matches it, confirm the DSA review result, and obtain

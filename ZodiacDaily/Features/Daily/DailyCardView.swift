@@ -9,26 +9,14 @@ struct DailyCardView: View {
     var contentSpacing: CGFloat = -7
     var headlineSize: CGFloat = 30
     var readingBottomPadding: CGFloat = 37
-    var readingStackSpacing: CGFloat = 1
+    var readingStackSpacing: CGFloat = 6
     var symbolSize: CGFloat = 54
     var symbolTopPadding: CGFloat = 25
     var fixedHeight: CGFloat?
     var showsTurnCue = false
 
     var body: some View {
-        Group {
-            if let fixedHeight, showsTurnCue {
-                fittedFrontContent(cardHeight: fixedHeight)
-            } else {
-                frontContent(
-                    artworkHeight: artworkHeight,
-                    headlineSize: headlineSize,
-                    readingSize: 18,
-                    horizontalPadding: 22,
-                    bottomPadding: readingBottomPadding
-                )
-            }
-        }
+        fittedFrontContent(cardHeight: fixedHeight ?? 478)
         .frame(maxWidth: maxWidth)
         .frame(height: fixedHeight, alignment: .top)
         .background {
@@ -56,12 +44,12 @@ struct DailyCardView: View {
 
                     VStack(spacing: 1) {
                         Image(systemName: "arrow.clockwise")
-                            .font(.system(size: 17, weight: .light))
+                            .font(.system(size: 20, weight: .light))
                             .foregroundStyle(ZodiacPalette.gold)
 
                         Text(appLocalized("TAP FOR MORE", locale: locale))
-                            .font(.system(size: 7.5, weight: .medium))
-                            .tracking(1.7)
+                            .font(.system(size: 9.5, weight: .semibold))
+                            .tracking(2.1)
                             .foregroundStyle(ZodiacPalette.lavender)
                     }
                     .padding(.bottom, 24)
@@ -94,123 +82,105 @@ struct DailyCardView: View {
         return appLocalized("TODAY’S READING", locale: locale)
     }
 
-    /// SwiftUI measures the real localized copy in each candidate. The first
-    /// fitting candidate wins: artwork gives way before type, so ordinary and
-    /// current provider-length readings remain at the approved 18/17 pt target
-    /// instead of silently shrinking to the previous 9.25 pt compact size.
-    @ViewBuilder
+    /// C6 treats the illustration and reading as one composed card. Artwork
+    /// fills the complete face, a progressive ink wash creates a deliberate
+    /// reading zone, and ViewThatFits protects readable type before using the
+    /// compact 16.5 pt escape hatch on short devices or exceptional copy.
     private func fittedFrontContent(cardHeight: CGFloat) -> some View {
-        let preferredArtwork = min(artworkHeight, cardHeight * 0.58)
-        let artworkFloor = max(92, cardHeight * 0.20)
-        let mediumArtwork = max(artworkFloor, preferredArtwork - 48)
-        let compactArtwork = max(artworkFloor, preferredArtwork - 96)
-        let emergencyArtwork = max(62, artworkFloor * 0.72)
+        ZStack(alignment: .top) {
+            CelestialArtwork(sign: horoscope.sign)
+                .frame(height: cardHeight)
 
-        ViewThatFits(in: .vertical) {
-            frontContent(
-                artworkHeight: preferredArtwork,
-                headlineSize: 26,
-                readingSize: 18,
-                horizontalPadding: 22,
-                bottomPadding: 54
+            LinearGradient(
+                stops: [
+                    .init(color: ZodiacPalette.midnight.opacity(0.04), location: 0),
+                    .init(color: ZodiacPalette.midnight.opacity(0.12), location: 0.34),
+                    .init(color: ZodiacPalette.cardNavy.opacity(0.74), location: 0.56),
+                    .init(color: ZodiacPalette.midnight.opacity(0.98), location: 0.82)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
             )
-            frontContent(
-                artworkHeight: mediumArtwork,
-                headlineSize: 26,
-                readingSize: 18,
-                horizontalPadding: 22,
-                bottomPadding: 54
-            )
-            frontContent(
-                artworkHeight: compactArtwork,
-                headlineSize: 26,
-                readingSize: 18,
-                horizontalPadding: 21,
-                bottomPadding: 52
-            )
-            frontContent(
-                artworkHeight: artworkFloor,
-                headlineSize: 25,
-                readingSize: 17,
-                horizontalPadding: 21,
-                bottomPadding: 52
-            )
-            frontContent(
-                artworkHeight: emergencyArtwork,
-                headlineSize: 24,
-                readingSize: 15.5,
-                horizontalPadding: 20,
-                bottomPadding: 50
-            )
-            frontContent(
-                artworkHeight: 48,
-                headlineSize: 22,
-                readingSize: 14,
-                horizontalPadding: 19,
-                bottomPadding: 48
-            )
+
+            VStack(spacing: 0) {
+                signIdentity
+                    .padding(.top, max(24, cardHeight * 0.055))
+
+                Spacer(minLength: max(24, cardHeight * 0.12))
+
+                ViewThatFits(in: .vertical) {
+                    readingPanel(headlineSize: 30, readingSize: 19, spacing: 7, bottomPadding: 62)
+                    readingPanel(headlineSize: 28, readingSize: 18, spacing: 6, bottomPadding: 60)
+                    readingPanel(headlineSize: 26, readingSize: 17, spacing: 5, bottomPadding: 58)
+                    readingPanel(headlineSize: 24, readingSize: 16.5, spacing: 4, bottomPadding: 56)
+                }
+            }
+            .frame(height: cardHeight)
         }
     }
 
-    private func frontContent(
-        artworkHeight: CGFloat,
+    private var signIdentity: some View {
+        VStack(spacing: 3) {
+            Text(horoscope.sign.symbol)
+                .font(.system(size: symbolSize, weight: .ultraLight))
+                .foregroundStyle(ZodiacPalette.gold)
+
+            Text(horoscope.sign.localizedDisplayName(locale: locale).uppercased(with: locale))
+                .font(.system(size: 10.5, weight: .semibold))
+                .tracking(3.1)
+                .foregroundStyle(ZodiacPalette.lavender)
+                .lineLimit(1)
+        }
+        .accessibilityHidden(true)
+    }
+
+    private func readingPanel(
         headlineSize: CGFloat,
         readingSize: CGFloat,
-        horizontalPadding: CGFloat,
+        spacing: CGFloat,
         bottomPadding: CGFloat
     ) -> some View {
-        VStack(spacing: contentSpacing) {
-            CelestialArtwork(sign: horoscope.sign)
-                .frame(height: artworkHeight)
-                .overlay(alignment: .top) {
-                    Text(horoscope.sign.symbol)
-                        .font(.system(size: symbolSize, weight: .ultraLight))
-                        .foregroundStyle(ZodiacPalette.gold)
-                        .padding(.top, min(symbolTopPadding, max(8, artworkHeight * 0.12)))
-                        .accessibilityHidden(true)
-                }
+        VStack(spacing: spacing) {
+            Text(readingLabel)
+                .font(.system(size: 10.5, weight: .semibold))
+                .tracking(3.6)
+                .foregroundStyle(ZodiacPalette.lavender)
+                .lineLimit(1)
 
-            VStack(spacing: readingStackSpacing) {
-                Text(readingLabel)
-                    .font(.system(size: 11, weight: .medium))
-                    .tracking(4)
-                    .foregroundStyle(ZodiacPalette.lavender)
+            HStack(spacing: 11) {
+                Rectangle()
+                    .fill(ZodiacPalette.gold.opacity(0.45))
+                    .frame(maxWidth: 56, maxHeight: 1)
+                Text("✦")
+                    .font(.caption2)
+                    .foregroundStyle(ZodiacPalette.gold)
+                Rectangle()
+                    .fill(ZodiacPalette.gold.opacity(0.45))
+                    .frame(maxWidth: 56, maxHeight: 1)
+            }
+            .accessibilityHidden(true)
 
-                HStack(spacing: 11) {
-                    Rectangle()
-                        .fill(ZodiacPalette.gold.opacity(0.45))
-                        .frame(maxWidth: 50, maxHeight: 1)
-                    Text("✦")
-                        .font(.caption2)
-                        .foregroundStyle(ZodiacPalette.gold)
-                    Rectangle()
-                        .fill(ZodiacPalette.gold.opacity(0.45))
-                        .frame(maxWidth: 50, maxHeight: 1)
-                }
+            Text(horoscope.headline)
+                .font(.custom("Didot", size: headlineSize, relativeTo: .largeTitle))
+                .foregroundStyle(ZodiacPalette.text)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+
+            Text("∿")
+                .font(.system(size: 16, weight: .light, design: .serif))
+                .foregroundStyle(ZodiacPalette.gold)
                 .accessibilityHidden(true)
 
-                Text(horoscope.headline)
-                    .font(.custom("Didot", size: headlineSize, relativeTo: .largeTitle))
-                    .foregroundStyle(ZodiacPalette.text)
-                    .multilineTextAlignment(.center)
-                    .fixedSize(horizontal: false, vertical: true)
-
-                Text("∿")
-                    .font(.system(size: 15, weight: .light, design: .serif))
-                    .foregroundStyle(ZodiacPalette.gold)
-                    .accessibilityHidden(true)
-
-                Text(horoscope.reading)
-                    .font(.system(size: readingSize))
-                    .foregroundStyle(ZodiacPalette.text.opacity(0.96))
-                    .multilineTextAlignment(.center)
-                    .lineSpacing(2)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            .padding(.horizontal, horizontalPadding)
-            .padding(.top, 6)
-            .padding(.bottom, bottomPadding)
+            Text(horoscope.reading)
+                .font(.system(size: readingSize))
+                .foregroundStyle(ZodiacPalette.text.opacity(0.98))
+                .multilineTextAlignment(.center)
+                .lineSpacing(3)
+                .fixedSize(horizontal: false, vertical: true)
         }
+        .padding(.horizontal, 22)
+        .padding(.top, 12)
+        .padding(.bottom, bottomPadding)
         .fixedSize(horizontal: false, vertical: true)
     }
 }
@@ -251,7 +221,7 @@ struct FlippableDailyCard: View {
                     horoscope: horoscope,
                     maxWidth: width,
                     artworkHeight: artworkHeight,
-                    contentSpacing: -35,
+                    contentSpacing: -92,
                     readingBottomPadding: 54,
                     fixedHeight: height,
                     showsTurnCue: true
@@ -378,14 +348,22 @@ private struct DailyCardBackView: View {
                 .offset(y: 22)
                 .accessibilityHidden(true)
 
-            VStack(spacing: 6) {
-                Text(horoscope.sign.symbol)
-                    .font(.system(size: 36, weight: .ultraLight))
-                    .foregroundStyle(ZodiacPalette.gold)
+            VStack(spacing: 4) {
+                VStack(spacing: 1) {
+                    Text(horoscope.sign.symbol)
+                        .font(.system(size: 36, weight: .ultraLight))
+                        .foregroundStyle(ZodiacPalette.gold)
+
+                    Text(horoscope.sign.localizedDisplayName(locale: locale).uppercased(with: locale))
+                        .font(.system(size: 9.5, weight: .semibold))
+                        .tracking(2.8)
+                        .foregroundStyle(ZodiacPalette.gold)
+                        .lineLimit(1)
+                }
 
                 Text(appLocalized("DEEPER READING", locale: locale))
-                    .font(.system(size: 9, weight: .semibold))
-                    .tracking(3.1)
+                    .font(.custom("Didot", size: 14.5, relativeTo: .headline))
+                    .tracking(2.8)
                     .foregroundStyle(ZodiacPalette.lavender)
 
                 ornamentalDivider
@@ -416,18 +394,18 @@ private struct DailyCardBackView: View {
                 Spacer(minLength: 1)
 
                 Image(systemName: "arrow.clockwise")
-                    .font(.system(size: 17, weight: .light))
+                    .font(.system(size: 20, weight: .light))
                     .foregroundStyle(ZodiacPalette.gold)
 
                 Text(appLocalized("TAP TO TURN THE CARD", locale: locale))
-                    .font(.system(size: 7.5, weight: .medium))
-                    .tracking(1.7)
+                    .font(.system(size: 9.5, weight: .semibold))
+                    .tracking(2.0)
                     .foregroundStyle(ZodiacPalette.lavender)
                     .accessibilityHidden(true)
             }
-            .padding(.horizontal, 29)
-            .padding(.top, 24)
-            .padding(.bottom, 17)
+            .padding(.horizontal, 21)
+            .padding(.top, 18)
+            .padding(.bottom, 14)
             .frame(maxHeight: .infinity, alignment: .top)
         }
         .c5bCardChrome()
@@ -475,18 +453,18 @@ private struct DailyCardBackView: View {
         moonPhase: String
     ) -> some View {
         Group {
-            detailText(appLocalized("TODAY'S FOCUS", locale: locale), value: details.focus.uppercased(), size: 16)
-            detailText(appLocalized("KEYWORDS", locale: locale), value: details.keywords.joined(separator: " · ").uppercased(), size: 11)
+            detailText(appLocalized("TODAY'S FOCUS", locale: locale), value: details.focus.uppercased(), size: 19)
+            detailText(appLocalized("KEYWORDS", locale: locale), value: details.keywords.joined(separator: " · ").uppercased(), size: 13.5)
             sectionDivider
 
             Text(appLocalized("DAILY SCORES", locale: locale))
-                .font(.system(size: 8, weight: .semibold))
-                .tracking(2.4)
+                .font(.system(size: 10, weight: .semibold))
+                .tracking(2.5)
                 .foregroundStyle(ZodiacPalette.gold)
 
             LazyVGrid(
                 columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 2),
-                spacing: 7
+                spacing: 4
             ) {
                 scoreCell(appLocalized("LOVE", locale: locale), value: loveScore)
                 scoreCell(appLocalized("CAREER", locale: locale), value: careerScore)
@@ -494,9 +472,14 @@ private struct DailyCardBackView: View {
                 scoreCell(appLocalized("HEALTH", locale: locale), value: healthScore)
             }
             .overlay {
-                Rectangle()
-                    .fill(ZodiacPalette.gold.opacity(0.48))
-                    .frame(width: 0.75, height: 58)
+                ZStack {
+                    Rectangle()
+                        .fill(ZodiacPalette.gold.opacity(0.42))
+                        .frame(width: 0.75)
+                    Rectangle()
+                        .fill(ZodiacPalette.gold.opacity(0.32))
+                        .frame(height: 0.65)
+                }
             }
 
             sectionDivider
@@ -510,8 +493,7 @@ private struct DailyCardBackView: View {
             }
 
             sectionDivider
-            detailText(appLocalized("MOON", locale: locale), value: "\(moonSign.uppercased()) · \(moonPhase.uppercased())", size: 11)
-            Spacer(minLength: 8)
+            detailText(appLocalized("MOON", locale: locale), value: "\(moonSign.uppercased()) · \(moonPhase.uppercased())", size: 13.5)
             essenceSection
         }
     }
@@ -522,7 +504,7 @@ private struct DailyCardBackView: View {
                 "\(horoscope.sign.localizedDisplayName(locale: locale).uppercased(with: locale)) "
                     + appLocalized("ESSENCE", locale: locale),
                 value: details.signEssence,
-                size: 16
+                size: 18
             )
             sectionDivider
             Text(
@@ -544,12 +526,12 @@ private struct DailyCardBackView: View {
                 "\(horoscope.sign.localizedDisplayName(locale: locale).uppercased(with: locale)) "
                     + appLocalized("ESSENCE", locale: locale)
             )
-                .font(.system(size: 8, weight: .semibold))
-                .tracking(2.2)
+                .font(.system(size: 9.5, weight: .semibold))
+                .tracking(2.1)
                 .foregroundStyle(ZodiacPalette.gold)
 
             Text(details.signEssence)
-                .font(.custom("Didot", size: 12, relativeTo: .caption))
+                .font(.custom("Didot", size: 14, relativeTo: .subheadline))
                 .foregroundStyle(ZodiacPalette.paleGold)
                 .multilineTextAlignment(.center)
                 .lineLimit(2)
@@ -560,8 +542,8 @@ private struct DailyCardBackView: View {
     private func detailText(_ title: String, value: String, size: CGFloat) -> some View {
         VStack(spacing: 2) {
             Text(title)
-                .font(.system(size: 8, weight: .semibold))
-                .tracking(2.3)
+                .font(.system(size: 9.5, weight: .semibold))
+                .tracking(2.2)
                 .foregroundStyle(ZodiacPalette.gold)
             Text(value)
                 .font(.custom("Didot", size: size, relativeTo: .caption))
@@ -575,26 +557,15 @@ private struct DailyCardBackView: View {
 
     private func scoreCell(_ title: String, value: Int) -> some View {
         VStack(spacing: 2) {
-            HStack {
-                Text(title)
-                    .font(.system(size: 7.5, weight: .semibold))
-                    .tracking(1.6)
-                    .foregroundStyle(ZodiacPalette.gold)
-                Spacer(minLength: 3)
-                Text(String(value))
-                    .font(.custom("Didot", size: 13, relativeTo: .caption))
-                    .foregroundStyle(ZodiacPalette.paleGold)
-            }
-            GeometryReader { proxy in
-                ZStack(alignment: .leading) {
-                    Capsule().fill(ZodiacPalette.lavender.opacity(0.18))
-                    Capsule()
-                        .fill(ZodiacPalette.gold)
-                        .frame(width: proxy.size.width * CGFloat(value) / 100)
-                }
-            }
-            .frame(height: 3)
+            Text(title)
+                .font(.system(size: 9, weight: .semibold))
+                .tracking(1.8)
+                .foregroundStyle(ZodiacPalette.gold)
+            Text(String(value))
+                .font(.custom("Didot", size: 22, relativeTo: .title3))
+                .foregroundStyle(ZodiacPalette.paleGold)
         }
+        .frame(maxWidth: .infinity, minHeight: 40)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(
             "\(title.capitalized(with: locale)) \(appLocalized("score", locale: locale)) "
@@ -605,11 +576,11 @@ private struct DailyCardBackView: View {
     private func luckyDetail(_ title: String, value: String) -> some View {
         VStack(spacing: 2) {
             Text(title)
-                .font(.system(size: 7.5, weight: .semibold))
-                .tracking(1.8)
+                .font(.system(size: 8.5, weight: .semibold))
+                .tracking(1.6)
                 .foregroundStyle(ZodiacPalette.gold)
             Text(value)
-                .font(.custom("Didot", size: 14, relativeTo: .subheadline))
+                .font(.custom("Didot", size: 18, relativeTo: .headline))
                 .foregroundStyle(ZodiacPalette.paleGold)
                 .minimumScaleFactor(0.72)
                 .lineLimit(1)

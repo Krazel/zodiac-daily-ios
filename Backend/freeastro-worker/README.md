@@ -5,9 +5,9 @@ publishes validated English and Spanish daily documents containing all twelve
 signs. Production at
 `https://zodiac-daily-content.krazel-zodiac-daily.workers.dev` still runs the
 previous English schema; this bilingual schema-3 candidate is not deployed.
-A remote-preview-only Workers AI smoke test passed on 2026-08-11 with valid
-Spanish and accented characters; the preview was stopped and production was
-not modified.
+A remote-preview-only Workers AI smoke test passed again on 2026-08-31 with a
+complete Scorpio adaptation in natural Spanish and a successful bilingual
+quality review. The preview was stopped before production was modified.
 
 ## Behavior
 
@@ -36,9 +36,12 @@ twelve-sign upstream bulk endpoint. The queue consumer calls all twelve signs
 sequentially, at least one second apart, and exposes them as one bulk document.
 After initial warm-up, this normally uses 12 of the free plan's published 80
 daily requests. Initial activation can use up to 24 while current and next-day
-editions are populated. The queue then translates the cached English edition
-once with Workers AI `@cf/meta/m2m100-1.2b` and stores EN/ES under separate KV
-keys.
+editions are populated. The queue then adapts each complete English sign as one
+editorial unit with Workers AI `@cf/openai/gpt-oss-20b`. A second structured
+bilingual review with `@cf/meta/llama-3.1-8b-instruct-fast` rejects copy that is not natural Spanish, changes
+astrological meaning, omits guidance, or introduces new facts. Scores, lucky
+number, sign, date, and content version bypass generation and remain copied
+from the provider document. EN and ES remain under separate KV keys.
 
 ## Exact app contract
 
@@ -163,7 +166,9 @@ Official references used for this adapter:
 - Provider terms: <https://www.freeastroapi.com/terms>
 - Workers Free limits: <https://developers.cloudflare.com/workers/platform/limits/>
 - Queues Free limits: <https://developers.cloudflare.com/queues/platform/limits/>
-- Workers AI model: <https://developers.cloudflare.com/workers-ai/models/m2m100-1.2b/>
+- Workers AI editorial model: <https://developers.cloudflare.com/workers-ai/models/gpt-oss-20b/>
+- Workers AI review model: <https://developers.cloudflare.com/workers-ai/models/llama-3.1-8b-instruct-fast/>
+- Workers AI JSON mode: <https://developers.cloudflare.com/workers-ai/features/json-mode/>
 - Workers AI pricing: <https://developers.cloudflare.com/workers-ai/platform/pricing/>
 
 ## Content-rights decision

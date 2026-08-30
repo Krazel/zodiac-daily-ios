@@ -111,12 +111,12 @@ jobs:
           }
 
           xcrun simctl spawn "$UDID" defaults write com.krazel.zodiacdaily app-language en
-          for STATE in sign-selection today today-back today-long saved-empty saved-populated saved-detail settings; do
+          for STATE in sign-selection today today-back today-long saved-empty saved-populated saved-detail saved-detail-back settings; do
             capture_state "$STATE" "visual-qa/${STATE}.png"
           done
 
           xcrun simctl spawn "$UDID" defaults write com.krazel.zodiacdaily app-language es
-          for STATE in today today-back today-long; do
+          for STATE in today today-back today-long saved-detail saved-detail-back; do
             capture_state "$STATE" "visual-qa/${STATE}-es.png"
           done
 
@@ -155,7 +155,7 @@ jobs:
           DATA_CONTAINER="$(xcrun simctl get_app_container "$SHORT_UDID" com.krazel.zodiacdaily data)"
           STATE_MARKER="${DATA_CONTAINER}/tmp/visual-qa-rendered-state.txt"
 
-          for STATE in today today-long saved-detail; do
+          for STATE in today today-back today-long saved-detail saved-detail-back; do
             xcrun simctl terminate "$SHORT_UDID" com.krazel.zodiacdaily >/dev/null 2>&1 || true
             rm -f "$STATE_MARKER"
             SIMCTL_CHILD_ZODIAC_VISUAL_QA_STATE="$STATE" \

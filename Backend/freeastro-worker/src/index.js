@@ -14,7 +14,13 @@ const SIGNS = Object.freeze([
 ]);
 
 const UPSTREAM_URL = "https://api.freeastroapi.com/api/v2/horoscope/daily/sign";
-const TRANSLATION_MODEL = "@cf/meta/m2m100-1.2b";
+// Translate the complete editorial unit in one pass. The previous M2M model
+// translated each field independently, which was faithful at word level but
+// produced stiff, context-free Spanish. This multilingual instruct model can
+// preserve the reading as a whole and return a validated structured result.
+const TRANSLATION_MODEL = "@cf/openai/gpt-oss-20b";
+const TRANSLATION_REVIEW_MODEL = "@cf/meta/llama-3.1-8b-instruct-fast";
+const SPANISH_COPY_REVISION = 3;
 const CACHE_SCHEMA_VERSION = 3;
 const LANGUAGES = Object.freeze(["en", "es"]);
 const MAX_HEADLINE_CHARACTERS = 52;
@@ -471,52 +477,35 @@ export async function translateBundleToSpanish(english, ai, options = {}) {
 }
 
 async function translateHoroscopeToSpanish(horoscope, ai, options = {}) {
-  const sourceFields = [
-    horoscope.headline,
-    horoscope.reading,
-    ...horoscope.details.keywords,
-    horoscope.details.lucky_color,
-    horoscope.details.moon_sign,
-    horoscope.details.moon_phase,
-  ];
-  const translatedFields = [];
-  for (const source of sourceFields) {
-    translatedFields.push(await translateText(source, ai, options));
-  }
-
-  const [headline, reading, ...translatedDetails] = translatedFields;
-  const keywordCount = horoscope.details.keywords.length;
-  const keywords = deduplicateKeywords(translatedDetails.slice(0, keywordCount));
-  const [luckyColor, moonSign, moonPhase] = translatedDetails.slice(keywordCount);
+  const translated = await translateEditorialUnit(horoscope, ai, options);
 
   return {
     ...horoscope,
-    headline,
-    reading,
+    headline: translated.headline,
+    reading: translated.reading,
     details: {
       ...horoscope.details,
-      focus: headline,
-      keywords,
-      lucky_color: luckyColor,
-      moon_sign: moonSign,
-      moon_phase: moonPhase,
+      focus: translated.headline,
+      keywords: translated.keywords,
+      lucky_color: translated.lucky_color,
+      moon_sign: translated.moon_sign,
+      moon_phase: translated.moon_phase,
     },
   };
 }
 
-async function translateText(text, ai, options = {}) {
+async function translateEditorialUnit(horoscope, ai, options = {}) {
   const wait = options.wait ?? sleep;
   let lastError = new Error("translation_invalid_response");
+  const input = editorialTranslationRequest(horoscope);
 
   for (let attempt = 0; attempt <= TRANSLATION_RETRY_DELAYS_MS.length; attempt += 1) {
     try {
-      const response = await ai.run(TRANSLATION_MODEL, {
-        text,
-        source_lang: "en",
-        target_lang: "es",
-      });
-      const translated = normalizeCardCopy(response?.translated_text);
-      if (translated) return translated;
+      const response = await ai.run(TRANSLATION_MODEL, input);
+      const translated = normalizeEditorialTranslation(extractAIResult(response), horoscope);
+      if (translated && await reviewEditorialTranslation(horoscope, translated, ai)) {
+        return translated;
+      }
       lastError = new Error("translation_invalid_response");
     } catch (error) {
       lastError = error instanceof Error ? error : new Error("translation_request_failed");
@@ -529,14 +518,159 @@ async function translateText(text, ai, options = {}) {
   throw lastError;
 }
 
-function deduplicateKeywords(keywords) {
-  const seen = new Set();
-  return keywords.filter((keyword) => {
-    const normalized = keyword.toLocaleLowerCase("es");
-    if (seen.has(normalized)) return false;
-    seen.add(normalized);
-    return true;
+async function reviewEditorialTranslation(source, translated, ai) {
+  const response = await ai.run(TRANSLATION_REVIEW_MODEL, {
+    messages: [
+      {
+        role: "system",
+        content: [
+          "Actúa como revisor bilingüe estricto, no como redactor.",
+          "Compara la fuente inglesa con la adaptación al castellano de España.",
+          "Marca faithful=false si se omite, añade, suaviza o intensifica cualquier consejo, predicción, planeta, casa, signo, relación causal o dato.",
+          "Marca is_spanish=false si queda una frase o metadato en inglés o si el castellano es literal, mecánico o impropio.",
+          "Marca preserves_astrology=false si cambia el significado de terminología astrológica.",
+          "Marca no_new_facts=false si aparece cualquier afirmación que no esté en la fuente.",
+          "Devuelve solamente el objeto solicitado.",
+        ].join(" "),
+      },
+      {
+        role: "user",
+        content: JSON.stringify({ source, translated }),
+      },
+    ],
+    response_format: {
+      type: "json_schema",
+      json_schema: {
+        type: "object",
+        properties: {
+          faithful: { type: "boolean" },
+          is_spanish: { type: "boolean" },
+          preserves_astrology: { type: "boolean" },
+          no_new_facts: { type: "boolean" },
+        },
+        required: ["faithful", "is_spanish", "preserves_astrology", "no_new_facts"],
+        additionalProperties: false,
+      },
+    },
+    temperature: 0,
+    max_tokens: 180,
   });
+
+  let verdict = extractAIResult(response);
+  if (typeof verdict === "string") {
+    try {
+      verdict = JSON.parse(verdict);
+    } catch {
+      return false;
+    }
+  }
+  return Boolean(
+    verdict?.faithful === true
+      && verdict?.is_spanish === true
+      && verdict?.preserves_astrology === true
+      && verdict?.no_new_facts === true,
+  );
+}
+
+function extractAIResult(response) {
+  return response?.response ?? response?.choices?.[0]?.message?.content ?? null;
+}
+
+function editorialTranslationRequest(horoscope) {
+  const schema = {
+    type: "object",
+    properties: {
+      headline: { type: "string", maxLength: MAX_TRANSLATED_HEADLINE_CHARACTERS },
+      reading: { type: "string", minLength: MIN_READING_CHARACTERS, maxLength: MAX_TRANSLATED_READING_CHARACTERS },
+      keywords: {
+        type: "array",
+        minItems: horoscope.details.keywords.length,
+        maxItems: horoscope.details.keywords.length,
+        items: { type: "string", minLength: 1, maxLength: 40 },
+      },
+      lucky_color: { type: "string", minLength: 1, maxLength: 32 },
+      moon_sign: { type: "string", minLength: 1, maxLength: 40 },
+      moon_phase: { type: "string", minLength: 1, maxLength: 40 },
+    },
+    required: ["headline", "reading", "keywords", "lucky_color", "moon_sign", "moon_phase"],
+    additionalProperties: false,
+  };
+
+  return {
+    messages: [
+      {
+        role: "system",
+        content: [
+          "Eres editor de una revista de astrología escrita originalmente en castellano de España.",
+          "Adapta el texto inglés con naturalidad, calidez y precisión; no hagas una traducción palabra por palabra.",
+          "Conserva exactamente el sentido, el grado de certeza y todos los consejos del original.",
+          "No añadas predicciones, fechas, cifras, afirmaciones ni información que no aparezca en la fuente.",
+          "Usa un tono elegante y cercano, en segunda persona del singular (tú), sin anglicismos ni frases mecánicas.",
+          "Dirígete a la persona lectora; nunca escribas construcciones como 'el Escorpio', 'la Aries' o equivalentes.",
+          "Si el signo actúa como sujeto, usa su nombre propio traducido y sin artículo: por ejemplo, 'Escorpio afronta el día'.",
+          "Prefiere giros idiomáticos de España y evita calcos como 'enfrentar el día' o 'impulsos fuertes'.",
+          "El titular debe ser breve y evocador, pero no puede introducir ideas ausentes en el titular inglés.",
+          "La lectura debe fluir como un único texto editorial.",
+          "Traduce correctamente los términos astrológicos, el color y cada palabra clave.",
+          "Devuelve solamente el objeto solicitado.",
+        ].join(" "),
+      },
+      {
+        role: "user",
+        content: JSON.stringify({
+          sign: horoscope.sign,
+          headline: horoscope.headline,
+          reading: horoscope.reading,
+          keywords: horoscope.details.keywords,
+          lucky_color: horoscope.details.lucky_color,
+          moon_sign: horoscope.details.moon_sign,
+          moon_phase: horoscope.details.moon_phase,
+        }),
+      },
+    ],
+    response_format: {
+      type: "json_schema",
+      json_schema: schema,
+    },
+    reasoning: { effort: "low" },
+    temperature: 0.25,
+    max_tokens: 1_000,
+  };
+}
+
+function normalizeEditorialTranslation(value, source) {
+  let candidate = value;
+  if (typeof candidate === "string") {
+    try {
+      candidate = JSON.parse(candidate);
+    } catch {
+      return null;
+    }
+  }
+  if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) return null;
+
+  const headline = normalizeCardCopy(candidate.headline);
+  const reading = normalizeCardCopy(candidate.reading);
+  const keywords = cleanStringArray(candidate.keywords)?.map(normalizeCardCopy);
+  const luckyColor = normalizeCardCopy(candidate.lucky_color);
+  const moonSign = normalizeCardCopy(candidate.moon_sign);
+  const moonPhase = normalizeCardCopy(candidate.moon_phase);
+  if (!headline || headline.length > MAX_TRANSLATED_HEADLINE_CHARACTERS) return null;
+  if (!reading || reading.length < MIN_READING_CHARACTERS || reading.length > MAX_TRANSLATED_READING_CHARACTERS) return null;
+  if (headline.toLocaleLowerCase("es") === source.headline.toLocaleLowerCase("en")) return null;
+  if (reading.toLocaleLowerCase("es") === source.reading.toLocaleLowerCase("en")) return null;
+  if (!isValidKeywordList(keywords) || keywords.length !== source.details.keywords.length) return null;
+  if (!luckyColor || luckyColor.length > 32) return null;
+  if (!moonSign || moonSign.length > 40 || !moonPhase || moonPhase.length > 40) return null;
+
+  return {
+    headline,
+    reading,
+    keywords,
+    lucky_color: luckyColor,
+    moon_sign: moonSign,
+    moon_phase: moonPhase,
+  };
 }
 
 export function normalizeProviderResponse(body, expectedSign, expectedDate) {
@@ -643,24 +777,28 @@ async function readPayload(kv, key) {
 }
 
 function dailyCacheKey(date, language) {
-  return `daily:v${CACHE_SCHEMA_VERSION}:${language}:${date}`;
+  return `daily:v${CACHE_SCHEMA_VERSION}:${languageCacheSegment(language)}:${date}`;
 }
 
 function lastValidCacheKey(language) {
-  return `last-valid:v${CACHE_SCHEMA_VERSION}:${language}`;
+  return `last-valid:v${CACHE_SCHEMA_VERSION}:${languageCacheSegment(language)}`;
 }
 
 function failureCacheKey(date, language, sign = null) {
   const suffix = sign ? `:${sign}` : "";
-  return `failure:v${CACHE_SCHEMA_VERSION}:${language}:${date}${suffix}`;
+  return `failure:v${CACHE_SCHEMA_VERSION}:${languageCacheSegment(language)}:${date}${suffix}`;
 }
 
 function repairCacheKey(date, language) {
-  return `repair:v${CACHE_SCHEMA_VERSION}:${language}:${date}`;
+  return `repair:v${CACHE_SCHEMA_VERSION}:${languageCacheSegment(language)}:${date}`;
 }
 
 function translationPartCacheKey(date, sign) {
-  return `translation-part:v${CACHE_SCHEMA_VERSION}:es:${date}:${sign}`;
+  return `translation-part:v${CACHE_SCHEMA_VERSION}:es-r${SPANISH_COPY_REVISION}:${date}:${sign}`;
+}
+
+function languageCacheSegment(language) {
+  return language === "es" ? `es-r${SPANISH_COPY_REVISION}` : language;
 }
 
 function cleanString(value) {
@@ -752,4 +890,10 @@ function jsonResponse(body, status, extraHeaders = {}) {
   });
 }
 
-export { LANGUAGES, SIGNS, TRANSLATION_MODEL };
+export {
+  LANGUAGES,
+  SIGNS,
+  SPANISH_COPY_REVISION,
+  TRANSLATION_MODEL,
+  TRANSLATION_REVIEW_MODEL,
+};

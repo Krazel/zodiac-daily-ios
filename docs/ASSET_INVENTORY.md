@@ -1,21 +1,32 @@
 # Asset inventory
 
-Updated: 2026-08-10
+Updated: 2026-08-31
 
-## Approved Today implementation
+## Approved Today C6 implementation
 
-- Visual reference: `Design/Concepts/today-c2-collectible-card.png`.
-- Runtime bitmap assets: none. The reference image is documentation only and is
-  not shipped inside the app.
-- Typography: native iOS system serif and sans-serif designs; no external font
-  files or licenses.
-- Zodiac symbols: Unicode zodiac glyphs with English accessibility labels.
-- Icons: SF Symbols for bookmark, settings, selection, and tab navigation.
-- Background: native SwiftUI gradients.
-- Card frame: native rounded rectangles, borders, and shadows.
-- Celestial art: native SwiftUI `Canvas`; twelve distinct procedural
-  constellation point sets, stars, crescent, and waves.
-- Motion: no principal visual animation has been fixed or shipped.
+- Current front reference:
+  `Design/Approved/today-large-card-front-c6-approved.png`.
+- Current provider-back reference:
+  `Design/Approved/today-large-card-back-c6-approved.png`.
+- Screen background bitmap:
+  `ZodiacDaily/Assets.xcassets/CelestialBackground.imageset/celestial-background.png`.
+- Card scene bitmaps: `CardLake`, `CardOcean`, and `CardRoad` asset sets. The
+  sign family selects one scene; a native `Canvas` draws each distinct
+  constellation over it.
+- Typography: built-in iOS Didot plus native system sans serif; no external font
+  file or license.
+- Zodiac identity: Unicode glyph plus localized sign name inside the card.
+  Today has no sign-selection control; Settings owns that action.
+- Icons: SF Symbols for bookmark, Settings, turn cue, and tab navigation.
+- Card frame: one shared native `Canvas` implementation with warm-gold outer
+  stroke, inset hairline, engraved crescent/star corners, and native shadow.
+- Front material: the full scene bitmap plus a progressive native navy/indigo
+  gradient that creates the C6 reading zone without a hard rectangular panel.
+- Back material: native navy/indigo gradient, subtle sign watermark, hairline
+  dividers, and a typographic two-column score grid. No progress-bar asset is
+  used in C6.
+- Motion: native SwiftUI 3D Y-axis rotation; Reduce Motion uses a short opacity
+  transition.
 
 ## Newly approved screen references
 
@@ -37,21 +48,12 @@ Symbols, Unicode zodiac glyphs, SwiftUI shapes, and procedural celestial art.
 - Shipped icon artwork: `ZodiacDaily/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png`,
   opaque RGB, 1024×1024, with no pre-rounded corners.
 
-## Today card reverse
+## Shared Saved detail card
 
-- Current visual reference: `Design/Concepts/today-card-back-provider-c2.png`.
-- Superseded reference retained for history: `Design/Concepts/today-card-back-c1.png`.
-- Runtime bitmap assets: no additional bitmap. The approved screen image is a
-  specification and is not shipped in the app.
-- Background and card material: reuse the approved cosmic background, card
-  navy gradient, gold double frame, corner ornaments, shadow, and Didot/system
-  typography already present in Today.
-- Sign watermark: native Unicode zodiac glyph with low opacity.
-- Dividers, category labels, and turn indicator: native SwiftUI shapes and an
-  SF Symbol where appropriate.
-- Daily score meters: native SwiftUI capsules; values come from the provider.
-- Motion: native SwiftUI 3D Y-axis rotation; a short opacity transition replaces
-  it when Reduce Motion is enabled.
+- Saved detail uses the same `FlippableDailyCard`, scene assets, C6 frame,
+  typography hierarchy, and motion as Today.
+- Date/navigation and Remove from Saved remain native controls outside the
+  physical card. Saved-list thumbnails are unchanged by C6.
 
 ## Still gated
 
