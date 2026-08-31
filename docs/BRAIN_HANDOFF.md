@@ -403,3 +403,25 @@ workspace does not have write access to Brain.
   para el grupo interno.
 - IPA `ZodiacDaily-v0.4.1-build-1-a84cab4-TestFlight.ipa`, SHA-256
   `0d7b9acb53b8499b4c0560c75ee374e5c97bd6cc9cc9819799d40b01fe72acaf`.
+
+## Candidato publico 1.0/1 — preparado, no enviado a revision
+
+- El propietario autorizo build, firma, subida a App Store Connect y preparacion
+  completa de la ficha, pero indico expresamente no enviar a App Review.
+- Commit exacto `fa03ff09e4f383fe454c782e7eb0ec373511d4cb`. Run
+  `33440183125`: 65 pruebas, analisis Release, firma, inspeccion, export,
+  validacion Apple y upload correctos.
+- App Store Connect confirma `1.0 (1)`, `VALID`, iOS 16.0,
+  `APP_STORE_ELIGIBLE`, no caducada y sin cifrado no exento. Inspector run
+  `33441385942`.
+- IPA `ZodiacDaily-v1.0-build-1-fa03ff0-AppStore.ipa`, SHA-256
+  `2316febd7191b1a75557c6ace5ae6d704bf6e0157794374a51d93ff6d02e5525`.
+- Run de capturas `33440182881`: seis EN y seis ES reales, iPhone 14 Plus,
+  1284 x 2778. Los archivos, hashes y procedencia quedan en
+  `AppStore/StoreReady/` y `Design/APPROVALS.md`.
+- La 1.0 oculta por completo el apoyo StoreKit no configurado. No hay IAP,
+  suscripcion, anuncios, analytics, cuenta, permisos ni tracking. La ficha
+  canonica bilingue esta en `AppStore/METADATA.md`.
+- Pendiente unicamente ensamblar la ficha en App Store Connect: localizacion ES,
+  capturas EN/ES, version 1.0, build, notas y publicacion de `No data collected`.
+  No tocar `Añadir a revisión` hasta una nueva orden expresa.

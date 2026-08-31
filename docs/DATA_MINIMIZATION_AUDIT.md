@@ -106,12 +106,18 @@ app's public privacy/support pages.
   complete daily data and no detected English residual or known agreement
   defect.
 - Public privacy and support pages passed the minimization review.
+- Exact public candidate `1.0 (1)` passed 65 Core tests, Release analysis,
+  signing, archive inspection, IPA export, Apple validation, and upload in run
+  `33440183125`. Inspection run `33441385942` confirms the processed binary is
+  `VALID`, iOS 16.0+, not expired, declares no non-exempt encryption, and is
+  `APP_STORE_ELIGIBLE`. No SDK, permission, data category, purchase surface, or
+  transmission beyond the audited date-and-language request was added.
 
 ## Gate
 
-The code inventory passes for the public `1.0` / build `1` source candidate.
+The code inventory passes for the exact processed public `1.0` / build `1`.
 Changes since the delivered `0.4.1` binary hide the unconfigured voluntary
 support UI and stop its StoreKit catalog task; they add no SDK,
 permission, storage category, transmission, account field, analytics, ad, or
-tracking behavior. Signed archive and App Store inspection evidence must be
-added after the authorized 1.0 workflow completes.
+tracking behavior. Signed archive and App Store inspection evidence are now
+recorded; future binary or SDK changes require a fresh audit.

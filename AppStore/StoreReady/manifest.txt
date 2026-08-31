@@ -1,0 +1,10 @@
+app=The Daily Zodiac
+marketing_version=1.0
+build=1
+commit_sha=fa03ff09e4f383fe454c782e7eb0ec373511d4cb
+source=actual-release-candidate-ui
+device=iPhone 14 Plus
+runtime=com.apple.CoreSimulator.SimRuntime.iOS-26-5
+size=1284x2778
+orientation=portrait
+localizations=en-US,es-ES

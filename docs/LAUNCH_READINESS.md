@@ -10,9 +10,10 @@ uses Settings as the single sign-change path, and applies the C7 readable type
 system across the card, Settings, sign selection, and Saved screens. The production Worker serves
 native deterministic Spanish for the current provider template. Historical `0.2.3` (`1`) remains the
 correction that replaced the disconnected 0.2.2 candidate.
-The authorization covers the 1.0 build upload, App Privacy publication, App
-Review submission, and release after approval. It does not authorize creating
-paid StoreKit products, accepting new agreements, or spending money.
+The authorization covers the 1.0 build upload and preparation of App Store
+metadata, screenshots, and App Privacy. The owner explicitly excluded App
+Review submission. It also does not authorize creating paid StoreKit products,
+accepting new agreements, or spending money.
 
 ## Recorded scope
 
@@ -54,7 +55,7 @@ paid StoreKit products, accepting new agreements, or spending money.
 - App Privacy is saved as `No data collected`. This is accurate under Apple's
   definition because the date request is used in real time and is not retained
   or associated with an identity. The live privacy URL is saved; the answer
-  remains unpublished pending explicit publication authorization.
+  remains unpublished pending the final App Store Connect assembly.
 - Export compliance is declared in the build with
   `ITSAppUsesNonExemptEncryption = NO`; the app implements no proprietary or
   non-exempt encryption and relies only on standard HTTPS provided by Apple.
@@ -116,6 +117,22 @@ local implementation only, not uploads or external activation.
 - EU DSA compliance is `Active` as of 2026-08-31. Any legally required trader
   disclosure remains confined to Apple's compliance surface and is not copied
   to public support or privacy pages.
+
+## Public 1.0 release evidence
+
+- Commit: `fa03ff09e4f383fe454c782e7eb0ec373511d4cb`.
+- Build/upload run `33440183125` passed 65 tests, Release analysis, signing,
+  archive inspection, export, Apple validation, and upload.
+- App Store artifact `ZodiacDaily-v1.0-build-1-AppStore-run-16`, digest
+  `sha256:da836a74ea9398ee4c86acc532f9aea128c316df4fbd737d35e6b5e5fb313fe0`.
+- IPA `ZodiacDaily-v1.0-build-1-fa03ff0-AppStore.ipa`, SHA-256
+  `2316febd7191b1a75557c6ace5ae6d704bf6e0157794374a51d93ff6d02e5525`.
+- Inspection run `33441385942` confirms version `1.0`, build `1`, `VALID`,
+  iOS 16.0, not expired, no non-exempt encryption, and
+  `APP_STORE_ELIGIBLE`.
+- Screenshot run `33440182881` produced six English and six Spanish real-build
+  captures at 1284 x 2778. Their individual hashes are registered in
+  `Design/APPROVALS.md`; canonical store text is in `AppStore/METADATA.md`.
 
 ## Local QA IPA workflow
 

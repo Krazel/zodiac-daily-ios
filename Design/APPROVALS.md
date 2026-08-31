@@ -19,7 +19,7 @@ superseded. Approved history is never overwritten or deleted.
 | Saved / empty | `Design/Approved/saved-empty-readable-type-c3.png` | iPhone 15 Pro full-screen proposal, 853 x 1844 px | Portrait | English | 2026-08-31 | `8bedefb6496355adbab9f29376c13d8838b4a56cbc492bfb12c9a3be601bbd2c` | `Design/Comparisons/saved-empty-readable-type-c3-runtime.png`, run `33348593592`, commit `c48a449`, SHA-256 `a49b85ca2db594d63c1e5a21114996880f5d285976357b6c89026e1e3b82bbe1` | Preserve the empty collectible-card composition. Editorial titles use the sturdy serif; explanatory copy, action, and tabs use the native sans-serif. |
 | Saved / populated | `Design/Approved/saved-readable-type-c3.png` | iPhone 15 Pro full-screen proposal, 853 x 1844 px | Portrait | English | 2026-08-31 | `2455dc89a59e5df05994d33c3d1b96fcfd3c73957de0ec4061c293a16191a6d4` | `Design/Comparisons/saved-readable-type-c3-runtime.png`, run `33348593592`, commit `c48a449`, SHA-256 `482f12eadbd81eaa457d3fc0e9232e3ec231838dc5bd65d13a79d4fe789e8d0e` | Preserve the three-card archive and artwork. Card headlines retain the editorial serif; sign names, metadata, collection count, and tabs use the native sans-serif with long names kept inside their cards. |
 | Saved / card detail | `Design/Approved/saved-detail-readable-type-c7.png` | iPhone 15 Pro full-screen proposal, 853 x 1844 px | Portrait | Spanish | 2026-08-31 | `10989616273d65ac90f1245c7c56235f6db09ba3720375feb3b8b3c2f7753191` | Front `Design/Comparisons/saved-detail-readable-type-c7-es-runtime.png`, SHA-256 `8deecc514bf19f9af5bfa32cad7048738ccb040cd980f0111b80affb6b43eefb`; back `Design/Comparisons/saved-detail-readable-type-c7-back-es-runtime.png`, SHA-256 `a893938a2fce009e93b40754cde31deaa61fb198beaffd953797b4a7e7744b13`; run `33348593592`, commit `c48a449` | Preserve the complete shared C7 card and stationary detail composition. Only the horoscope headline uses the sturdy serif; navigation, header, metadata, reading, cue, and destructive action use the native sans-serif. |
-| Settings / support and review | `Design/Approved/settings-readable-type-c4.png` | iPhone 15 Pro full-screen proposal, 853 x 1844 px | Portrait | English | 2026-08-31 | `2ffde7f1b3c5ea4c1b4c7ad192126b22f62b4f2eb658b520d1d417c871b9d128` | `Design/Comparisons/settings-readable-type-c4-runtime.png`, run `33348593592`, commit `c48a449`, SHA-256 `a86d014a99219c3c9635a56f84b033d493061965ba7621e35a9ca0bd8573f5f0` | Preserve all Settings content and geometry. Settings alone retains the editorial serif title; sign, language, supporter tiers, live prices, restore/manage, review, privacy, terms, help, and explanatory copy use the native sans-serif. Prices use semibold tabular digits. |
+| Settings / free 1.0 release | `Design/Approved/settings-free-release-c5.png` | iPhone 14 Plus real-build capture, 1284 x 2778 px | Portrait | English | 2026-08-31 | `d259183792506f6010691d3847e89201210677f19421b74e669466b6fa9b1d20` | `AppStore/StoreReady/en-US/05-settings.png`, run `33440182881`, commit `fa03ff0`, same SHA-256 | Preserve the readable Settings hierarchy for sign, language, review, privacy, help, and version. The unconfigured supporter section is intentionally absent from the free 1.0 release. |
 | App icon | `Design/Approved/app-icon-c1.png` | Square master, 1254 x 1254 px | N/A | No text | 2026-08-10 | `353b30862440057996c28eaaee116337f460107b961be22cf12b529af4e5e00c` | Runtime asset: `ZodiacDaily/Assets.xcassets/AppIcon.appiconset/` | Preserve the central twelve-point gold star, twelve orbiting points, midnight navy, no text, no zodiac-specific glyph, no transparency, and no pre-rounded corners. |
 
 The comparison sheets contain captures from the real SwiftUI build on an
@@ -50,6 +50,7 @@ runtime evidence.
 | Saved / populated | `Design/Approved/saved-populated-c2.png` | Superseded, retained | 2026-08-09 | `Design/Approved/saved-readable-type-c3.png` | C3 applies the global readable type system to archive metadata and navigation. |
 | Saved / card detail | `Design/Approved/saved-detail-c5b-en-runtime.png` | Superseded, retained | 2026-08-26 | `Design/Approved/saved-detail-readable-type-c7.png` | C7 applies shared-card typography and replaces the thin-serif interface header. |
 | Settings / support and review | `Design/Approved/settings-support-c3.png` | Superseded, retained | 2026-08-09 | `Design/Approved/settings-readable-type-c4.png` | C4 removes thin serif from controls, prices, legal rows, and explanatory copy while preserving the approved Settings structure. |
+| Settings / support and review | `Design/Approved/settings-readable-type-c4.png` | Superseded, retained | 2026-08-31 | `Design/Approved/settings-free-release-c5.png` | Version 1.0 deliberately ships without unconfigured purchases. C5 records the exact free-release Settings screen while retaining the readable typography and legal/support rows. |
 
 ## Proposal history (not current masters)
 
@@ -93,10 +94,33 @@ stationary compact-height check passed on iPhone SE. The resulting Spanish
 front C4 and provider back C3 are now the complete current masters above; the
 previous English mockups remain retained as superseded approval history.
 
+## Store-ready release captures — 1.0 (1)
+
+The following screenshots were captured from the actual release-candidate UI,
+not redrawn. They were produced by workflow run `33440182881` from commit
+`fa03ff09e4f383fe454c782e7eb0ec373511d4cb` on an iPhone 14 Plus simulator at
+1284 x 2778 px, portrait, on 2026-08-31. The artifact digest is
+`sha256:2b1126361fd2d5492cf0f4aa3b9f343f9aa6c7584fac5d7476342467c73a8853`.
+
+| Locale | Order / state | File | SHA-256 |
+| --- | --- | --- | --- |
+| en-US | 01 Today | `AppStore/StoreReady/en-US/01-today.png` | `058d41edf83bd83f36872041ee2150d9f3d4780bb9d264505a1778fc684d2dbc` |
+| en-US | 02 Daily details | `AppStore/StoreReady/en-US/02-daily-details.png` | `505b10be1c260b5c44c729c33c3b25d3a8b815caadcc15da8d02e97d18cddf14` |
+| en-US | 03 Saved cards | `AppStore/StoreReady/en-US/03-saved-cards.png` | `fd9c724959ef4ddf2f35ee8324e233b5cfc6266ef4a162947735e4620ead7115` |
+| en-US | 04 Saved detail | `AppStore/StoreReady/en-US/04-saved-detail.png` | `beb8005d1eae2f16eb6b60687cff578f789cf7988f102a1779923b764019ed0d` |
+| en-US | 05 Settings | `AppStore/StoreReady/en-US/05-settings.png` | `d259183792506f6010691d3847e89201210677f19421b74e669466b6fa9b1d20` |
+| en-US | 06 Choose sign | `AppStore/StoreReady/en-US/06-choose-sign.png` | `97d11be698d77dc4e7e337b12b5848e440789af2632ff6f2027f5624340f4d85` |
+| es-ES | 01 Hoy | `AppStore/StoreReady/es-ES/01-today.png` | `0173d1e1beb7cd4f349fd7662f8b33893f666e17ccafb9a7cb50cfff892f7cd6` |
+| es-ES | 02 Lectura profunda | `AppStore/StoreReady/es-ES/02-daily-details.png` | `22dd3f10ae941734f86ba727ef59f55f4de74ef66b8774cb30d55590607c0384` |
+| es-ES | 03 Cartas guardadas | `AppStore/StoreReady/es-ES/03-saved-cards.png` | `771824fe626a794d4ab775b42327d3a4f632a5101a95e7504416f8b9d96826a8` |
+| es-ES | 04 Detalle guardado | `AppStore/StoreReady/es-ES/04-saved-detail.png` | `2fd4a7bcfcd8e3d69fd80899127d4309e3d4f89c8b377f61bc9aacd5e8a69f0c` |
+| es-ES | 05 Ajustes | `AppStore/StoreReady/es-ES/05-settings.png` | `3b625bfa22cb129e315eba4e5610e2797dae741e33146af67bb5084af1a143cb` |
+| es-ES | 06 Elegir signo | `AppStore/StoreReady/es-ES/06-choose-sign.png` | `9a59ca7b31ec9c921b4756ccc7311fb335ec0119118bf974caf3f4ad7384d5dd` |
+
 ## Store screenshot rule
 
 App Store screenshots may use the current masters as art direction only. The
 base screenshot must be captured from the real release-candidate build at the
 declared device size, then linked here with version, build, commit, locale,
-device, resolution, capture date, and SHA-256 before submission. No store
-screenshots are approved or registered yet.
+device, resolution, capture date, and SHA-256 before submission. The registered
+1.0 (1) set above satisfies this rule; any later build requires a new set.
