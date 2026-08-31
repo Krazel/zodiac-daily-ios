@@ -19,9 +19,8 @@ const apps = await apiRequest(token, "GET", "/v1/apps", {
 const app = apps.data?.find((candidate) => candidate.attributes?.bundleId === bundleIdentifier);
 if (!app) fail(`No App Store Connect app exists for ${bundleIdentifier}.`);
 
-const versions = await apiRequest(token, "GET", "/v1/appStoreVersions", {
+const versions = await apiRequest(token, "GET", `/v1/apps/${app.id}/appStoreVersions`, {
   query: {
-    "filter[app]": app.id,
     "filter[platform]": "IOS",
     "filter[versionString]": marketingVersion,
     limit: "20"
