@@ -1,0 +1,65 @@
+name: Upload Zodiac Daily App Store Screenshots
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  upload:
+    if: github.actor == github.repository_owner
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: app-store-production
+
+    steps:
+      - name: Checkout approved source
+        uses: actions/checkout@v5
+
+      - name: Verify canonical screenshot hashes
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd AppStore/StoreReady
+          sha256sum --check SHA256SUMS
+          test "$(find en-US -maxdepth 1 -type f -name '*.png' | wc -l)" -eq 6
+          test "$(find es-ES -maxdepth 1 -type f -name '*.png' | wc -l)" -eq 6
+
+      - name: Require App Store Connect credentials
+        shell: bash
+        env:
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
+        run: |
+          set -euo pipefail
+          for NAME in APP_STORE_CONNECT_API_KEY_ID APP_STORE_CONNECT_ISSUER_ID APP_STORE_CONNECT_API_KEY_BASE64; do
+            if [ -z "${!NAME:-}" ]; then
+              echo "Required App Store screenshot secret is missing: ${NAME}."
+              exit 1
+            fi
+          done
+
+      - name: Upload English and Spanish screenshots
+        shell: bash
+        env:
+          ASC_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          ASC_PRIVATE_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
+        run: |
+          set -euo pipefail
+          KEY_PATH="${RUNNER_TEMP}/zodiac-app-store-screenshots.p8"
+          cleanup() {
+            rm -f "${KEY_PATH}"
+          }
+          trap cleanup EXIT
+          printf '%s' "${ASC_PRIVATE_KEY_BASE64}" | base64 --decode > "${KEY_PATH}"
+          chmod 600 "${KEY_PATH}"
+          export ASC_PRIVATE_KEY_PATH="${KEY_PATH}"
+          node scripts/upload-app-store-screenshots.mjs
+
+      - name: Remove temporary key
+        if: always()
+        shell: bash
+        run: rm -f "${RUNNER_TEMP}/zodiac-app-store-screenshots.p8"
