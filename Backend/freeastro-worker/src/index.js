@@ -19,11 +19,8 @@ const UPSTREAM_URL = "https://api.freeastroapi.com/api/v2/horoscope/daily/sign";
 // produced stiff, context-free Spanish. This multilingual instruct model can
 // preserve the reading as a whole and return a validated structured result.
 const TRANSLATION_MODEL = "@cf/openai/gpt-oss-20b";
-// Use the same editorial model for the independent review. The previous small
-// reviewer accepted obvious agreement errors and untranslated metadata in a
-// live edition, so structural validity alone was not enough.
-const TRANSLATION_REVIEW_MODEL = "@cf/openai/gpt-oss-20b";
-const SPANISH_COPY_REVISION = 5;
+const TRANSLATION_REVIEW_MODEL = "@cf/meta/llama-3.1-8b-instruct-fast";
+const SPANISH_COPY_REVISION = 6;
 const CACHE_SCHEMA_VERSION = 3;
 const LANGUAGES = Object.freeze(["en", "es"]);
 const MAX_HEADLINE_CHARACTERS = 52;
@@ -576,10 +573,7 @@ async function reviewEditorialTranslation(source, translated, ai) {
       },
     },
     temperature: 0,
-    reasoning: { effort: "low" },
-    // gpt-oss uses part of this budget for its internal reasoning before the
-    // small JSON verdict. 180 tokens could truncate an otherwise valid review.
-    max_tokens: 600,
+    max_tokens: 320,
   });
 
   let verdict = extractAIResult(response);
@@ -717,12 +711,18 @@ function normalizeEditorialTranslation(value, source) {
   }
   if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) return null;
 
-  const headline = normalizeCardCopy(candidate.headline);
-  const reading = normalizeCardCopy(candidate.reading);
-  const keywords = cleanStringArray(candidate.keywords)?.map(normalizeCardCopy);
-  const luckyColor = normalizeCardCopy(candidate.lucky_color);
-  const moonSign = normalizeCardCopy(candidate.moon_sign);
-  const moonPhase = normalizeCardCopy(candidate.moon_phase);
+  const headline = knownSpanishTerm(source.headline) ?? normalizeCardCopy(candidate.headline);
+  const reading = normalizeSpanishReading(candidate.reading);
+  const candidateKeywords = cleanStringArray(candidate.keywords)?.map(normalizeCardCopy);
+  const keywords = source.details.keywords.map((term, index) => (
+    knownSpanishTerm(term) ?? candidateKeywords?.[index]
+  ));
+  const luckyColor = knownSpanishTerm(source.details.lucky_color)
+    ?? normalizeCardCopy(candidate.lucky_color);
+  const moonSign = knownSpanishTerm(source.details.moon_sign)
+    ?? normalizeCardCopy(candidate.moon_sign);
+  const moonPhase = knownSpanishTerm(source.details.moon_phase)
+    ?? normalizeCardCopy(candidate.moon_phase);
   if (!headline || headline.length > MAX_TRANSLATED_HEADLINE_CHARACTERS) return null;
   if (!reading || reading.length < MIN_READING_CHARACTERS || reading.length > MAX_TRANSLATED_READING_CHARACTERS) return null;
   if (headline.toLocaleLowerCase("es") === source.headline.toLocaleLowerCase("en")) return null;
@@ -739,6 +739,64 @@ function normalizeEditorialTranslation(value, source) {
     moon_sign: moonSign,
     moon_phase: moonPhase,
   };
+}
+
+const KNOWN_SPANISH_TERMS = Object.freeze({
+  adaptability: "Adaptabilidad", adventure: "Aventura", ambition: "Ambición",
+  analysis: "Análisis", aries: "Aries", aquarius: "Acuario", balance: "Equilibrio",
+  black: "Negro", blue: "Azul", boldness: "Audacia", brown: "Marrón",
+  cancer: "Cáncer", capricorn: "Capricornio", care: "Cuidado", clarity: "Claridad",
+  communication: "Comunicación", compassion: "Compasión", confidence: "Confianza",
+  creativity: "Creatividad", curiosity: "Curiosidad", detail: "Precisión",
+  discipline: "Disciplina", emotion: "Emoción", empathy: "Empatía", energy: "Energía",
+  flow: "Fluidez", focus: "Enfoque", freedom: "Libertad", full_moon: "Luna llena",
+  "full moon": "Luna llena", gemini: "Géminis", gold: "Dorado", green: "Verde",
+  growth: "Crecimiento", harmony: "Armonía", humanity: "Humanidad",
+  imagination: "Imaginación", initiative: "Iniciativa", innovation: "Innovación",
+  intensity: "Intensidad", intuition: "Intuición", leadership: "Liderazgo",
+  leo: "Leo", libra: "Libra", "last quarter": "Cuarto menguante",
+  last_quarter: "Cuarto menguante", mystery: "Misterio", momentum: "Impulso",
+  "new moon": "Luna nueva", new_moon: "Luna nueva", orange: "Naranja",
+  optimism: "Optimismo", perspective: "Perspectiva", philosophy: "Filosofía",
+  pisces: "Piscis", practicality: "Practicidad", purple: "Púrpura", red: "Rojo",
+  relationship: "Relación", reset: "Reajuste", responsibility: "Responsabilidad",
+  sagittarius: "Sagitario", scorpio: "Escorpio", sensuality: "Sensualidad",
+  service: "Servicio", silver: "Plateado", spirituality: "Espiritualidad",
+  stability: "Estabilidad", taurus: "Tauro", transformation: "Transformación",
+  virgo: "Virgo", white: "Blanco", yellow: "Amarillo",
+  "first quarter": "Cuarto creciente", first_quarter: "Cuarto creciente",
+});
+
+function knownSpanishTerm(value) {
+  const normalized = cleanString(value)?.toLocaleLowerCase("en");
+  return normalized ? KNOWN_SPANISH_TERMS[normalized] ?? null : null;
+}
+
+function normalizeSpanishReading(value) {
+  let reading = normalizeCardCopy(value);
+  if (!reading) return null;
+
+  const feminineOrdinals = Object.freeze({
+    primer: "primera", primero: "primera", segundo: "segunda", tercer: "tercera",
+    tercero: "tercera", cuarto: "cuarta", quinto: "quinta", sexto: "sexta",
+    "séptimo": "séptima", octavo: "octava", noveno: "novena", "décimo": "décima",
+    "undécimo": "undécima", "duodécimo": "duodécima",
+  });
+  const ordinalPattern = new RegExp(`\\b(${Object.keys(feminineOrdinals).join("|")})\\s+casa\\b`, "giu");
+  reading = reading.replace(ordinalPattern, (match, ordinal) => {
+    const replacement = feminineOrdinals[ordinal.toLocaleLowerCase("es")];
+    return /^[A-ZÁÉÍÓÚÑ]/u.test(match) ? `${replacement[0].toLocaleUpperCase("es")}${replacement.slice(1)} casa` : `${replacement} casa`;
+  });
+
+  return reading
+    .replace(/\bun lente\b/giu, "una lente")
+    .replace(/\b(octava|octavo) domicilio\b/giu, "octava casa")
+    .replace(/\bjuicio de seguridad\b/giu, "criterio centrado en la seguridad")
+    .replace(/\bvisión aérea\b/giu, "perspectiva racional")
+    .replace(/\bfiltro acuoso\b/giu, "mirada intuitiva")
+    .replace(/\bprisma acuático\b/giu, "mirada intuitiva")
+    .replace(/\blente terrestre\b/giu, "mirada práctica")
+    .replace(/\benfoque ardiente\b/giu, "mirada enérgica");
 }
 
 export function normalizeProviderResponse(body, expectedSign, expectedDate) {

@@ -318,7 +318,7 @@ test("Workers AI translates every user-facing field into a valid Spanish edition
   assert.equal(editorialCalls.length, 12);
   assert.equal(reviewCalls.length, 12);
   assert.ok(editorialCalls.every(({ model }) => model === "@cf/openai/gpt-oss-20b"));
-  assert.ok(reviewCalls.every(({ model }) => model === "@cf/openai/gpt-oss-20b"));
+  assert.ok(reviewCalls.every(({ model }) => model === "@cf/meta/llama-3.1-8b-instruct-fast"));
   assert.ok(editorialCalls.every(({ input }) => input.messages[0].content.includes("castellano de España")));
   assert.ok(isValidBundle(spanish, "2026-08-09", "es"));
   assert.ok(isValidBundle(english, "2026-08-09", "en"));
@@ -347,7 +347,7 @@ test("Spanish translation retries transient AI failures without losing the editi
   assert.deepEqual(waits, [500]);
 });
 
-test("Spanish editorial quality gate retries duplicate translated keywords", async () => {
+test("Spanish metadata canonicalization replaces duplicate translated keywords", async () => {
   const english = validBundle("2026-08-09");
   let attempts = 0;
   const ai = {
@@ -371,8 +371,8 @@ test("Spanish editorial quality gate retries duplicate translated keywords", asy
     "Fluidez",
     "Imaginación",
   ]);
-  assert.equal(attempts, 25);
-  assert.deepEqual(waits, [500]);
+  assert.equal(attempts, 24);
+  assert.deepEqual(waits, []);
   assert.ok(isValidBundle(spanish, "2026-08-09", "es"));
 });
 
@@ -406,7 +406,7 @@ test("Spanish editorial reviewer rejects untranslated or unfaithful copy", async
   assert.ok(isValidBundle(spanish, "2026-08-09", "es"));
 });
 
-test("Spanish local quality gate rejects bad agreement and English metadata", async () => {
+test("Spanish normalization repairs agreement and canonicalizes provider metadata", async () => {
   const english = validBundle("2026-08-09");
   let editorialCalls = 0;
   let reviewCalls = 0;
@@ -432,9 +432,11 @@ test("Spanish local quality gate rejects bad agreement and English metadata", as
     wait: async (milliseconds) => waits.push(milliseconds),
   });
 
-  assert.equal(editorialCalls, 13);
+  assert.equal(editorialCalls, 12);
   assert.equal(reviewCalls, 12);
-  assert.deepEqual(waits, [500]);
+  assert.deepEqual(waits, []);
+  assert.doesNotMatch(spanish.horoscopes[0].reading, /séptimo casa|un lente/iu);
+  assert.deepEqual(spanish.horoscopes[0].details.keywords, ["Empatía", "Fluidez", "Imaginación"]);
   assert.equal(spanish.horoscopes[0].details.lucky_color, "Plateado");
   assert.ok(isValidBundle(spanish, "2026-08-09", "es"));
 });
@@ -532,7 +534,7 @@ test("a second scheduled check uses KV and spends no provider quota", async () =
   });
   const kv = new MemoryKV({
     "daily:v3:en:2026-08-09": JSON.stringify(english),
-    "daily:v3:es-r5:2026-08-09": JSON.stringify(spanish),
+    "daily:v3:es-r6:2026-08-09": JSON.stringify(spanish),
   });
   let calls = 0;
   const result = await warmDate(
@@ -593,7 +595,7 @@ test("a public miss schedules one bounded queue repair without calling the provi
     task: "warm_date",
     date: "2026-08-09",
   }]);
-  assert.equal(await kv.get("repair:v3:es-r5:2026-08-09"), "1");
+  assert.equal(await kv.get("repair:v3:es-r6:2026-08-09"), "1");
 });
 
 test("public language selection never substitutes the wrong-language cache", async () => {
@@ -627,7 +629,7 @@ test("Spanish route returns only the cached Spanish edition and language header"
     now: () => new Date("2026-08-09T00:15:00Z"),
   });
   const kv = new MemoryKV({
-    "daily:v3:es-r5:2026-08-09": JSON.stringify(spanish),
+    "daily:v3:es-r6:2026-08-09": JSON.stringify(spanish),
   });
 
   const response = await handleRequest(
@@ -718,7 +720,7 @@ test("translation failure keeps English cached and retries never refetch FreeAst
   assert.equal(aiCalls, 3);
   assert.equal((await getCachedDaily("2026-08-09", env, "en")).language, "en");
   await assert.rejects(getCachedDaily("2026-08-09", env, "es"), /daily_cache_miss/);
-  assert.equal(await kv.get("failure:v3:es-r5:2026-08-09:aries"), "1");
+  assert.equal(await kv.get("failure:v3:es-r6:2026-08-09:aries"), "1");
 
   await assert.rejects(
     handleQueue({ messages: [{ body: ariesMessage }] }, env, options),

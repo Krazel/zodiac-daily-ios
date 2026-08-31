@@ -38,10 +38,11 @@ After initial warm-up, this normally uses 12 of the free plan's published 80
 daily requests. Initial activation can use up to 24 while current and next-day
 editions are populated. The queue then adapts each complete English sign as one
 editorial unit with Workers AI `@cf/openai/gpt-oss-20b`. A second independent
-structured pass with the same editorial model rejects copy that is not natural
+structured pass with `@cf/meta/llama-3.1-8b-instruct-fast` rejects copy that is not natural
 Spanish, contains grammar errors or English metadata, changes astrological
 meaning, omits guidance, or introduces new facts. A deterministic local gate
-also rejects known agreement errors and untranslated provider terms. Scores, lucky
+also corrects known agreement errors and canonicalizes the provider's finite
+sign, phase, color, headline, and keyword vocabulary. Scores, lucky
 number, sign, date, and content version bypass generation and remain copied
 from the provider document. EN and ES remain under separate KV keys.
 
@@ -169,7 +170,7 @@ Official references used for this adapter:
 - Workers Free limits: <https://developers.cloudflare.com/workers/platform/limits/>
 - Queues Free limits: <https://developers.cloudflare.com/queues/platform/limits/>
 - Workers AI editorial model: <https://developers.cloudflare.com/workers-ai/models/gpt-oss-20b/>
-- Workers AI writer/review model: <https://developers.cloudflare.com/workers-ai/models/gpt-oss-20b/>
+- Workers AI review model: <https://developers.cloudflare.com/workers-ai/models/llama-3.1-8b-instruct-fast/>
 - Workers AI JSON mode: <https://developers.cloudflare.com/workers-ai/features/json-mode/>
 - Workers AI pricing: <https://developers.cloudflare.com/workers-ai/platform/pricing/>
 
