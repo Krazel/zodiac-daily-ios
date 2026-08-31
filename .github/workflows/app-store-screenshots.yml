@@ -1,0 +1,179 @@
+name: Capture Zodiac Daily App Store Screenshots
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    if: github.actor == github.repository_owner
+    runs-on: macos-26
+    timeout-minutes: 35
+
+    steps:
+      - name: Checkout release candidate
+        uses: actions/checkout@v5
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app
+
+      - name: Test core package
+        run: swift test --parallel
+
+      - name: Create accepted App Store simulator
+        id: simulator
+        shell: bash
+        run: |
+          set -euo pipefail
+          RUNTIME_ID="$(xcrun simctl list runtimes -j | jq -r '
+            [.runtimes[] | select(.isAvailable == true and (.name | startswith("iOS")))]
+            | last | .identifier
+          ')"
+          DEVICE_TYPES="$(xcrun simctl list devicetypes -j)"
+          DEVICE_NAME=""
+          DEVICE_TYPE_ID=""
+          EXPECTED_SIZE=""
+          for CANDIDATE in "iPhone 14 Plus" "iPhone 11 Pro Max"; do
+            CANDIDATE_ID="$(printf '%s' "$DEVICE_TYPES" | jq -r --arg name "$CANDIDATE" '
+              [.devicetypes[] | select(.name == $name)] | first | .identifier // empty
+            ')"
+            if [ -n "$CANDIDATE_ID" ]; then
+              DEVICE_NAME="$CANDIDATE"
+              DEVICE_TYPE_ID="$CANDIDATE_ID"
+              if [ "$CANDIDATE" = "iPhone 14 Plus" ]; then
+                EXPECTED_SIZE="1284x2778"
+              else
+                EXPECTED_SIZE="1242x2688"
+              fi
+              break
+            fi
+          done
+          test -n "$RUNTIME_ID"
+          test "$RUNTIME_ID" != "null"
+          test -n "$DEVICE_TYPE_ID"
+
+          UDID="$(xcrun simctl create ZodiacAppStoreShots "$DEVICE_TYPE_ID" "$RUNTIME_ID")"
+          xcrun simctl boot "$UDID"
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl ui "$UDID" appearance dark
+          xcrun simctl status_bar "$UDID" override \
+            --time 9:41 \
+            --batteryState charged \
+            --batteryLevel 100 \
+            --wifiBars 3 \
+            --cellularBars 4
+          echo "udid=$UDID" >> "$GITHUB_OUTPUT"
+          echo "runtime=$RUNTIME_ID" >> "$GITHUB_OUTPUT"
+          echo "device_name=$DEVICE_NAME" >> "$GITHUB_OUTPUT"
+          echo "expected_size=$EXPECTED_SIZE" >> "$GITHUB_OUTPUT"
+
+      - name: Build screenshot app from release-candidate source
+        env:
+          UDID: ${{ steps.simulator.outputs.udid }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodebuild build \
+            -project ZodiacDaily.xcodeproj \
+            -scheme ZodiacDaily \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination "platform=iOS Simulator,id=${UDID},arch=arm64" \
+            -derivedDataPath build/app-store-screenshots \
+            MARKETING_VERSION=1.0 \
+            CURRENT_PROJECT_VERSION=1 \
+            ARCHS=arm64 \
+            ONLY_ACTIVE_ARCH=YES \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Capture English and Spanish product-page screenshots
+        env:
+          UDID: ${{ steps.simulator.outputs.udid }}
+          EXPECTED_SIZE: ${{ steps.simulator.outputs.expected_size }}
+          DEVICE_NAME: ${{ steps.simulator.outputs.device_name }}
+          RUNTIME_ID: ${{ steps.simulator.outputs.runtime }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP_PATH="$(find build/app-store-screenshots -path '*Debug-iphonesimulator/ZodiacDaily.app' -type d | head -n 1)"
+          test -d "$APP_PATH"
+          xcrun simctl install "$UDID" "$APP_PATH"
+          DATA_CONTAINER="$(xcrun simctl get_app_container "$UDID" com.krazel.zodiacdaily data)"
+          STATE_MARKER="${DATA_CONTAINER}/tmp/visual-qa-rendered-state.txt"
+          mkdir -p AppStore/Screenshots/en-US AppStore/Screenshots/es-ES
+
+          capture_state() {
+            STATE="$1"
+            OUTPUT="$2"
+            xcrun simctl terminate "$UDID" com.krazel.zodiacdaily >/dev/null 2>&1 || true
+            rm -f "$STATE_MARKER"
+            LAUNCH_OUTPUT="$(
+              SIMCTL_CHILD_ZODIAC_VISUAL_QA_STATE="$STATE" \
+                xcrun simctl launch --terminate-running-process \
+                  "$UDID" com.krazel.zodiacdaily
+            )"
+            APP_PID="${LAUNCH_OUTPUT##*: }"
+            test -n "$APP_PID"
+            test "$APP_PID" -gt 0
+            sleep 6
+            kill -0 "$APP_PID"
+            test -f "$STATE_MARKER"
+            test "$(cat "$STATE_MARKER")" = "$STATE"
+            xcrun simctl io "$UDID" screenshot "$OUTPUT"
+            WIDTH="$(sips -g pixelWidth "$OUTPUT" | awk '/pixelWidth/ {print $2}')"
+            HEIGHT="$(sips -g pixelHeight "$OUTPUT" | awk '/pixelHeight/ {print $2}')"
+            test "${WIDTH}x${HEIGHT}" = "$EXPECTED_SIZE"
+          }
+
+          capture_language() {
+            LANGUAGE="$1"
+            DIRECTORY="$2"
+            xcrun simctl spawn "$UDID" defaults write com.krazel.zodiacdaily app-language "$LANGUAGE"
+            capture_state today "$DIRECTORY/01-today.png"
+            capture_state today-back "$DIRECTORY/02-daily-details.png"
+            capture_state saved-populated "$DIRECTORY/03-saved-cards.png"
+            capture_state saved-detail "$DIRECTORY/04-saved-detail.png"
+            capture_state settings "$DIRECTORY/05-settings.png"
+            capture_state sign-selection "$DIRECTORY/06-choose-sign.png"
+          }
+
+          capture_language en AppStore/Screenshots/en-US
+          capture_language es AppStore/Screenshots/es-ES
+
+          printf '%s\n' \
+            'app=The Daily Zodiac' \
+            'marketing_version=1.0' \
+            'build=1' \
+            "commit_sha=${GITHUB_SHA}" \
+            'source=actual-release-candidate-ui' \
+            "device=${DEVICE_NAME}" \
+            "runtime=${RUNTIME_ID}" \
+            "size=${EXPECTED_SIZE}" \
+            'orientation=portrait' \
+            'localizations=en-US,es-ES' \
+            > AppStore/Screenshots/manifest.txt
+          find AppStore/Screenshots -type f -name '*.png' -print0 \
+            | sort -z \
+            | xargs -0 shasum -a 256 \
+            > AppStore/Screenshots/SHA256SUMS
+
+      - name: Upload store screenshot evidence
+        uses: actions/upload-artifact@v6
+        with:
+          name: ZodiacDaily-v1.0-build-1-AppStore-Screenshots-${{ github.sha }}-run-${{ github.run_number }}
+          path: AppStore/Screenshots/**
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Shutdown simulator
+        if: always()
+        env:
+          UDID: ${{ steps.simulator.outputs.udid }}
+        shell: bash
+        run: |
+          if [ -n "${UDID:-}" ]; then
+            xcrun simctl shutdown "$UDID" >/dev/null 2>&1 || true
+            xcrun simctl delete "$UDID" >/dev/null 2>&1 || true
+          fi

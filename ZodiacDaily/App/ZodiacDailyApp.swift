@@ -19,7 +19,9 @@ struct ZodiacDailyApp: App {
                 .environment(\.locale, appLanguage.locale)
                 .preferredColorScheme(.dark)
                 .task {
-                    await supportStore.start()
+                    if AppConfiguration.supporterPurchasesEnabled {
+                        await supportStore.start()
+                    }
                 }
                 .onChange(of: appLanguageRawValue) { newValue in
                     Task {

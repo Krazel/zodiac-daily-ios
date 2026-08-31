@@ -8,6 +8,11 @@ enum AppConfiguration {
     )!
     private static let productionAppStoreID = "6800136195"
 
+    /// Paid support stays dormant for the first public release. The StoreKit
+    /// implementation remains available for a later version after its products
+    /// and review proposition are explicitly approved in App Store Connect.
+    static let supporterPurchasesEnabled = false
+
     static let supporterProductIDs = [
         "com.krazel.zodiacdaily.support.monthly",
         "com.krazel.zodiacdaily.support.kind",

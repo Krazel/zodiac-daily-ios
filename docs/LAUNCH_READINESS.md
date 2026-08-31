@@ -2,15 +2,17 @@
 
 Updated: 2026-08-31
 
-Internal TestFlight `0.4.1` (`1`) is processed as `VALID` and is available to the
+Public release candidate `1.0` (`1`) is being prepared under the owner's
+explicit App Store publication authorization. Internal TestFlight `0.4.1` (`1`) is processed as `VALID` and is available to the
 automatic internal `Testers` group. It delivers the approved C6 enlarged card,
 removes the Today sign selector, preserves the complete stationary front/back,
 uses Settings as the single sign-change path, and applies the C7 readable type
 system across the card, Settings, sign selection, and Saved screens. The production Worker serves
 native deterministic Spanish for the current provider template. Historical `0.2.3` (`1`) remains the
 correction that replaced the disconnected 0.2.2 candidate.
-This document does not authorize StoreKit products, external testing, App
-Review, or publication.
+The authorization covers the 1.0 build upload, App Privacy publication, App
+Review submission, and release after approval. It does not authorize creating
+paid StoreKit products, accepting new agreements, or spending money.
 
 ## Recorded scope
 
@@ -18,6 +20,9 @@ Review, or publication.
   do not use it for acceptance testing.
 - Current internal TestFlight 0.4.1/1: iPhone / iOS 16+, English/Spanish interface and
   language-specific daily editions selected in Settings.
+- Public candidate 1.0/1: the same approved product, with the unconfigured
+  supporter purchase section hidden and its catalog task disabled. No purchase
+  or subscription is visible or available in this release.
 - This correction prevents legacy Saved cards
   from replacing the live Spanish edition, makes Spanish strict, repairs the
   direct sign selector, and applies the owner-directed Today spacing and icon
@@ -108,9 +113,9 @@ local implementation only, not uploads or external activation.
 - Mac/Xcode or a device for StoreKitTest, simulator screenshot comparison,
   Dynamic Type, VoiceOver, and final icon checks. The signed archive and
   internal TestFlight upload already pass in GitHub Actions.
-- EU DSA compliance is submitted and currently `In Review`; an unresolved or
-  rejected result blocks EU distribution but does not justify changing trader
-  status or exposing the private review contact publicly.
+- EU DSA compliance is `Active` as of 2026-08-31. Any legally required trader
+  disclosure remains confined to Apple's compliance surface and is not copied
+  to public support or privacy pages.
 
 ## Local QA IPA workflow
 

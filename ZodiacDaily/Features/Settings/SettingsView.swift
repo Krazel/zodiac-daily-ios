@@ -21,7 +21,9 @@ struct SettingsView: View {
                         header
                         signSection
                         languageSection
-                        SupportSectionView()
+                        if AppConfiguration.supporterPurchasesEnabled {
+                            SupportSectionView()
+                        }
                         rateSection
                         privacyAndTermsSection
                         aboutSection

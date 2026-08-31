@@ -1,15 +1,15 @@
-name: Build Zodiac Daily TestFlight
+name: Build Zodiac Daily App Store Candidate
 
 on:
   workflow_dispatch:
     inputs:
       build_number:
-        description: "Unique build number for marketing version 0.4.1"
+        description: "Unique build number for marketing version 1.0"
         required: true
         default: "1"
         type: string
-      upload_to_testflight:
-        description: "Upload to internal TestFlight"
+      upload_to_app_store_connect:
+        description: "Upload this App Store eligible build"
         required: true
         default: "false"
         type: choice
@@ -31,7 +31,7 @@ jobs:
     timeout-minutes: 40
     environment: app-store-production
     env:
-      APP_VERSION: "0.4.1"
+      APP_VERSION: "1.0"
       APP_BUNDLE_ID: com.krazel.zodiacdaily
       APPLE_TEAM_ID: B2X6D3A9J9
 
@@ -196,7 +196,7 @@ jobs:
           /usr/libexec/PlistBuddy -c 'Add :stripSwiftSymbols bool true' "${RUNNER_TEMP}/ExportOptions.plist"
           /usr/libexec/PlistBuddy -c 'Add :uploadSymbols bool true' "${RUNNER_TEMP}/ExportOptions.plist"
           /usr/libexec/PlistBuddy -c 'Add :manageAppVersionAndBuildNumber bool false' "${RUNNER_TEMP}/ExportOptions.plist"
-          /usr/libexec/PlistBuddy -c 'Add :testFlightInternalTestingOnly bool true' "${RUNNER_TEMP}/ExportOptions.plist"
+          /usr/libexec/PlistBuddy -c 'Add :testFlightInternalTestingOnly bool false' "${RUNNER_TEMP}/ExportOptions.plist"
           /usr/libexec/PlistBuddy -c 'Add :provisioningProfiles dict' "${RUNNER_TEMP}/ExportOptions.plist"
           /usr/libexec/PlistBuddy -c "Add :provisioningProfiles:${APP_BUNDLE_ID} string ${PROFILE_NAME}" "${RUNNER_TEMP}/ExportOptions.plist"
 
@@ -222,9 +222,9 @@ jobs:
         run: |
           set -euo pipefail
           SHORT_SHA="${GITHUB_SHA:0:7}"
-          EVIDENCE_DIR="${RUNNER_TEMP}/testflight-evidence"
+          EVIDENCE_DIR="${RUNNER_TEMP}/app-store-evidence"
           mkdir -p "${EVIDENCE_DIR}"
-          IPA_NAME="ZodiacDaily-v${APP_VERSION}-build-${BUILD_NUMBER}-${SHORT_SHA}-TestFlight.ipa"
+          IPA_NAME="ZodiacDaily-v${APP_VERSION}-build-${BUILD_NUMBER}-${SHORT_SHA}-AppStore.ipa"
           cp "${IPA_PATH}" "${EVIDENCE_DIR}/${IPA_NAME}"
           shasum -a 256 "${EVIDENCE_DIR}/${IPA_NAME}" > "${EVIDENCE_DIR}/${IPA_NAME}.sha256"
           printf '%s\n' \
@@ -232,22 +232,22 @@ jobs:
             "marketing_version=${APP_VERSION}" \
             "build=${BUILD_NUMBER}" \
             "commit_sha=${GITHUB_SHA}" \
-            "purpose=TestFlight-Internal" \
+            "purpose=App-Store-Release-Candidate" \
             "github_run_number=${GITHUB_RUN_NUMBER}" \
             "ipa=${IPA_NAME}" \
-            > "${EVIDENCE_DIR}/ZodiacDaily-TestFlight-manifest.txt"
+            > "${EVIDENCE_DIR}/ZodiacDaily-AppStore-manifest.txt"
           echo "evidence_dir=${EVIDENCE_DIR}" >> "${GITHUB_OUTPUT}"
 
-      - name: Store signed TestFlight candidate
+      - name: Store signed App Store candidate
         uses: actions/upload-artifact@v6
         with:
-          name: ZodiacDaily-v${{ env.APP_VERSION }}-build-${{ inputs.build_number }}-TestFlight-run-${{ github.run_number }}
+          name: ZodiacDaily-v${{ env.APP_VERSION }}-build-${{ inputs.build_number }}-AppStore-run-${{ github.run_number }}
           path: ${{ steps.evidence.outputs.evidence_dir }}/*
           retention-days: 7
           if-no-files-found: error
 
       - name: Require upload credentials
-        if: inputs.upload_to_testflight == 'true'
+        if: inputs.upload_to_app_store_connect == 'true'
         shell: bash
         env:
           APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
@@ -262,8 +262,8 @@ jobs:
             fi
           done
 
-      - name: Upload explicitly authorized build to internal TestFlight
-        if: inputs.upload_to_testflight == 'true'
+      - name: Upload explicitly authorized App Store eligible build
+        if: inputs.upload_to_app_store_connect == 'true'
         shell: bash
         env:
           APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
