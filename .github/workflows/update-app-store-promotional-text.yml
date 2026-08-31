@@ -1,0 +1,68 @@
+name: Update Zodiac Daily Promotional Text
+
+on:
+  workflow_dispatch:
+    inputs:
+      apply_changes:
+        description: "Update only the localized promotionalText fields"
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  update:
+    if: github.actor == github.repository_owner
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: app-store-production
+
+    steps:
+      - name: Checkout approved source
+        uses: actions/checkout@v5
+
+      - name: Require App Store Connect credentials
+        shell: bash
+        env:
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
+        run: |
+          set -euo pipefail
+          for NAME in APP_STORE_CONNECT_API_KEY_ID APP_STORE_CONNECT_ISSUER_ID APP_STORE_CONNECT_API_KEY_BASE64; do
+            if [ -z "${!NAME:-}" ]; then
+              echo "Required App Store Connect secret is missing: ${NAME}."
+              exit 1
+            fi
+          done
+
+      - name: Update promotional text without changing other metadata
+        shell: bash
+        env:
+          ASC_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          ASC_PRIVATE_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
+          APPLY_CHANGES: ${{ inputs.apply_changes }}
+          OUTPUT_PATH: app-store-evidence/zodiac-promotional-text.json
+        run: |
+          set -euo pipefail
+          KEY_PATH="${RUNNER_TEMP}/zodiac-promotional-text.p8"
+          cleanup() {
+            rm -f "${KEY_PATH}"
+          }
+          trap cleanup EXIT
+          printf '%s' "${ASC_PRIVATE_KEY_BASE64}" | base64 --decode > "${KEY_PATH}"
+          chmod 600 "${KEY_PATH}"
+          export ASC_PRIVATE_KEY_PATH="${KEY_PATH}"
+          mkdir -p app-store-evidence
+          node scripts/update-app-store-promotional-text.mjs
+
+      - name: Upload non-secret evidence
+        uses: actions/upload-artifact@v6
+        with:
+          name: ZodiacDaily-Promotional-Text-${{ github.sha }}-run-${{ github.run_number }}
+          path: app-store-evidence/zodiac-promotional-text.json
+          retention-days: 14
+          if-no-files-found: error

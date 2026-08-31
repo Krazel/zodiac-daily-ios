@@ -58,7 +58,9 @@ or authentication data that is not retained after the real-time request:
   editorial adaptation and a separate fidelity/language review. It receives no
   user text, selected sign, account, device identifier, or saved-card contents.
 - The App Store marketing URL and privacy-choices URL are intentionally blank.
-  The optional promotional-text field is also blank.
+  Promotional text is limited to the two product-specific EN/ES strings in
+  `AppStore/METADATA.md`; it contains no price, personal owner data, clinical
+  promise, forced keyword list, or claim beyond the build's actual behavior.
 - The required support and privacy URLs are saved in App Store Connect. The
   `No data collected` answer was published on 2026-08-31 after the exact 1.0
   binary audit.

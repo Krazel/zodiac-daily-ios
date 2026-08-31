@@ -3,14 +3,16 @@
 Prepared: 2026-09-01
 
 This file is the canonical, minimized metadata for version `1.1` build `1`.
-Promotional text, marketing URL, privacy-choices URL, and attachment remain
-blank because this release does not need them.
+Marketing URL, privacy-choices URL, and attachment remain blank because this
+release does not need them. Promotional text is intentionally localized below.
 
 ## English (U.S.)
 
 **Name:** The Daily Zodiac
 
 **Subtitle:** Daily Horoscope & Zodiac
+
+**Promotional text (151 characters):** Turn today's zodiac card for daily scores, lucky details and Moon insights. Read in English or Spanish, save favorites, and keep every reading private.
 
 **Keywords:** horoscope,zodiac,daily,astrology,signs,scorpio,leo,aries,moon,lucky,horoscopes
 
@@ -40,6 +42,8 @@ Terms of Use: https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 **Name:** The Daily Zodiac
 
 **Subtitle:** Horóscopo diario y zodiaco
+
+**Texto promocional (161 caracteres):** Gira la carta zodiacal de hoy para ver puntuaciones, suerte y claves de la Luna. Lee en castellano o inglés, guarda tus favoritas y mantén tus lecturas privadas.
 
 **Keywords:** horóscopo,zodiaco,diario,astrología,signos,escorpio,leo,aries,luna,suerte,carta
 
