@@ -384,7 +384,7 @@ workspace does not have write access to Brain.
   determinista corrige concordancias ya observadas y canoniza signos, fases,
   colores, titulares y palabras clave del proveedor. Las cifras y la identidad del proveedor siguen
   copiandose directamente del documento ingles.
-- La revision de cache `es-r6` evita reutilizar las traducciones defectuosas sin
+- La revision de cache `es-r7` evita reutilizar las traducciones defectuosas sin
   gastar nuevas llamadas a FreeAstroAPI. La suite del Worker pasa 28/28 y el
   2026-08-31 se valido en preview remoto un Scorpio completo con ambos modelos.
 - Se pulio tambien la copia fija española para eliminar literalismos y jerga de

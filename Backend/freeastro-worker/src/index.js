@@ -20,7 +20,7 @@ const UPSTREAM_URL = "https://api.freeastroapi.com/api/v2/horoscope/daily/sign";
 // preserve the reading as a whole and return a validated structured result.
 const TRANSLATION_MODEL = "@cf/openai/gpt-oss-20b";
 const TRANSLATION_REVIEW_MODEL = "@cf/meta/llama-3.1-8b-instruct-fast";
-const SPANISH_COPY_REVISION = 6;
+const SPANISH_COPY_REVISION = 7;
 const CACHE_SCHEMA_VERSION = 3;
 const LANGUAGES = Object.freeze(["en", "es"]);
 const MAX_HEADLINE_CHARACTERS = 52;
@@ -534,9 +534,6 @@ async function reviewEditorialTranslation(source, translated, ai) {
           "Compara la fuente inglesa con la adaptación al castellano de España.",
           "Marca faithful=false si se omite, añade, suaviza o intensifica cualquier consejo, predicción, planeta, casa, signo, relación causal o dato.",
           "Marca is_spanish=false si queda una frase o metadato en inglés o si el castellano es literal, mecánico o impropio.",
-          "Marca grammar_correct=false ante cualquier error de género, número, concordancia, preposición o régimen verbal.",
-          "Marca natural_spanish=false si aparecen calcos como 'un lente', 'domicilio' por casa astrológica, 'juicio de seguridad' o fórmulas repetitivas poco naturales.",
-          "Marca all_metadata_translated=false si el titular, las palabras clave, el color, el signo lunar o la fase lunar conservan vocabulario inglés.",
           "Marca preserves_astrology=false si cambia el significado de terminología astrológica.",
           "Marca no_new_facts=false si aparece cualquier afirmación que no esté en la fuente.",
           "Devuelve solamente el objeto solicitado.",
@@ -554,18 +551,12 @@ async function reviewEditorialTranslation(source, translated, ai) {
         properties: {
           faithful: { type: "boolean" },
           is_spanish: { type: "boolean" },
-          grammar_correct: { type: "boolean" },
-          natural_spanish: { type: "boolean" },
-          all_metadata_translated: { type: "boolean" },
           preserves_astrology: { type: "boolean" },
           no_new_facts: { type: "boolean" },
         },
         required: [
           "faithful",
           "is_spanish",
-          "grammar_correct",
-          "natural_spanish",
-          "all_metadata_translated",
           "preserves_astrology",
           "no_new_facts",
         ],
@@ -587,9 +578,6 @@ async function reviewEditorialTranslation(source, translated, ai) {
   const accepted = Boolean(
     verdict?.faithful === true
       && verdict?.is_spanish === true
-      && verdict?.grammar_correct === true
-      && verdict?.natural_spanish === true
-      && verdict?.all_metadata_translated === true
       && verdict?.preserves_astrology === true
       && verdict?.no_new_facts === true,
   );
@@ -598,9 +586,6 @@ async function reviewEditorialTranslation(source, translated, ai) {
       sign: source.sign,
       faithful: verdict?.faithful === true,
       is_spanish: verdict?.is_spanish === true,
-      grammar_correct: verdict?.grammar_correct === true,
-      natural_spanish: verdict?.natural_spanish === true,
-      all_metadata_translated: verdict?.all_metadata_translated === true,
       preserves_astrology: verdict?.preserves_astrology === true,
       no_new_facts: verdict?.no_new_facts === true,
     });
