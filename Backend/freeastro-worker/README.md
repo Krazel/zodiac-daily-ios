@@ -3,11 +3,10 @@
 Small Cloudflare Worker that keeps the FreeAstroAPI key out of the iOS app and
 publishes validated English and Spanish daily documents containing all twelve
 signs. Production at
-`https://zodiac-daily-content.krazel-zodiac-daily.workers.dev` still runs the
-previous English schema; this bilingual schema-3 candidate is not deployed.
-A remote-preview-only Workers AI smoke test passed again on 2026-08-31 with a
-complete Scorpio adaptation in natural Spanish and a successful bilingual
-quality review. The preview was stopped before production was modified.
+`https://zodiac-daily-content.krazel-zodiac-daily.workers.dev` runs the
+bilingual schema-3 service. The production service passed a real 2026-08-31
+edition check: 12 Spanish signs, complete provider data, no detected English
+residual, and no known agreement defect.
 
 ## Behavior
 
@@ -59,20 +58,20 @@ from the provider document. EN and ES remain under separate KV keys.
   "horoscopes": [
     {
       "sign": "aries",
-      "headline": "Initiative",
-      "reading": "La lectura diaria completa en castellano.",
+      "headline": "Iniciativa",
+      "reading": "Con la Luna en Capricornio (Cuarto menguante), Aries interpreta el cielo de hoy con una mirada enérgica.",
       "details": {
         "source": "freeastroapi-v2",
-        "focus": "Initiative",
-        "keywords": ["Courage", "Momentum", "Clarity"],
+        "focus": "Iniciativa",
+        "keywords": ["Coraje", "Impulso", "Claridad"],
         "love_score": 83,
         "career_score": 89,
         "money_score": 85,
         "health_score": 78,
-        "lucky_color": "Silver",
+        "lucky_color": "Plateado",
         "lucky_number": 61,
-        "moon_sign": "Capricorn",
-        "moon_phase": "Last Quarter"
+        "moon_sign": "Capricornio",
+        "moon_phase": "Cuarto menguante"
       },
       "content_version": 20260809
     }

@@ -88,16 +88,18 @@ match the requested local Gregorian day, and `content_date` must always equal
 rejected so the app reports the edition unavailable instead of presenting
 unrelated bundled copy. The server
 caches one validated twelve-sign document per language/date. FreeAstroAPI is
-called only for the English source document; Workers AI translates that cached
-document once to Spanish. App traffic invokes neither service.
+called only for the English source document. The current structured provider
+template is rendered directly in native Spanish; Workers AI is a guarded
+fallback only if that template changes. App traffic invokes neither service.
 
 Cloudflare Cron Triggers only enqueue the target date. A Cloudflare Queue
 consumer performs the twelve paced provider requests, validation, and KV write.
 That separation avoids doing the heavier work inside the Workers Free cron
 limit. The consumer uses one-message batches and concurrency one, so duplicate
 messages serialize and recheck KV before they can spend provider quota.
-Workers AI translations retry bounded transient failures and remove duplicate
-translated keywords before validation. If a public request finds a missing
+The deterministic renderer canonizes the finite provider vocabulary and
+preserves its structured facts. Unknown templates use bounded Workers AI
+fallback retries and independent semantic review. If a public request finds a missing
 language/date cache, it schedules one cooldown-protected Queue repair and still
 returns the normal fallback response; the public request itself never calls
 FreeAstroAPI or Workers AI.
@@ -107,11 +109,10 @@ neither contacts FreeAstroAPI directly nor contains its key.
 It requests only the local date, `en`/`es`, and the full twelve-sign edition,
 never the selected sign, birth data, account data, or saved cards.
 
-The bilingual schema-3 Worker is deployed in production. The Workers AI
-binding passed its original remote preview on 2026-08-11 and the revised
-editorial writer plus bilingual reviewer passed a complete Scorpio preview on
-2026-08-31. Production includes bounded translation retries and
-automatic cache repair. Version 0.2.3 packages and compiles the public endpoint,
+The bilingual schema-3 Worker is deployed in production. It served the real 2026-08-31 edition with
+12/12 Spanish signs, complete daily values, no detected English residual, and
+no known agreement defect. Production includes deterministic Spanish,
+bounded fallback retries, and automatic cache repair. Version 0.4 packages and compiles the public endpoint,
 keeps the live Today edition separate from old Saved snapshots, requires an
 exact language match, and refuses to present incomplete emergency content as a
 provider edition.

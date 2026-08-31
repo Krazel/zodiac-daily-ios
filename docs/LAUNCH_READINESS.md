@@ -1,12 +1,12 @@
 # iOS launch readiness
 
-Updated: 2026-08-26
+Updated: 2026-08-31
 
-Internal TestFlight `0.3` (`1`) is processed as `VALID` and is available to the
-automatic internal `Testers` group. It adds the approved C5B card frame and
-larger measured reading, fixes compact stationary positioning, speeds Settings
-localization, and makes sign changes immediate from Today and Settings. Its data
-flow and monetization state are unchanged. Historical `0.2.3` (`1`) remains the
+Internal TestFlight `0.4` (`1`) is processed as `VALID` and is available to the
+automatic internal `Testers` group. It delivers the approved C6 enlarged card,
+removes the Today sign selector, preserves the complete stationary front/back,
+and uses Settings as the single sign-change path. The production Worker serves
+native deterministic Spanish for the current provider template. Historical `0.2.3` (`1`) remains the
 correction that replaced the disconnected 0.2.2 candidate.
 This document does not authorize StoreKit products, external testing, App
 Review, or publication.
@@ -15,14 +15,15 @@ Review, or publication.
 
 - Historical internal TestFlight delivery 0.2.2/1: known disconnected build;
   do not use it for acceptance testing.
-- Current internal TestFlight 0.3/1: iPhone / iOS 16+, English/Spanish interface and
+- Current internal TestFlight 0.4/1: iPhone / iOS 16+, English/Spanish interface and
   language-specific daily editions selected in Settings.
 - This correction prevents legacy Saved cards
   from replacing the live Spanish edition, makes Spanish strict, repairs the
   direct sign selector, and applies the owner-directed Today spacing and icon
   refinements.
 - The production schema-3 Worker caches English and Spanish separately. It
-  translates each provider edition once; user traffic only reads the cache.
+  renders the current provider template deterministically in native Spanish;
+  user traffic only reads the cache.
 - Registered production bundle identifier: `com.krazel.zodiacdaily`.
 - App Store Connect record: **The Daily Zodiac**, app ID `6800136195`, primary
   language English (U.S.), SKU `zodiac-daily-ios`.
@@ -121,7 +122,7 @@ The IPA is intended as input to a local signing/install tool such as Sideloadly;
 it is not directly installable until that tool signs it for the test device.
 
 The deliverable workflow currently validates bundle ID
-`com.krazel.zodiacdaily`, marketing version `0.3`, build `1`, iOS 16 minimum,
+`com.krazel.zodiacdaily`, marketing version `0.4`, build `1`, iOS 16 minimum,
 the packaged endpoint and App Store ID, executable endpoint fallback, privacy
 manifest, compiled assets, and bundled horoscope content before packaging.
 Historical run `31347517648` (workflow run 5) completed
@@ -140,9 +141,9 @@ did not sign with distribution credentials or contact App Store Connect.
 
 The protected manual workflow
 `.github/workflows/build-ios-testflight.yml` compiled, tested, analyzed,
-archived, signed, inspected, exported, and uploaded version `0.3` build `1`.
-Run `33029296526` completed successfully from commit `77c381c`; App Store
-Connect inspection run `33029584933` reports the build `VALID`, iOS 16.0
+archived, signed, inspected, exported, and uploaded version `0.4` build `1`.
+The protected upload workflow completed successfully; App Store Connect
+reports the build `VALID`, iOS 16.0
 minimum, no non-exempt encryption, internal-only, and available to the
 automatic internal `Testers` group. Full non-secret evidence is in
 `docs/TESTFLIGHT_STATUS.md`.
@@ -150,20 +151,14 @@ automatic internal `Testers` group. Full non-secret evidence is in
 No external group, public TestFlight link, Beta App Review, App Review, or App
 Store release was created.
 
-Version `0.2.2` build `1` passed the no-upload signed candidate run
-`32175886395` and visual run `32175884780`. The latter captures the current
-English/Spanish Today front, complete provider-data reverse, long Spanish copy,
-and iPhone SE stationary layout. The owner-authorized upload run `32906780701`
-then passed Apple's verification and upload with delivery UUID
-`0543a959-d7a8-456d-8fce-b5b1132b960c`. TestFlight availability follows
-Apple's processing of that accepted delivery.
+Version `0.2.2` build `1` passed its signed candidate and visual checks. The
+owner-authorized upload then passed Apple's verification and upload.
 
 Post-delivery inspection found that the 0.2.2 IPA omitted both custom plist
 values, so it could not contact the Worker. Version 0.2.3 build 1 is the
-corrective build. Upload run `32915420982` passed 65 tests, Release analysis,
-signed archive configuration checks, export, Apple verification, and Apple
-upload. Delivery UUID: `a8f5f3b7-d5df-4a4d-9427-5a421f7aebe3`.
-Read-only App Store Connect run `32915848511` confirmed `VALID`, iOS 16.0,
+corrective build. Its upload passed 65 tests, Release analysis, signed archive
+configuration checks, export, Apple verification, and Apple upload. A
+read-only App Store Connect check confirmed `VALID`, iOS 16.0,
 `INTERNAL_ONLY`, not expired, and automatic access for the internal `Testers`
 group.
 

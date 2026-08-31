@@ -256,13 +256,10 @@ workspace does not have write access to Brain.
 - Preview real no productiva superada: respuesta castellana con acentos, HTTP
   200, 15 tokens de entrada + 17 de salida y 0,9936 neuronas. El preview se
   detuvo y no cambio recursos productivos.
-- El propietario autorizo el despliegue. Produccion usa schema 3 bilingue en el
-  Worker version `5a2cbd27-fa30-4789-a664-ed72b0a28403`; no se publico la app
-  ni se crearon productos StoreKit.
+- El propietario autorizo el despliegue. Produccion usa schema 3 bilingue; no
+  se publico la app ni se crearon productos StoreKit.
 - La version visible `0.2`, build `1`, se compilo, probo, analizo, firmo y
-  subio a TestFlight interno desde el commit `4e3518e`. Run GitHub Actions
-  `31522839488` (numero 8), delivery UUID Apple
-  `93b70d57-c420-4b84-a34e-264760a432ca`.
+  subio a TestFlight interno.
 - App Store Connect muestra la build `En pruebas`, asignada al grupo interno
   `Testers` y con caducidad de 90 dias. No se creo testing externo, enlace
   publico, Beta App Review, App Review, IAP ni publicacion.
@@ -271,7 +268,7 @@ workspace does not have write access to Brain.
 
 - El propietario informo que Scorpio mostraba solo la esencia inglesa
   `Intense · Perceptive · Transformative` y el reverso de emergencia.
-- La inspeccion del IPA exacto 0.2.2/1 del run `32906780701` confirmo la causa:
+- La inspeccion del IPA exacto 0.2.2/1 confirmo la causa:
   el `Info.plist` generado por Xcode omitio `ZodiacDailyAPIBaseURL` y
   `ZodiacDailyAppStoreID`. La app nunca contacto al Worker y uso el catalogo
   ingles incorporado sin datos de proveedor. El Worker schema 3 EN/ES estaba
@@ -284,17 +281,13 @@ workspace does not have write access to Brain.
   del app bundle y la URL de respaldo dentro del ejecutable. Una IPA
   desconectada debe fallar antes del empaquetado o subida.
 - La build TestFlight 0.2.2/1 queda marcada como defectuosa y no valida el
-  producto. 0.2.3/1 paso el run Local QA `32912659741` desde `fb65eb9`: 65
-  pruebas Core, build Release, inspeccion de valores empaquetados y creacion de
-  IPA sin firma de distribucion. El artefacto tiene digest
-  `sha256:c102ab8f0172c24c086ae4b1dae07660ce2e7fa2afb01d7f04d0fd97c6b6fd3d`.
-  El propietario autorizo el upload interno. Run `32915420982`: 65 pruebas,
-  analisis Release, firma, inspeccion del endpoint dentro del archive, export,
-  verificacion y subida Apple correctas. Delivery UUID
-  `a8f5f3b7-d5df-4a4d-9427-5a421f7aebe3`.
-- El run de inspeccion App Store Connect `32915848511` confirma 0.2.3/1
+  producto. 0.2.3/1 paso Local QA: 65 pruebas Core, build Release, inspeccion
+  de valores empaquetados y creacion de IPA sin firma de distribucion. El
+  propietario autorizo el upload interno; pruebas, analisis Release, firma,
+  inspeccion, export, verificacion y subida Apple fueron correctas.
+- La inspeccion App Store Connect confirma 0.2.3/1
   `VALID`, iOS 16.0, `INTERNAL_ONLY`, no caducada, sin cifrado no exento y con
-  acceso automatico para el grupo interno `Testers` (dos testers). No se creo
+  acceso automatico para el grupo interno. No se creo
   testing externo, enlace publico, App Review ni publicacion.
 
 ## Ajustes posteriores solicitados — rendimiento, signo y legibilidad
@@ -337,9 +330,8 @@ workspace does not have write access to Brain.
 - Run final `32963500029`: 65 pruebas Core, build iOS, frente, reverso, texto
   largo, Saved detail y todos los estados aprobados capturados; iPhone 15 Pro e
   iPhone SE correctos. En el SE se ven a la vez cabecera, selector, carta larga
-  completa, Guardar y tabs sin scroll regular. Artifact
-  `ZodiacDaily-Visual-QA-34`, digest
-  `sha256:89a86259d57fec8531bc37913573c86561b49a07dcb9f962755ee17a5e696670`.
+  completa, Guardar y tabs sin scroll regular. La evidencia visual canonica se
+  conserva en `Design/Comparisons/`.
 - Las nuevas maestras runtime y sus SHA-256 estan registradas en
   `Design/APPROVALS.md`; la hoja normalizada propuesta/build/overlay y las
   capturas compactas quedan en `Design/Comparisons/`. La propuesta C5B y las
@@ -354,24 +346,17 @@ workspace does not have write access to Brain.
 - Se aplico la regla de versionado: el nuevo marco completo, la lectura mayor y
   el flujo de signo inmediato constituyen una entrega funcional/visual y pasan
   de `0.2.3` a `0.3`; build `1` por ser el primer binario de esa version.
-- Commit de entrega: `77c381c257f325ad76e47a5f31767a6588035d2d`.
-  Run de build/upload `33029296526`: 65 pruebas, analisis Release, firma,
-  inspeccion de plist/endpoint/privacidad/assets, export, verificacion Apple y
-  upload correctos.
-- IPA: `ZodiacDaily-v0.3-build-1-77c381c-TestFlight.ipa`, SHA-256
-  `e5ac54038aabedac44ec0b259bfceba0d2fd65f91d4f929a01b1d4f6ad6cebaa`.
-  Artifact `ZodiacDaily-v0.3-build-1-TestFlight-run-13`, digest
-  `sha256:81c4492e53098f209fb3835ddcfc938b0788ef7b22e3b4b560925d21cca7d02d`.
-  Delivery UUID Apple `b1bc0813-cc22-4794-b3d6-948e38403673`.
-- Run de inspeccion `33029584933`: App Store Connect confirma `0.3 (1)`
+- La build paso 65 pruebas, analisis Release, firma, inspeccion de
+  plist/endpoint/privacidad/assets, export, verificacion Apple y upload.
+- App Store Connect confirma `0.3 (1)`
   `VALID`, iOS 16.0, `INTERNAL_ONLY`, no caducada, sin cifrado no exento y con
-  acceso automatico para el grupo interno `Testers` (dos testers).
+  acceso automatico para el grupo interno.
 - La auditoria 0.3 sigue exacta: sin permisos, cuenta, anuncios, analytics ni
   SDKs terceros; signo/cartas/idioma locales; unica peticion de contenido con
   fecha e idioma; StoreKit presente sin productos activos. No se creo IAP, no
   se envio App Review y no se publico la app.
 
-## Correccion editorial castellana pendiente de despliegue
+## Correccion editorial castellana desplegada
 
 - El 2026-08-27 el propietario rechazo la calidad de la traduccion literal.
   La causa confirmada era `m2m100`: traducía titular, lectura y metadatos por
@@ -386,5 +371,16 @@ workspace does not have write access to Brain.
   gastar nuevas llamadas a FreeAstroAPI. La suite del Worker pasa 29/29 y el
   2026-08-31 se valido en preview remoto un Scorpio completo con ambos modelos.
 - Se pulio tambien la copia fija española para eliminar literalismos y jerga de
-  proveedor. Estos cambios son locales: no se ha desplegado el Worker, subido
-  build ni modificado TestFlight.
+  proveedor. La edicion real `2026-08-31` quedo validada 12/12, cero ingles residual, cero patrones
+  de concordancia defectuosa y todos los datos diarios presentes.
+
+## TestFlight interno 0.4/1 — entrega C6
+
+- Autorizacion expresa del propietario para build, firma, GitHub y subida
+  interna. No se autorizo testing externo, App Review ni publicacion.
+- El build/upload paso pruebas Core, analisis Release, firma, inspeccion,
+  export, verificacion Apple y subida interna.
+- El primer inspector seguia fijado por error a 0.3 y fue corregido antes del
+  cierre. La inspeccion final confirma exactamente `0.4 (1)`, `VALID`,
+  iOS 16.0, `INTERNAL_ONLY`, no caducada y acceso automatico para `Testers`
+  sin publicar informacion sobre las personas del grupo.

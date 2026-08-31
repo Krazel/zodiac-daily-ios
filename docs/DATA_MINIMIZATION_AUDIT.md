@@ -87,30 +87,28 @@ a release blocker for EU distribution.
 - StoreKit boundary: `ZodiacDaily/Store/SupportStore.swift`
 - Privacy Manifest: `ZodiacDaily/Resources/PrivacyInfo.xcprivacy`
 - Xcode target settings: `ZodiacDaily.xcodeproj/project.pbxproj`
-- Exact 0.3/1 TestFlight validation: GitHub Actions run `33029296526`, source
-  commit `77c381c`; 65 Core tests, Release analysis, signed archive checks,
-  packaged configuration inspection, IPA export, Apple verification, and
-  upload passed. IPA SHA-256:
-  `e5ac54038aabedac44ec0b259bfceba0d2fd65f91d4f929a01b1d4f6ad6cebaa`.
-- Exact delivered TestFlight binary: delivery UUID
-  `b1bc0813-cc22-4794-b3d6-948e38403673`; App Store Connect inspection
-  `33029584933` confirmed `0.3 (1)`, `VALID` and internal
-  only.
-- Exact `0.4` evidence is pending the authorized visual-QA and TestFlight
-  workflows. The source inventory adds no SDK, permission, account field,
-  analytics, advertising, tracking, or user-data transmission; it changes only
-  card layout, fixed interface copy, and server-side processing of the same
-  provider-authored daily document.
-- Public-page minimization commit in `Krazel/krazel.github.io`: `450aadf`
+- Historical 0.3/1 TestFlight validation passed 65 Core tests, Release
+  analysis, signed archive checks, packaged configuration inspection, IPA
+  export, Apple verification, and upload. App Store Connect confirmed it as
+  valid and internal only.
+- Exact 0.4/1 TestFlight validation passed visual QA, Core tests, Release
+  analysis, signed archive checks, packaged configuration inspection, IPA
+  export, Apple verification, and upload.
+- App Store Connect confirmed `0.4 (1)`, `VALID`, iOS 16.0,
+  `INTERNAL_ONLY`, not expired, and automatic access for `Testers`.
+- Production content validation: 29/29 offline tests and the real 2026-08-31
+  Spanish edition passed 12/12 signs with
+  complete daily data and no detected English residual or known agreement
+  defect.
+- Public privacy and support pages passed the minimization review.
 
 ## Gate
 
-The code inventory passes for the `0.4` / build `1` source candidate. Changes
+The code inventory and exact internal TestFlight binary pass for `0.4` / build `1`. Changes
 since the delivered `0.3` binary are limited to removing Today sign selection,
 enlarging/recomposing the shared card, editing fixed Spanish copy, and replacing
-literal translation with server-side editorial adaptation plus review. They add no SDK,
+literal translation with deterministic server-side Spanish rendering plus a
+guarded fallback. They add no SDK,
 permission, storage category, transmission, account field, analytics, ad, or
-tracking behavior. Before submission, verify the
-selected binary still matches it, confirm the DSA review result, and obtain
-explicit authorization before publishing App Privacy, uploading a build, or
-submitting App Review.
+tracking behavior. Before App Review, confirm the DSA review result and obtain
+explicit authorization before publishing App Privacy or submitting App Review.
