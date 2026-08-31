@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       build_number:
-        description: "Unique build number for marketing version 0.4"
+        description: "Unique build number for marketing version 0.4.1"
         required: true
         default: "1"
         type: string
@@ -31,7 +31,7 @@ jobs:
     timeout-minutes: 40
     environment: app-store-production
     env:
-      APP_VERSION: "0.4"
+      APP_VERSION: "0.4.1"
       APP_BUNDLE_ID: com.krazel.zodiacdaily
       APPLE_TEAM_ID: B2X6D3A9J9
 

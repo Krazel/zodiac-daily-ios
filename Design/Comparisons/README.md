@@ -199,3 +199,26 @@ Canonical runtime files and SHA-256 values:
   `b5e847ad98b2080fb92f49c1b1a9ba11ce3500f05faec564d93463447d6f89ce`
 - `today-large-card-back-c6-es-iphone-se-runtime.png`:
   `7755702a4552a44e4f5c96096419d2e4d19f487748c11149617b35586587906a`
+
+## Approved C7 readable-typography runtime validation
+
+- Current complete masters: `Design/Approved/*readable-type*.png`
+- Final workflow run: `33348593592`
+- Captured commit: `c48a449`
+- Artifact: `ZodiacDaily-Visual-QA-37`
+- Simulators: iPhone 15 Pro and iPhone SE (3rd generation)
+- Resolutions: 1179 x 2556 and 750 x 1334
+
+The runtime preserves the approved C6 card geometry, backgrounds, artwork,
+controls, and stationary layout. Thin Didot interface type is absent. A sturdy
+native serif remains only for large editorial titles; changing provider data,
+scores, lucky details, Settings rows and prices, sign labels, Saved metadata,
+navigation, buttons, and reading copy use the native sans-serif. Score digits
+are semibold and tabular. Long sign names remain inside their cards.
+
+The run passed Core tests, iOS compilation, every English/Spanish visual state,
+and stationary-layout checks on the short iPhone. Canonical runtime files and
+SHA-256 values are recorded directly in `Design/APPROVALS.md`; compact front
+and back evidence is retained as
+`today-readable-type-c7-es-iphone-se-runtime.png` and
+`today-readable-type-c7-back-es-iphone-se-runtime.png`.
