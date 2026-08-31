@@ -378,12 +378,13 @@ workspace does not have write access to Brain.
   separado, sin contexto editorial.
 - El Worker local usa ahora una sola adaptacion estructurada por signo con
   `@cf/openai/gpt-oss-20b`, tono natural de castellano de España y prohibicion
-  expresa de inventar o alterar datos. Una segunda pasada bilingue con
-  `@cf/meta/llama-3.1-8b-instruct-fast` rechaza omisiones, ingles residual,
-  cambios astrologicos o datos nuevos. Las cifras y la identidad del proveedor
-  siguen copiandose directamente del documento ingles.
-- La revision de cache `es-r3` evita reutilizar las traducciones defectuosas sin
-  gastar nuevas llamadas a FreeAstroAPI. La suite del Worker pasa 27/27 y el
+  expresa de inventar o alterar datos. Una segunda pasada bilingue independiente
+  con el mismo modelo rechaza omisiones, errores gramaticales, ingles residual,
+  cambios astrologicos o datos nuevos; una puerta local bloquea ademas calcos y
+  concordancias ya observados. Las cifras y la identidad del proveedor siguen
+  copiandose directamente del documento ingles.
+- La revision de cache `es-r4` evita reutilizar las traducciones defectuosas sin
+  gastar nuevas llamadas a FreeAstroAPI. La suite del Worker pasa 28/28 y el
   2026-08-31 se valido en preview remoto un Scorpio completo con ambos modelos.
 - Se pulio tambien la copia fija española para eliminar literalismos y jerga de
   proveedor. Estos cambios son locales: no se ha desplegado el Worker, subido

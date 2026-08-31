@@ -19,8 +19,11 @@ const UPSTREAM_URL = "https://api.freeastroapi.com/api/v2/horoscope/daily/sign";
 // produced stiff, context-free Spanish. This multilingual instruct model can
 // preserve the reading as a whole and return a validated structured result.
 const TRANSLATION_MODEL = "@cf/openai/gpt-oss-20b";
-const TRANSLATION_REVIEW_MODEL = "@cf/meta/llama-3.1-8b-instruct-fast";
-const SPANISH_COPY_REVISION = 3;
+// Use the same editorial model for the independent review. The previous small
+// reviewer accepted obvious agreement errors and untranslated metadata in a
+// live edition, so structural validity alone was not enough.
+const TRANSLATION_REVIEW_MODEL = "@cf/openai/gpt-oss-20b";
+const SPANISH_COPY_REVISION = 4;
 const CACHE_SCHEMA_VERSION = 3;
 const LANGUAGES = Object.freeze(["en", "es"]);
 const MAX_HEADLINE_CHARACTERS = 52;
@@ -520,6 +523,8 @@ async function translateEditorialUnit(horoscope, ai, options = {}) {
 }
 
 async function reviewEditorialTranslation(source, translated, ai) {
+  if (!passesLocalSpanishQualityGate(translated)) return false;
+
   const response = await ai.run(TRANSLATION_REVIEW_MODEL, {
     messages: [
       {
@@ -529,6 +534,9 @@ async function reviewEditorialTranslation(source, translated, ai) {
           "Compara la fuente inglesa con la adaptación al castellano de España.",
           "Marca faithful=false si se omite, añade, suaviza o intensifica cualquier consejo, predicción, planeta, casa, signo, relación causal o dato.",
           "Marca is_spanish=false si queda una frase o metadato en inglés o si el castellano es literal, mecánico o impropio.",
+          "Marca grammar_correct=false ante cualquier error de género, número, concordancia, preposición o régimen verbal.",
+          "Marca natural_spanish=false si aparecen calcos como 'un lente', 'domicilio' por casa astrológica, 'juicio de seguridad' o fórmulas repetitivas poco naturales.",
+          "Marca all_metadata_translated=false si el titular, las palabras clave, el color, el signo lunar o la fase lunar conservan vocabulario inglés.",
           "Marca preserves_astrology=false si cambia el significado de terminología astrológica.",
           "Marca no_new_facts=false si aparece cualquier afirmación que no esté en la fuente.",
           "Devuelve solamente el objeto solicitado.",
@@ -546,10 +554,21 @@ async function reviewEditorialTranslation(source, translated, ai) {
         properties: {
           faithful: { type: "boolean" },
           is_spanish: { type: "boolean" },
+          grammar_correct: { type: "boolean" },
+          natural_spanish: { type: "boolean" },
+          all_metadata_translated: { type: "boolean" },
           preserves_astrology: { type: "boolean" },
           no_new_facts: { type: "boolean" },
         },
-        required: ["faithful", "is_spanish", "preserves_astrology", "no_new_facts"],
+        required: [
+          "faithful",
+          "is_spanish",
+          "grammar_correct",
+          "natural_spanish",
+          "all_metadata_translated",
+          "preserves_astrology",
+          "no_new_facts",
+        ],
         additionalProperties: false,
       },
     },
@@ -568,9 +587,34 @@ async function reviewEditorialTranslation(source, translated, ai) {
   return Boolean(
     verdict?.faithful === true
       && verdict?.is_spanish === true
+      && verdict?.grammar_correct === true
+      && verdict?.natural_spanish === true
+      && verdict?.all_metadata_translated === true
       && verdict?.preserves_astrology === true
       && verdict?.no_new_facts === true,
   );
+}
+
+function passesLocalSpanishQualityGate(translated) {
+  const completeCopy = [
+    translated.headline,
+    translated.reading,
+    ...translated.keywords,
+    translated.lucky_color,
+    translated.moon_sign,
+    translated.moon_phase,
+  ].join(" ");
+
+  const forbiddenPatterns = [
+    // In Spanish, ordinal adjectives agree with the feminine noun "casa".
+    /\b(?:primer|segundo|tercer|cuarto|quinto|sexto|séptimo|octavo|noveno|décimo|undécimo|duodécimo)\s+casa\b/iu,
+    /\bun\s+lente\b/iu,
+    /\b(?:domicilio|juicio de seguridad)\b/iu,
+    // Common FreeAstro metadata that must never leak through untranslated.
+    /\b(?:detail|analysis|service|momentum|freedom|innovation|humanity|growth|silver|full moon|new moon|first quarter|last quarter)\b/iu,
+  ];
+
+  return forbiddenPatterns.every((pattern) => !pattern.test(completeCopy));
 }
 
 function extractAIResult(response) {
@@ -610,6 +654,10 @@ function editorialTranslationRequest(horoscope) {
           "Dirígete a la persona lectora; nunca escribas construcciones como 'el Escorpio', 'la Aries' o equivalentes.",
           "Si el signo actúa como sujeto, usa su nombre propio traducido y sin artículo: por ejemplo, 'Escorpio afronta el día'.",
           "Prefiere giros idiomáticos de España y evita calcos como 'enfrentar el día' o 'impulsos fuertes'.",
+          "La palabra 'casa' es femenina: escribe 'primera casa', 'segunda casa', 'séptima casa', etc.; nunca 'primer casa' ni 'séptimo casa'.",
+          "En castellano de España, 'lente' es femenino ('una lente') y una house astrológica siempre es una 'casa', nunca un 'domicilio'.",
+          "Evita expresiones forzadas como 'juicio de seguridad', 'visión aérea' o 'filtro acuoso'; expresa la misma idea con prosa natural.",
+          "No repitas mecánicamente fórmulas; mantén cada consejo fiel, pero intégralo con una redacción española fluida.",
           "El titular debe ser breve y evocador, pero no puede introducir ideas ausentes en el titular inglés.",
           "La lectura debe fluir como un único texto editorial.",
           "Traduce correctamente los términos astrológicos, el color y cada palabra clave.",

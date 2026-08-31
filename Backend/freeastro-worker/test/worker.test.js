@@ -106,6 +106,9 @@ function approvedReview(overrides = {}) {
   return {
     faithful: true,
     is_spanish: true,
+    grammar_correct: true,
+    natural_spanish: true,
+    all_metadata_translated: true,
     preserves_astrology: true,
     no_new_facts: true,
     ...overrides,
@@ -116,7 +119,7 @@ function editorialResponse(input, overrides = {}) {
   const source = JSON.parse(input.messages[1].content);
   return {
     headline: `Un nuevo enfoque para ${source.sign}`,
-    reading: `Esta lectura está escrita con naturalidad en castellano y conserva fielmente el sentido completo de la fuente: ${source.reading}`,
+    reading: `Esta lectura está escrita con naturalidad en castellano, conserva el consejo original y ofrece una orientación diaria clara para ${source.sign}.`,
     keywords: source.keywords.map((keyword) => ({
       Empathy: "Empatía",
       Flow: "Fluidez",
@@ -315,7 +318,7 @@ test("Workers AI translates every user-facing field into a valid Spanish edition
   assert.equal(editorialCalls.length, 12);
   assert.equal(reviewCalls.length, 12);
   assert.ok(editorialCalls.every(({ model }) => model === "@cf/openai/gpt-oss-20b"));
-  assert.ok(reviewCalls.every(({ model }) => model === "@cf/meta/llama-3.1-8b-instruct-fast"));
+  assert.ok(reviewCalls.every(({ model }) => model === "@cf/openai/gpt-oss-20b"));
   assert.ok(editorialCalls.every(({ input }) => input.messages[0].content.includes("castellano de España")));
   assert.ok(isValidBundle(spanish, "2026-08-09", "es"));
   assert.ok(isValidBundle(english, "2026-08-09", "en"));
@@ -400,6 +403,39 @@ test("Spanish editorial reviewer rejects untranslated or unfaithful copy", async
   assert.equal(editorialCalls, 13);
   assert.equal(reviewCalls, 13);
   assert.deepEqual(waits, [500]);
+  assert.ok(isValidBundle(spanish, "2026-08-09", "es"));
+});
+
+test("Spanish local quality gate rejects bad agreement and English metadata", async () => {
+  const english = validBundle("2026-08-09");
+  let editorialCalls = 0;
+  let reviewCalls = 0;
+  const waits = [];
+  const ai = {
+    async run(_model, input) {
+      if (isReviewRequest(input)) {
+        reviewCalls += 1;
+        return { response: approvedReview() };
+      }
+      editorialCalls += 1;
+      const invalid = editorialResponse(input, {
+        reading: "Mercurio activa tu séptimo casa y te invita a observar el día a través de un lente de agua antes de actuar.",
+        keywords: ["Detail", "Analysis", "Service"],
+        lucky_color: "Silver",
+        moon_phase: "Last Quarter",
+      });
+      return { response: editorialCalls === 1 ? invalid : editorialResponse(input) };
+    },
+  };
+
+  const spanish = await translateBundleToSpanish(english, ai, {
+    wait: async (milliseconds) => waits.push(milliseconds),
+  });
+
+  assert.equal(editorialCalls, 13);
+  assert.equal(reviewCalls, 12);
+  assert.deepEqual(waits, [500]);
+  assert.equal(spanish.horoscopes[0].details.lucky_color, "Plateado");
   assert.ok(isValidBundle(spanish, "2026-08-09", "es"));
 });
 
@@ -496,7 +532,7 @@ test("a second scheduled check uses KV and spends no provider quota", async () =
   });
   const kv = new MemoryKV({
     "daily:v3:en:2026-08-09": JSON.stringify(english),
-    "daily:v3:es-r3:2026-08-09": JSON.stringify(spanish),
+    "daily:v3:es-r4:2026-08-09": JSON.stringify(spanish),
   });
   let calls = 0;
   const result = await warmDate(
@@ -557,7 +593,7 @@ test("a public miss schedules one bounded queue repair without calling the provi
     task: "warm_date",
     date: "2026-08-09",
   }]);
-  assert.equal(await kv.get("repair:v3:es-r3:2026-08-09"), "1");
+  assert.equal(await kv.get("repair:v3:es-r4:2026-08-09"), "1");
 });
 
 test("public language selection never substitutes the wrong-language cache", async () => {
@@ -591,7 +627,7 @@ test("Spanish route returns only the cached Spanish edition and language header"
     now: () => new Date("2026-08-09T00:15:00Z"),
   });
   const kv = new MemoryKV({
-    "daily:v3:es-r3:2026-08-09": JSON.stringify(spanish),
+    "daily:v3:es-r4:2026-08-09": JSON.stringify(spanish),
   });
 
   const response = await handleRequest(
@@ -682,7 +718,7 @@ test("translation failure keeps English cached and retries never refetch FreeAst
   assert.equal(aiCalls, 3);
   assert.equal((await getCachedDaily("2026-08-09", env, "en")).language, "en");
   await assert.rejects(getCachedDaily("2026-08-09", env, "es"), /daily_cache_miss/);
-  assert.equal(await kv.get("failure:v3:es-r3:2026-08-09:aries"), "1");
+  assert.equal(await kv.get("failure:v3:es-r4:2026-08-09:aries"), "1");
 
   await assert.rejects(
     handleQueue({ messages: [{ body: ariesMessage }] }, env, options),
