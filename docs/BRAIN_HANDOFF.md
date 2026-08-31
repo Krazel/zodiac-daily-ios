@@ -453,3 +453,18 @@ workspace does not have write access to Brain.
 - Crear los productos en App Store Connect, subir una build o enviar IAP/App
   Review siguen siendo acciones externas separadas. El candidato fuente es
   `1.1 (1)` y requiere build y auditoria firmada antes de cualquier subida.
+
+## Texto promocional App Store preparado
+
+- Brain general autorizo el 2026-09-01 actualizar exclusivamente el campo de
+  texto promocional, sin crear versiones ni tocar otros metadatos.
+- EN-US, 151 caracteres: `Turn today's zodiac card for daily scores, lucky
+  details and Moon insights. Read in English or Spanish, save favorites, and
+  keep every reading private.`
+- ES-ES, 161 caracteres: `Gira la carta zodiacal de hoy para ver puntuaciones,
+  suerte y claves de la Luna. Lee en castellano o inglés, guarda tus favoritas
+  y mantén tus lecturas privadas.`
+- El workflow `33450859143` comprobo App Store Connect y encontro cero versiones
+  iOS editables. Fallo antes de hacer cualquier PATCH: no se creo una version,
+  no se escribio ningun campo y no se envio a revision. Los dos textos quedan
+  preparados en `AppStore/METADATA.md` para la proxima version editable.

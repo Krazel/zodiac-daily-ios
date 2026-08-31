@@ -5,6 +5,9 @@ Prepared: 2026-09-01
 This file is the canonical, minimized metadata for version `1.1` build `1`.
 Marketing URL, privacy-choices URL, and attachment remain blank because this
 release does not need them. Promotional text is intentionally localized below.
+It is prepared in source but not yet written to App Store Connect because no
+editable iOS version currently exists there; no version was created to bypass
+that boundary.
 
 ## English (U.S.)
 
