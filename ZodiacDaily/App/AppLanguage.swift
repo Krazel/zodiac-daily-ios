@@ -1,5 +1,4 @@
 import Foundation
-import SwiftUI
 import ZodiacDailyCore
 
 /// The two interface languages shipped by Zodiac Daily.
@@ -28,9 +27,7 @@ enum AppLanguage: String, CaseIterable, Identifiable {
         }
     }
 
-    /// A key rather than a pre-resolved String so SwiftUI reevaluates it with
-    /// the app's injected locale as soon as the user changes language.
-    var displayName: LocalizedStringKey {
+    var localizationKey: String {
         switch self {
         case .english:
             "language.english"

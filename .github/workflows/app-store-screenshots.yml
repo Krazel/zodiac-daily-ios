@@ -82,7 +82,7 @@ jobs:
             -sdk iphonesimulator \
             -destination "platform=iOS Simulator,id=${UDID},arch=arm64" \
             -derivedDataPath build/app-store-screenshots \
-            MARKETING_VERSION=1.0 \
+            MARKETING_VERSION=1.1 \
             CURRENT_PROJECT_VERSION=1 \
             ARCHS=arm64 \
             ONLY_ACTIVE_ARCH=YES \
@@ -144,7 +144,7 @@ jobs:
 
           printf '%s\n' \
             'app=The Daily Zodiac' \
-            'marketing_version=1.0' \
+            'marketing_version=1.1' \
             'build=1' \
             "commit_sha=${GITHUB_SHA}" \
             'source=actual-release-candidate-ui' \
@@ -162,7 +162,7 @@ jobs:
       - name: Upload store screenshot evidence
         uses: actions/upload-artifact@v6
         with:
-          name: ZodiacDaily-v1.0-build-1-AppStore-Screenshots-${{ github.sha }}-run-${{ github.run_number }}
+          name: ZodiacDaily-v1.1-build-1-AppStore-Screenshots-${{ github.sha }}-run-${{ github.run_number }}
           path: AppStore/Screenshots/**
           if-no-files-found: error
           retention-days: 14

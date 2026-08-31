@@ -342,6 +342,34 @@ test("known FreeAstro template renders native Spanish without any AI calls", asy
   assert.ok(isValidBundle(spanish, "2026-08-09", "es"));
 });
 
+test("September provider vocabulary renders Spanish without risking an AI-wide edition miss", async () => {
+  const english = validBundle("2026-09-01");
+  for (const horoscope of english.horoscopes) {
+    const englishSign = horoscope.sign[0].toUpperCase() + horoscope.sign.slice(1);
+    horoscope.headline = "Boldness";
+    horoscope.details.focus = "Boldness";
+    horoscope.details.keywords = ["Initiative", "Boldness", "Energy"];
+    horoscope.details.lucky_color = "Black";
+    horoscope.details.moon_sign = "Taurus";
+    horoscope.details.moon_phase = "Waning Gibbous";
+    horoscope.reading = `With the Moon in Taurus (Waning Gibbous), ${englishSign} picks up the day's sky through a fire lens. Sun activating your 6th house prioritizes routine, rest, and energy regulation. For ${englishSign}, this works best through active routines. Center your decisions on health and use active routines to convert momentum into concrete results.`;
+  }
+  const ai = {
+    run: async () => {
+      throw new Error("AI must not run for the documented September provider vocabulary");
+    },
+  };
+
+  const spanish = await translateBundleToSpanish(english, ai);
+
+  assert.equal(spanish.horoscopes.length, 12);
+  assert.equal(spanish.horoscopes[0].details.moon_phase, "Gibosa menguante");
+  assert.match(spanish.horoscopes[0].reading, /la rutina, el descanso y la regulación de la energía/iu);
+  assert.match(spanish.horoscopes[0].reading, /mantener rutinas activas/iu);
+  assert.doesNotMatch(JSON.stringify(spanish), /Waning Gibbous|active routines|energy regulation/iu);
+  assert.ok(isValidBundle(spanish, "2026-09-01", "es"));
+});
+
 test("Spanish translation retries transient AI failures without losing the edition", async () => {
   const english = validBundle("2026-08-09");
   let attempts = 0;

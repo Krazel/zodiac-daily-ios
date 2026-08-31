@@ -1,0 +1,68 @@
+name: Configure Zodiac Daily StoreKit Support
+
+on:
+  workflow_dispatch:
+    inputs:
+      apply_changes:
+        description: "Create/update the approved supporter catalog (never submits review)"
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  configure:
+    if: github.actor == github.repository_owner
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: app-store-production
+
+    steps:
+      - name: Checkout approved source
+        uses: actions/checkout@v5
+
+      - name: Require App Store Connect credentials
+        shell: bash
+        env:
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
+        run: |
+          set -euo pipefail
+          for NAME in APP_STORE_CONNECT_API_KEY_ID APP_STORE_CONNECT_ISSUER_ID APP_STORE_CONNECT_API_KEY_BASE64; do
+            if [ -z "${!NAME:-}" ]; then
+              echo "Required App Store Connect secret is missing: ${NAME}."
+              exit 1
+            fi
+          done
+
+      - name: Configure supporter catalog without submitting review
+        shell: bash
+        env:
+          ASC_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          ASC_PRIVATE_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
+          APPLY_CHANGES: ${{ inputs.apply_changes }}
+          OUTPUT_PATH: storekit-evidence/zodiac-storekit-support.json
+        run: |
+          set -euo pipefail
+          KEY_PATH="${RUNNER_TEMP}/zodiac-storekit-support.p8"
+          cleanup() {
+            rm -f "${KEY_PATH}"
+          }
+          trap cleanup EXIT
+          printf '%s' "${ASC_PRIVATE_KEY_BASE64}" | base64 --decode > "${KEY_PATH}"
+          chmod 600 "${KEY_PATH}"
+          export ASC_PRIVATE_KEY_PATH="${KEY_PATH}"
+          mkdir -p storekit-evidence
+          node scripts/configure-zodiac-support-subscriptions.mjs
+
+      - name: Upload non-secret configuration evidence
+        uses: actions/upload-artifact@v6
+        with:
+          name: ZodiacDaily-StoreKit-Support-${{ github.sha }}-run-${{ github.run_number }}
+          path: storekit-evidence/zodiac-storekit-support.json
+          retention-days: 14
+          if-no-files-found: error

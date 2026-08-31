@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 const bundleIdentifier = "com.krazel.zodiacdaily";
-const marketingVersion = "1.0";
+const marketingVersion = "1.1";
 const screenshotDisplayType = "APP_IPHONE_65";
 const screenshotRoot = path.resolve("AppStore", "StoreReady");
 const locales = ["en-US", "es-ES"];

@@ -593,6 +593,10 @@ const SPANISH_APPROACHES = Object.freeze({
     recommendation: "tomar decisiones guiadas por la información",
     tool: "la información disponible",
   },
+  "active routines": {
+    recommendation: "mantener rutinas activas",
+    tool: "esas rutinas activas",
+  },
 });
 
 const SPANISH_AREAS = Object.freeze({
@@ -606,6 +610,7 @@ const SPANISH_PRIORITIES = Object.freeze({
   "relational openness and emotional timing": "la apertura en las relaciones y el momento emocional adecuado",
   "professional direction and practical output": "la orientación profesional y los resultados prácticos",
   "resource management and value decisions": "la gestión de los recursos y las decisiones sobre lo que valoras",
+  "routine, rest, and energy regulation": "la rutina, el descanso y la regulación de la energía",
 });
 
 function translateKnownInfluence(source) {
@@ -901,6 +906,7 @@ const KNOWN_SPANISH_TERMS = Object.freeze({
   stability: "Estabilidad", taurus: "Tauro", transformation: "Transformación",
   virgo: "Virgo", white: "Blanco", yellow: "Amarillo",
   "first quarter": "Cuarto creciente", first_quarter: "Cuarto creciente",
+  "waning gibbous": "Gibosa menguante", waning_gibbous: "Gibosa menguante",
 });
 
 function knownSpanishTerm(value) {

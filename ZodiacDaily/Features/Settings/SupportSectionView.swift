@@ -39,11 +39,12 @@ struct SupportSectionView: View {
             VStack(spacing: 7) {
                 supporterHeader
 
+                renewalDisclosure
+                purchasePolicyLinks
+
                 ForEach(Array(AppConfiguration.supporterProductIDs.enumerated()), id: \.offset) { index, productID in
                     supportOption(productID: productID, index: index)
                 }
-
-                renewalDisclosure
 
                 if let message = store.statusMessage {
                     Text(localizedStatus(message))
@@ -166,6 +167,23 @@ struct SupportSectionView: View {
             .padding(.horizontal, 10)
             .padding(.vertical, 1)
             .fixedSize(horizontal: false, vertical: true)
+    }
+
+    private var purchasePolicyLinks: some View {
+        HStack(spacing: 16) {
+            Button(localized("support.privacy")) {
+                openURL(AppConfiguration.privacyURL)
+            }
+
+            Button(localized("support.terms")) {
+                openURL(AppConfiguration.termsURL)
+            }
+        }
+        .font(.system(size: 12, weight: .medium))
+        .foregroundStyle(ZodiacPalette.settingsGold)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 10)
+        .buttonStyle(.plain)
     }
 
     private var restoreButton: some View {

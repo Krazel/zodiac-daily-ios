@@ -6,7 +6,6 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-    @Environment(\.locale) private var locale
     @AppStorage(AppLanguage.storageKey) private var appLanguageRawValue = AppLanguage.english.rawValue
     @State private var showsSignSelection = false
 
@@ -38,6 +37,10 @@ struct SettingsView: View {
             }
             .toolbar(.hidden, for: .navigationBar)
         }
+        // A presented sheet can retain the locale it inherited when it was
+        // opened. Drive Settings from its persisted selection so every label
+        // changes immediately, without requiring the sheet to be dismissed.
+        .environment(\.locale, currentLanguage.locale)
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
         .sheet(isPresented: $showsSignSelection) {
@@ -101,7 +104,7 @@ struct SettingsView: View {
                         .accessibilityHidden(true)
 
                     Text(
-                        model.selectedSign?.localizedDisplayName(locale: locale).uppercased()
+                        model.selectedSign?.localizedDisplayName(locale: currentLanguage.locale).uppercased()
                             ?? localized("settings.choose_sign").uppercased()
                     )
                         .font(ZodiacTypography.interface(18, weight: .semibold))
@@ -136,7 +139,7 @@ struct SettingsView: View {
             .accessibilityLabel(
                 String(
                     format: localized("settings.sign_accessibility_format"),
-                    model.selectedSign?.localizedDisplayName(locale: locale)
+                    model.selectedSign?.localizedDisplayName(locale: currentLanguage.locale)
                         ?? localized("settings.sign_not_selected")
                 )
             )
@@ -146,26 +149,12 @@ struct SettingsView: View {
 
     private var languageSection: some View {
         settingsSection(title: localized("settings.language")) {
-            VStack(spacing: 0) {
-                HStack(spacing: 0) {
-                    ForEach(AppLanguage.allCases) { language in
-                        languageButton(language)
-                    }
+            HStack(spacing: 0) {
+                ForEach(AppLanguage.allCases) { language in
+                    languageButton(language)
                 }
-                .padding(7)
-
-                Rectangle()
-                    .fill(ZodiacPalette.settingsGold.opacity(0.42))
-                    .frame(height: 0.7)
-
-                Text(localized("settings.daily_content_language"))
-                    .font(.system(size: 13))
-                    .foregroundStyle(ZodiacPalette.settingsLavender)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 10)
-                    .fixedSize(horizontal: false, vertical: true)
             }
+            .padding(7)
             .background(panelBackground)
             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             .overlay {
@@ -179,12 +168,19 @@ struct SettingsView: View {
         let isSelected = currentLanguage == language
 
         return Button {
+            guard !isSelected else { return }
             appLanguageRawValue = language.rawValue
+            // Update provider-backed content at the same time as the
+            // interface preference. The app-level observer remains a safety
+            // net, while AppModel's equality guard makes this idempotent.
+            Task {
+                await model.setAppLanguage(rawValue: language.rawValue)
+            }
         } label: {
             HStack(spacing: 9) {
                 Spacer(minLength: 0)
 
-                Text(language.displayName)
+                Text(appLocalized(language.localizationKey, locale: currentLanguage.locale))
                     .font(ZodiacTypography.interface(16, weight: .semibold))
                     .foregroundStyle(isSelected ? ZodiacPalette.settingsGold : ZodiacPalette.settingsText)
 
@@ -379,6 +375,6 @@ struct SettingsView: View {
     }
 
     private func localized(_ key: String) -> String {
-        appLocalized(key, locale: locale)
+        appLocalized(key, locale: currentLanguage.locale)
     }
 }

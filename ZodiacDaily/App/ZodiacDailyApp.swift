@@ -8,7 +8,11 @@ struct ZodiacDailyApp: App {
         AppLanguage.persistedOrPreferred().rawValue
 
     private var appLanguage: AppLanguage {
-        AppLanguage(rawValue: appLanguageRawValue) ?? .english
+        // AppModel is the source of truth for both interface copy and the
+        // provider edition. Deriving the locale from its published language
+        // prevents the two from briefly (or, in a presented sheet, visibly)
+        // disagreeing after a Settings change.
+        model.contentLanguage == .spanish ? .spanish : .english
     }
 
     var body: some Scene {

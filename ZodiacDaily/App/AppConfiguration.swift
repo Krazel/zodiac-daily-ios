@@ -8,10 +8,9 @@ enum AppConfiguration {
     )!
     private static let productionAppStoreID = "6800136195"
 
-    /// Paid support stays dormant for the first public release. The StoreKit
-    /// implementation remains available for a later version after its products
-    /// and review proposition are explicitly approved in App Store Connect.
-    static let supporterPurchasesEnabled = false
+    /// Optional support never gates the horoscope, saved cards, or settings.
+    /// Product availability and localized prices are supplied by StoreKit.
+    static let supporterPurchasesEnabled = true
 
     static let supporterProductIDs = [
         "com.krazel.zodiacdaily.support.monthly",
