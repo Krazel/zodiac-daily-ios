@@ -9,7 +9,11 @@ struct SupportSectionView: View {
     @State private var showsManageSubscriptions = false
 
     #if DEBUG
-    private let visualQAPrices = ["$0.99", "$2.99", "$4.99"]
+    private var visualQAPrices: [String] {
+        locale.identifier.lowercased().hasPrefix("es")
+            ? ["0,99 €", "2,99 €", "4,99 €"]
+            : ["$0.99", "$2.99", "$4.99"]
+    }
     #endif
 
     var body: some View {

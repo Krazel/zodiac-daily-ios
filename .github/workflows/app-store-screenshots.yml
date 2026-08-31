@@ -135,7 +135,10 @@ jobs:
             capture_state today-back "$DIRECTORY/02-daily-details.png"
             capture_state saved-populated "$DIRECTORY/03-saved-cards.png"
             capture_state saved-detail "$DIRECTORY/04-saved-detail.png"
-            capture_state settings "$DIRECTORY/05-settings.png"
+            # Do not advertise a fixed subscription price in store imagery;
+            # StoreKit localizes prices per storefront. Show the real saved
+            # card reverse instead and keep supporter UI for App Review evidence.
+            capture_state saved-detail-back "$DIRECTORY/05-saved-detail-back.png"
             capture_state sign-selection "$DIRECTORY/06-choose-sign.png"
           }
 
