@@ -1,5 +1,22 @@
 # Decisions
 
+## 2026-09-01 — Canonical seven-level supporter catalog
+
+- Zodiac Daily adopts the validated VoiceRecorder structure: seven monthly
+  auto-renewable subscriptions at base price points `0.99`, `3.0`, `5.0`,
+  `10.0`, `15.0`, `30.0`, and `49.99`.
+- The app-specific product IDs end in `.099`, `.299`, `.499`, `.999`, `.1499`,
+  `.2999`, and `.50`. All seven belong to one subscription group at the same
+  group level because their benefits are equivalent.
+- Every option displays the same localized title, **Monthly Supporter** /
+  **Apoyo mensual**. The live localized StoreKit price is the only visible
+  difference between levels; QA-only reference prices never become offers.
+- Zodiac Daily has no ads. An active verified entitlement grants supporter
+  status and a thank-you message only; it does not gate or unlock features.
+- This decision authorizes the local catalog migration only. Creating products,
+  uploading a build, or submitting subscriptions/review still requires express
+  authorization at that moment.
+
 ## 2026-08-09 — Initial product boundary
 
 - Zodiac Daily is a separate app and repository from Tarot.

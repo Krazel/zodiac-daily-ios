@@ -92,14 +92,19 @@ submission and storefront artwork remain separate release actions.
 
 StoreKit 2 support is implemented locally as an optional Settings feature. The
 complete horoscope, Saved archive, and all core behavior remain free regardless
-of supporter status. The three equivalent monthly levels are:
+of supporter status. The seven equivalent monthly levels are:
 
-- `com.krazel.zodiacdaily.support.monthly`;
-- `com.krazel.zodiacdaily.support.kind`; and
-- `com.krazel.zodiacdaily.support.generous`.
+- `com.krazel.zodiacdaily.support.monthly.099`;
+- `com.krazel.zodiacdaily.support.monthly.299`;
+- `com.krazel.zodiacdaily.support.monthly.499`;
+- `com.krazel.zodiacdaily.support.monthly.999`;
+- `com.krazel.zodiacdaily.support.monthly.1499`;
+- `com.krazel.zodiacdaily.support.monthly.2999`; and
+- `com.krazel.zodiacdaily.support.monthly.50`.
 
-The UI loads localized names and prices from StoreKit rather than embedding the
-USD values shown in the visual reference. It includes explicit Restore
+All seven display the same localized Monthly Supporter title and provide the
+same benefit. The UI loads localized prices from StoreKit rather than embedding
+reference prices. It includes explicit Restore
 Purchases and Manage Subscription actions and remains useful when no products
 are returned. Rate Zodiac Daily uses app ID `6800136195` for the App Store
 `action=write-review` URL, so an explicit tap has a production destination. The

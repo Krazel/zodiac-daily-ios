@@ -11,8 +11,8 @@ struct SupportSectionView: View {
     #if DEBUG
     private var visualQAPrices: [String] {
         locale.identifier.lowercased().hasPrefix("es")
-            ? ["0,99 €", "2,99 €", "4,99 €"]
-            : ["$0.99", "$2.99", "$4.99"]
+            ? ["0,99 €", "3,00 €", "5,00 €", "10,00 €", "15,00 €", "30,00 €", "49,99 €"]
+            : ["$0.99", "$3.00", "$5.00", "$10.00", "$15.00", "$30.00", "$49.99"]
     }
     #endif
 
@@ -108,7 +108,7 @@ struct SupportSectionView: View {
             HStack(spacing: 10) {
                 celestialIcon("sparkle", size: 31)
 
-                Text(tierTitle(at: index))
+                Text(tierTitle)
                     .font(ZodiacTypography.interface(14, weight: .semibold))
                     .foregroundStyle(ZodiacPalette.settingsText)
                     .lineLimit(1)
@@ -158,7 +158,7 @@ struct SupportSectionView: View {
         )
         .opacity(1)
         .accessibilityLabel(
-            "\(tierTitle(at: index)), \(displayPrice(for: product, index: index))\(isActive ? ", \(localized("support.active"))" : "")"
+            "\(tierTitle), \(displayPrice(for: product, index: index))\(isActive ? ", \(localized("support.active"))" : "")"
         )
         .accessibilityHint(optionAccessibilityHint(product: product, isActive: isActive))
     }
@@ -271,12 +271,8 @@ struct SupportSectionView: View {
         )
     }
 
-    private func tierTitle(at index: Int) -> String {
-        switch index {
-        case 0: return localized("support.tier.monthly")
-        case 1: return localized("support.tier.kind")
-        default: return localized("support.tier.generous")
-        }
+    private var tierTitle: String {
+        localized("support.tier.monthly")
     }
 
     private func displayPrice(for product: Product?, index: Int) -> String {

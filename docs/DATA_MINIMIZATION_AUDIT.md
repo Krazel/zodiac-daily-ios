@@ -1,12 +1,14 @@
 # Data and public-information minimization audit
 
-Audited: 2026-08-31
+Audited: 2026-09-01
 
-Release candidate: iOS `1.0` / build `1`
+Current source candidate: iOS `1.1` / build `1` (not yet uploaded)
 
-This inventory describes the shipped code and current App Store Connect record,
-not future features. It must be repeated before any later build that adds an
-SDK, permission, account, upload, analytics, ads, or active StoreKit product.
+This inventory describes the current `1.1` source candidate and distinguishes it
+from the processed `1.0` build in App Store Connect. It must be repeated against
+the signed archive before uploading or submitting the `1.1` build, and again
+after any change that adds an SDK, permission, account, upload, analytics, ads,
+or server-side purchase processing.
 
 The `app-language` preference stores only `en` or `es`
 in `UserDefaults`. The same two-letter code is added to the daily content
@@ -26,7 +28,7 @@ still be rerun against the exact next build.
 | Review prompt state | The app version already prompted for a review is stored in `UserDefaults`. | Replaced per version; removed with app deletion. | Local only. |
 | Daily content request | One HTTPS `GET /v1/daily/YYYY-MM-DD?lang=en\|es` request. The app sends only the local date and two-letter content language, plus `Accept: application/json`; it sends no selected sign, saved card, birth data, account identifier, advertising identifier, or location. | Date and language are used only to return the edition. Krazel does not retain or associate connection data with a user. | Apple's real-time request exception supports `No data collected`. |
 | Network infrastructure | The hosting layer necessarily handles transient connection metadata such as IP address to route and secure HTTPS. | Not retained or used by Krazel for identity, profiling, analytics, ads, or tracking. | Disclosed concisely in the privacy policy. |
-| StoreKit | Apple StoreKit implementation remains compiled for a later release, but `supporterPurchasesEnabled` is false in version `1.0`: Settings exposes no purchase, price, restore, or manage-subscription control and the app does not start the product catalog. App Store Connect has no IAP or subscription product. | No purchase can be initiated and no payment details are received or stored by Krazel. Re-audit and obtain separate approval before activating a product. | No unavailable purchase is presented by the release candidate. |
+| StoreKit | The `1.1` source candidate enables an optional Settings section and asks Apple StoreKit for seven monthly supporter products. It also checks verified current entitlements and provides purchase, restore, and manage-subscription controls. The products do not yet exist in App Store Connect, so the current live catalog is empty and no purchase can presently complete. | Apple processes the catalog, payment, receipt, renewal, cancellation, and account management. The app keeps only the currently verified supporter product ID in memory; it sends no transaction, receipt, account, or payment data to Krazel infrastructure and stores no payment details. | This remains compatible with `No data collected` by Krazel. The exact signed archive and configured products require final verification before upload. |
 | SDKs | SwiftUI, Foundation, Combine, and StoreKit are Apple frameworks. `ZodiacDailyCore` is a local Swift package. No AdMob, analytics, crash-reporting, attribution, social, advertising, or other third-party SDK is linked. | Not applicable. | No SDK disclosure omitted. |
 | Support email | Support is external and voluntary through the public alias `coderappskrazel@gmail.com`. | Used only to answer support; deletion may be requested unless legal retention applies. | Public alias only; no personal owner details. |
 
@@ -49,8 +51,9 @@ or authentication data that is not retained after the real-time request:
   working support alias, minimum diagnostic request, sensitive-data warning,
   and privacy link.
 - No full owner name, address, phone, personal account, source repository,
-  infrastructure vendor, provider credential, or future purchase clause is
-  published on either page.
+  infrastructure vendor, or provider credential is published on either page.
+  The pages describe only the actual Apple-processed supporter flow prepared
+  for version 1.1 and do not expose payment details or unnecessary owner data.
 - Workers AI receives only provider-authored horoscope text for one daily
   editorial adaptation and a separate fidelity/language review. It receives no
   user text, selected sign, account, device identifier, or saved-card contents.
@@ -62,11 +65,14 @@ or authentication data that is not retained after the real-time request:
 - App Review contact details are filled only in Apple's private required review
   section. Their values are intentionally not copied into this repository or
   any public page.
-- Review notes for the public candidate describe the exact `1.0` build: no login,
+- Existing review notes describe the exact processed `1.0` build: no login,
   no permissions, no ads/analytics, date-and-language-only content request,
   local saves, an explicit unavailable/retry state instead of fake offline
   content, and no visible or active purchase flow. They contain
   no infrastructure name or future promise.
+- Before any `1.1` submission, replace those notes with the exact seven-product
+  StoreKit behavior, the unchanged free core, and the fact that Apple handles
+  all billing. Do not claim that purchases are absent once products are active.
 - Apple's standard EULA is used. No unnecessary custom terms page exists.
 
 ## Material territorial requirement
@@ -118,9 +124,10 @@ app's public privacy/support pages.
 
 ## Gate
 
-The code inventory passes for the exact processed public `1.0` / build `1`.
-Changes since the delivered `0.4.1` binary hide the unconfigured voluntary
-support UI and stop its StoreKit catalog task; they add no SDK,
-permission, storage category, transmission, account field, analytics, ad, or
-tracking behavior. Signed archive and App Store inspection evidence are now
-recorded; future binary or SDK changes require a fresh audit.
+The processed public `1.0` / build `1` remains accurately described by its
+historical evidence. The current `1.1` / build `1` source candidate adds the
+visible Apple StoreKit supporter flow but no third-party SDK, permission,
+account field, analytics, advertising, tracking, or Krazel-side purchase-data
+collection. The source-level minimization audit passes. A signed-archive audit,
+StoreKit product inspection, and exact App Store metadata comparison remain
+mandatory before upload or submission.

@@ -25,7 +25,7 @@ Daily endpoint.
 - Daily content: the production schema-3 service prepares separate English and
   Spanish twelve-sign documents, and the app requests `lang=en|es`. Today uses
   that live/pinned edition; old Saved snapshots cannot replace it.
-- Support: StoreKit 2 loads three equivalent monthly levels using Apple's live
+- Support: StoreKit 2 loads seven equivalent monthly levels using Apple's live
   localized prices. The app remains fully usable for free and includes verified
   entitlement status, restore, and subscription management.
 - Settings: a visible gear opens sign, language, optional support, review,

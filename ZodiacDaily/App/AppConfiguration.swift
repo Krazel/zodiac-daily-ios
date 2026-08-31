@@ -13,9 +13,13 @@ enum AppConfiguration {
     static let supporterPurchasesEnabled = true
 
     static let supporterProductIDs = [
-        "com.krazel.zodiacdaily.support.monthly",
-        "com.krazel.zodiacdaily.support.kind",
-        "com.krazel.zodiacdaily.support.generous"
+        "com.krazel.zodiacdaily.support.monthly.099",
+        "com.krazel.zodiacdaily.support.monthly.299",
+        "com.krazel.zodiacdaily.support.monthly.499",
+        "com.krazel.zodiacdaily.support.monthly.999",
+        "com.krazel.zodiacdaily.support.monthly.1499",
+        "com.krazel.zodiacdaily.support.monthly.2999",
+        "com.krazel.zodiacdaily.support.monthly.50"
     ]
 
     static let privacyURL = URL(string: "https://krazel.github.io/zodiac-daily/privacy/")!

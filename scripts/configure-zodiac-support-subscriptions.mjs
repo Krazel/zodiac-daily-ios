@@ -9,33 +9,47 @@ const outputPath = process.env.OUTPUT_PATH;
 
 const catalog = [
   {
-    productId: "com.krazel.zodiacdaily.support.monthly",
-    referenceName: "Monthly Supporter",
+    productId: "com.krazel.zodiacdaily.support.monthly.099",
+    referenceName: "Zodiac Daily Support Monthly 0.99",
     price: "0.99",
-    localizations: {
-      "en-US": ["Monthly Supporter", "Monthly support for ongoing development."],
-      "es-ES": ["Apoyo mensual", "Apoyo mensual al desarrollo de la app."],
-    },
   },
   {
-    productId: "com.krazel.zodiacdaily.support.kind",
-    referenceName: "Kind Supporter",
-    price: "2.99",
-    localizations: {
-      "en-US": ["Kind Supporter", "Extra monthly support for development."],
-      "es-ES": ["Apoyo especial", "Apoyo especial al desarrollo de la app."],
-    },
+    productId: "com.krazel.zodiacdaily.support.monthly.299",
+    referenceName: "Zodiac Daily Support Monthly 3",
+    price: "3.0",
   },
   {
-    productId: "com.krazel.zodiacdaily.support.generous",
-    referenceName: "Generous Supporter",
-    price: "4.99",
-    localizations: {
-      "en-US": ["Generous Supporter", "Generous monthly support for development."],
-      "es-ES": ["Apoyo generoso", "Apoyo generoso al desarrollo de la app."],
-    },
+    productId: "com.krazel.zodiacdaily.support.monthly.499",
+    referenceName: "Zodiac Daily Support Monthly 5",
+    price: "5.0",
   },
-];
+  {
+    productId: "com.krazel.zodiacdaily.support.monthly.999",
+    referenceName: "Zodiac Daily Support Monthly 10",
+    price: "10.0",
+  },
+  {
+    productId: "com.krazel.zodiacdaily.support.monthly.1499",
+    referenceName: "Zodiac Daily Support Monthly 15",
+    price: "15.0",
+  },
+  {
+    productId: "com.krazel.zodiacdaily.support.monthly.2999",
+    referenceName: "Zodiac Daily Support Monthly 30",
+    price: "30.0",
+  },
+  {
+    productId: "com.krazel.zodiacdaily.support.monthly.50",
+    referenceName: "Zodiac Daily Support Monthly 50",
+    price: "49.99",
+  },
+].map((item) => ({
+  ...item,
+  localizations: {
+    "en-US": ["Monthly Supporter", "Voluntary monthly support. Supporter status while active."],
+    "es-ES": ["Apoyo mensual", "Apoyo mensual voluntario. Estado de colaborador mientras esté activo."],
+  },
+}));
 
 const auth = {
   keyId: requiredEnvironment("ASC_KEY_ID").trim(),
@@ -222,7 +236,9 @@ async function ensurePrices(subscriptionId, expectedAnchorPrice) {
     include: "territory",
     limit: "200",
   });
-  const anchorPoint = anchorPoints.find((point) => point.attributes?.customerPrice === expectedAnchorPrice);
+  const anchorPoint = anchorPoints.find((point) =>
+    Number(point.attributes?.customerPrice) === Number(expectedAnchorPrice),
+  );
   if (!anchorPoint) fail(`No ${anchorTerritory} price point ${expectedAnchorPrice} exists for ${subscriptionId}.`);
 
   const equalizedPoints = await listAll(`/v1/subscriptionPricePoints/${encodeURIComponent(anchorPoint.id)}/equalizations`, {

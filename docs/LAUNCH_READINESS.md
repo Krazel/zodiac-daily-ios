@@ -78,10 +78,15 @@ accepting new agreements, or spending money.
 - StoreKit 2 implementation is complete locally; no App Store Connect products
   or subscription group have been created.
 - Equivalent monthly auto-renewing supporter levels:
-  - `com.krazel.zodiacdaily.support.monthly`;
-  - `com.krazel.zodiacdaily.support.kind`;
-  - `com.krazel.zodiacdaily.support.generous`.
-- All three must belong to one subscription group and provide the same core
+  - `com.krazel.zodiacdaily.support.monthly.099` (base price `0.99`);
+  - `com.krazel.zodiacdaily.support.monthly.299` (base price `3.0`);
+  - `com.krazel.zodiacdaily.support.monthly.499` (base price `5.0`);
+  - `com.krazel.zodiacdaily.support.monthly.999` (base price `10.0`);
+  - `com.krazel.zodiacdaily.support.monthly.1499` (base price `15.0`);
+  - `com.krazel.zodiacdaily.support.monthly.2999` (base price `30.0`);
+  - `com.krazel.zodiacdaily.support.monthly.50` (base price `49.99`).
+- All seven use the same localized Monthly Supporter title, must belong to one
+  subscription group at the same group level, and provide the same core
   supporter status; none unlocks horoscope or Saved functionality.
 - Minimum benefit: active supporter status in Settings, a thank-you message,
   and a short explanation that support funds maintenance and updates.

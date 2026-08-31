@@ -80,7 +80,7 @@ The app requests only the calendar date and selected content language over
 HTTPS to retrieve the daily edition. It does not transmit the selected sign,
 saved cards, birth data, account information, advertising identifiers, or
 precise location. It includes no advertising or analytics SDKs and requests no
-device permissions. Version 1.1 offers three optional monthly supporter levels
+device permissions. Version 1.1 offers seven optional monthly supporter levels
 in Settings through Apple StoreKit. All levels provide the same supporter
 status and thank-you message; they do not unlock or restrict horoscope or Saved
 functionality. The screen shows Apple's localized price, monthly duration,

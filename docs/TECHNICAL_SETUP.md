@@ -48,10 +48,17 @@ comparison remain pending because Swift/Xcode are not installed locally.
 
 - The core app remains free; supporter status cannot gate Today, Saved, content,
   settings, or offline behavior.
-- Three equivalent monthly product IDs are fixed locally:
-  `com.krazel.zodiacdaily.support.monthly`,
-  `com.krazel.zodiacdaily.support.kind`, and
-  `com.krazel.zodiacdaily.support.generous`.
+- Seven equivalent monthly product IDs are fixed locally:
+  `com.krazel.zodiacdaily.support.monthly.099`,
+  `com.krazel.zodiacdaily.support.monthly.299`,
+  `com.krazel.zodiacdaily.support.monthly.499`,
+  `com.krazel.zodiacdaily.support.monthly.999`,
+  `com.krazel.zodiacdaily.support.monthly.1499`,
+  `com.krazel.zodiacdaily.support.monthly.2999`, and
+  `com.krazel.zodiacdaily.support.monthly.50`.
+- Every product uses the same localized Monthly Supporter title and the same
+  supporter-status benefit. StoreKit's live localized price is the only
+  user-facing distinction between levels.
 - Products must be loaded from StoreKit and rendered with their localized
   names/prices. Empty, partial, restricted-payment, loading, and retry states
   must not display reference-image prices as real offers.
@@ -129,7 +136,7 @@ with the agreed Xcode version.
 
 The App Store Connect record and production App Store ID now exist. StoreKit
 production activation still requires one subscription group containing all
-three equivalent monthly products, published legal/support URLs, and a signing
+seven equivalent monthly products, published legal/support URLs, and a signing
 team. Those remaining external resources are not created by the local
 implementation.
 

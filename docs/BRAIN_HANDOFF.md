@@ -170,10 +170,15 @@ workspace does not have write access to Brain.
 - Support the app esta implementado localmente como extension opcional de
   Settings con StoreKit 2. Today, Saved y el resto del core siguen siempre
   gratis.
-- Tres niveles mensuales equivalentes:
-  `com.krazel.zodiacdaily.support.monthly`,
-  `com.krazel.zodiacdaily.support.kind` y
-  `com.krazel.zodiacdaily.support.generous`.
+- Siete niveles mensuales equivalentes, todos con el mismo titulo localizado
+  `Monthly Supporter` / `Apoyo mensual` y el mismo beneficio:
+  `com.krazel.zodiacdaily.support.monthly.099`,
+  `com.krazel.zodiacdaily.support.monthly.299`,
+  `com.krazel.zodiacdaily.support.monthly.499`,
+  `com.krazel.zodiacdaily.support.monthly.999`,
+  `com.krazel.zodiacdaily.support.monthly.1499`,
+  `com.krazel.zodiacdaily.support.monthly.2999` y
+  `com.krazel.zodiacdaily.support.monthly.50`.
 - La UI debe mostrar precios localizados de StoreKit, estados sin productos,
   Restore Purchases y Manage Subscription. No debe usar como precio real los
   importes dibujados en la referencia.
@@ -429,3 +434,22 @@ workspace does not have write access to Brain.
 - La app queda lista para `Añadir a revisión`, pero ese boton no se toco por la
   instruccion expresa del propietario. Publicacion manual sigue seleccionada y
   la pagina `Revisión de apps` permanece vacia.
+
+## Catalogo supporter canonico para 1.1
+
+- El 2026-09-01 Brain general confirmo y registro que Zodiac Daily debe replicar
+  el sistema supporter ya validado en VoiceRecorder. La propuesta provisional
+  de tres productos queda descartada; no llego a crear ningun producto externo.
+- El codigo, la UI, los metadatos y la automatizacion local usan siete
+  suscripciones mensuales auto-renovables equivalentes, en un solo grupo y al
+  mismo nivel: precios base `0.99`, `3`, `5`, `10`, `15`, `30` y `49.99`, con
+  IDs `.099`, `.299`, `.499`, `.999`, `.1499`, `.2999` y `.50`.
+- Todos muestran `Monthly Supporter` / `Apoyo mensual`, dan solo estado activo y
+  agradecimiento, y no bloquean ninguna funcion. Zodiac Daily no tiene anuncios,
+  por lo que no se promete su retirada.
+- StoreKit 2, Restore Purchases, Manage Subscription, privacidad y EULA forman
+  parte del flujo. Apple muestra el precio localizado y procesa el pago; la app
+  no envia recibos, transacciones ni datos de pago a Krazel.
+- Crear los productos en App Store Connect, subir una build o enviar IAP/App
+  Review siguen siendo acciones externas separadas. El candidato fuente es
+  `1.1 (1)` y requiere build y auditoria firmada antes de cualquier subida.
