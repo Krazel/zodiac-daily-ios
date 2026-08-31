@@ -102,20 +102,25 @@ struct DailyCardView: View {
                 endPoint: .bottom
             )
 
-            VStack(spacing: 0) {
-                signIdentity
-                    .padding(.top, max(24, cardHeight * 0.055))
+            signIdentity
+                .padding(.top, max(24, cardHeight * 0.055))
+                .frame(maxHeight: .infinity, alignment: .top)
 
-                Spacer(minLength: max(24, cardHeight * 0.12))
-
-                ViewThatFits(in: .vertical) {
-                    readingPanel(headlineSize: 30, readingSize: 19, spacing: 7, bottomPadding: 62)
-                    readingPanel(headlineSize: 28, readingSize: 18, spacing: 6, bottomPadding: 60)
-                    readingPanel(headlineSize: 26, readingSize: 17, spacing: 5, bottomPadding: 58)
-                    readingPanel(headlineSize: 24, readingSize: 16.5, spacing: 4, bottomPadding: 56)
-                }
+            // Give the complete editorial block a finite measured region.
+            // The old Spacer-based composition allowed exceptional copy to
+            // draw beneath the turn cue even though the card itself was fixed.
+            ViewThatFits(in: .vertical) {
+                readingPanel(headlineSize: 30, readingSize: 19, spacing: 7, bottomPadding: 64)
+                readingPanel(headlineSize: 28, readingSize: 18, spacing: 6, bottomPadding: 62)
+                readingPanel(headlineSize: 26, readingSize: 17, spacing: 5, bottomPadding: 60)
+                readingPanel(headlineSize: 24, readingSize: 15.5, spacing: 4, bottomPadding: 58)
+                readingPanel(headlineSize: 22, readingSize: 14.5, spacing: 3, bottomPadding: 56)
             }
-            .frame(height: cardHeight)
+            .frame(
+                height: max(300, cardHeight - max(104, cardHeight * 0.19)),
+                alignment: .bottom
+            )
+            .frame(maxHeight: .infinity, alignment: .bottom)
         }
     }
 
