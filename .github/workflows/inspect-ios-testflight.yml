@@ -38,6 +38,8 @@ jobs:
           ASC_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           ASC_PRIVATE_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
+          EXPECTED_MARKETING_VERSION: "0.4"
+          EXPECTED_BUILD_NUMBER: "1"
         run: |
           set -euo pipefail
           KEY_PATH="${RUNNER_TEMP}/zodiac-testflight-inspection.p8"
