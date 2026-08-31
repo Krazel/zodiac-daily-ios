@@ -33,9 +33,10 @@ const MAX_TRANSLATED_READING_CHARACTERS = 700;
 const DAILY_TTL_SECONDS = 400 * 24 * 60 * 60;
 const FAILURE_COOLDOWN_SECONDS = 5 * 60;
 const PROVIDER_INTERVAL_MS = 1_050;
-// One in-call retry keeps even the largest supported sign below the Worker
-// subrequest ceiling. Cloudflare Queue retries provide the outer retry layer.
-const TRANSLATION_RETRY_DELAYS_MS = Object.freeze([500]);
+// Two short in-call retries absorb occasional structured-output/reviewer
+// misses without returning to FreeAstroAPI. Queue retries remain the outer
+// recovery layer and each message still stays far below subrequest limits.
+const TRANSLATION_RETRY_DELAYS_MS = Object.freeze([500, 1_500]);
 const QUEUE_TASK_WARM_DATE = "warm_date";
 const QUEUE_TASK_TRANSLATE_SIGN = "translate_sign";
 const inFlight = new Map();
@@ -634,7 +635,7 @@ function editorialTranslationRequest(horoscope) {
     },
     reasoning: { effort: "low" },
     temperature: 0.25,
-    max_tokens: 1_000,
+    max_tokens: 1_400,
   };
 }
 

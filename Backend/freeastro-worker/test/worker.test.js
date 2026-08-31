@@ -679,7 +679,7 @@ test("translation failure keeps English cached and retries never refetch FreeAst
     /translation_sign_failed/,
   );
   assert.equal(providerCalls, 12);
-  assert.equal(aiCalls, 2);
+  assert.equal(aiCalls, 3);
   assert.equal((await getCachedDaily("2026-08-09", env, "en")).language, "en");
   await assert.rejects(getCachedDaily("2026-08-09", env, "es"), /daily_cache_miss/);
   assert.equal(await kv.get("failure:v3:es-r3:2026-08-09:aries"), "1");
@@ -689,7 +689,7 @@ test("translation failure keeps English cached and retries never refetch FreeAst
     /translation_cooldown/,
   );
   assert.equal(providerCalls, 12);
-  assert.equal(aiCalls, 2);
+  assert.equal(aiCalls, 3);
 });
 
 test("invalid, impossible, and distant dates cannot consume provider quota", async () => {
