@@ -328,7 +328,7 @@ test("known FreeAstro template renders native Spanish without any AI calls", asy
     const englishSign = horoscope.sign[0].toUpperCase() + horoscope.sign.slice(1);
     horoscope.headline = "Initiative";
     horoscope.details.focus = "Initiative";
-    horoscope.details.keywords = ["Energy", "Boldness", "Perspective"];
+    horoscope.details.keywords = ["Energy", "Nurturing", "Realignment"];
     horoscope.reading = `With the Moon in Aries (Full Moon), ${englishSign} picks up the day's sky through a fire lens. Venus activating your 7th house prioritizes relational openness and emotional timing. For ${englishSign}, this works best through clear directness. Center your decisions on love and use clear directness to convert momentum into concrete results.`;
   }
   const ai = { run: async () => { throw new Error("AI must not run for the known provider template"); } };
