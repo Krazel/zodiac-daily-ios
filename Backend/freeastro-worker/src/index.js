@@ -23,7 +23,7 @@ const TRANSLATION_MODEL = "@cf/openai/gpt-oss-20b";
 // reviewer accepted obvious agreement errors and untranslated metadata in a
 // live edition, so structural validity alone was not enough.
 const TRANSLATION_REVIEW_MODEL = "@cf/openai/gpt-oss-20b";
-const SPANISH_COPY_REVISION = 4;
+const SPANISH_COPY_REVISION = 5;
 const CACHE_SCHEMA_VERSION = 3;
 const LANGUAGES = Object.freeze(["en", "es"]);
 const MAX_HEADLINE_CHARACTERS = 52;
@@ -523,7 +523,10 @@ async function translateEditorialUnit(horoscope, ai, options = {}) {
 }
 
 async function reviewEditorialTranslation(source, translated, ai) {
-  if (!passesLocalSpanishQualityGate(translated)) return false;
+  if (!passesLocalSpanishQualityGate(translated)) {
+    console.warn("Spanish local quality gate rejected translation", { sign: source.sign });
+    return false;
+  }
 
   const response = await ai.run(TRANSLATION_REVIEW_MODEL, {
     messages: [
@@ -573,7 +576,10 @@ async function reviewEditorialTranslation(source, translated, ai) {
       },
     },
     temperature: 0,
-    max_tokens: 180,
+    reasoning: { effort: "low" },
+    // gpt-oss uses part of this budget for its internal reasoning before the
+    // small JSON verdict. 180 tokens could truncate an otherwise valid review.
+    max_tokens: 600,
   });
 
   let verdict = extractAIResult(response);
@@ -584,7 +590,7 @@ async function reviewEditorialTranslation(source, translated, ai) {
       return false;
     }
   }
-  return Boolean(
+  const accepted = Boolean(
     verdict?.faithful === true
       && verdict?.is_spanish === true
       && verdict?.grammar_correct === true
@@ -593,6 +599,19 @@ async function reviewEditorialTranslation(source, translated, ai) {
       && verdict?.preserves_astrology === true
       && verdict?.no_new_facts === true,
   );
+  if (!accepted) {
+    console.warn("Spanish editorial review rejected translation", {
+      sign: source.sign,
+      faithful: verdict?.faithful === true,
+      is_spanish: verdict?.is_spanish === true,
+      grammar_correct: verdict?.grammar_correct === true,
+      natural_spanish: verdict?.natural_spanish === true,
+      all_metadata_translated: verdict?.all_metadata_translated === true,
+      preserves_astrology: verdict?.preserves_astrology === true,
+      no_new_facts: verdict?.no_new_facts === true,
+    });
+  }
+  return accepted;
 }
 
 function passesLocalSpanishQualityGate(translated) {

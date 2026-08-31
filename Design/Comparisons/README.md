@@ -165,3 +165,37 @@ Compact evidence is retained in
 and `52a3f19371026c07052d73327fc5c4be24b1e8aa4dab97aa1c5e61d579a5f964`.
 Accessibility Dynamic Type retains the documented scrolling escape hatch so
 content remains reachable.
+
+## Approved C6 large-card runtime validation
+
+- Approved front: `Design/Approved/today-large-card-front-c6-approved.png`
+- Approved provider back: `Design/Approved/today-large-card-back-c6-approved.png`
+- Final workflow run: `33343386120`
+- Captured commit: `b41e6dc`
+- Artifact: `ZodiacDaily-Visual-QA-36`
+- Artifact digest:
+  `sha256:58c72548b45faa585ddc0c9f7693af4eac903fa3b76e79635e20a0b8548deed8`
+- Simulators: iPhone 15 Pro and iPhone SE (3rd generation)
+- Resolutions: 1179 x 2556 and 750 x 1334
+
+The final run removed the Today sign selector, enlarged the shared card,
+preserved the complete front and provider back in the stationary regular
+viewport, and kept sign changes in Settings. The first candidate run
+`33342484665` was rejected because long Spanish copy touched the turn cue.
+Commit `b41e6dc` introduced a measured finite reading region and the repeated
+run demonstrates clear separation in both regular and compact heights.
+
+Canonical runtime files and SHA-256 values:
+
+- `today-large-card-front-c6-es-runtime.png`:
+  `fba535c925685838ec9d1edecb56e441174cb8cb6090584eb030712710eb06dc`
+- `today-large-card-back-c6-es-runtime.png`:
+  `3744198c51f29116ccf1445bc4a7589435f964f863e3cb07c7705017db3c9843`
+- `today-large-card-long-c6-es-runtime.png`:
+  `4f24ee2013c6c35607449e6efaeb8823c48ff6a51133d1bf08a76747c64d7a9b`
+- `saved-detail-c6-es-runtime.png`:
+  `be53ff7f6516034dab00f532b79510d781a47829b4400d7d0ed53da574a5d4a4`
+- `today-large-card-long-c6-es-iphone-se-runtime.png`:
+  `b5e847ad98b2080fb92f49c1b1a9ba11ce3500f05faec564d93463447d6f89ce`
+- `today-large-card-back-c6-es-iphone-se-runtime.png`:
+  `7755702a4552a44e4f5c96096419d2e4d19f487748c11149617b35586587906a`

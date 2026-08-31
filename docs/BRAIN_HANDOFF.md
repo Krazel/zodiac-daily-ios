@@ -383,7 +383,7 @@ workspace does not have write access to Brain.
   cambios astrologicos o datos nuevos; una puerta local bloquea ademas calcos y
   concordancias ya observados. Las cifras y la identidad del proveedor siguen
   copiandose directamente del documento ingles.
-- La revision de cache `es-r4` evita reutilizar las traducciones defectuosas sin
+- La revision de cache `es-r5` evita reutilizar las traducciones defectuosas sin
   gastar nuevas llamadas a FreeAstroAPI. La suite del Worker pasa 28/28 y el
   2026-08-31 se valido en preview remoto un Scorpio completo con ambos modelos.
 - Se pulio tambien la copia fija española para eliminar literalismos y jerga de
