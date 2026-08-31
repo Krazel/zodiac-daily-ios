@@ -96,6 +96,11 @@ a release blocker for EU distribution.
   export, Apple verification, and upload.
 - App Store Connect confirmed `0.4 (1)`, `VALID`, iOS 16.0,
   `INTERNAL_ONLY`, not expired, and automatic access for `Testers`.
+- Exact `0.4.1 (1)` passed the unchanged data-flow audit, C7 visual QA, Core
+  tests, Release analysis, signed archive inspection, IPA export, Apple
+  validation, upload, and processed-build inspection. App Store Connect
+  confirmed `VALID`, iOS 16.0, `INTERNAL_ONLY`, not expired, no non-exempt
+  encryption, and automatic internal-group access.
 - Production content validation: 29/29 offline tests and the real 2026-08-31
   Spanish edition passed 12/12 signs with
   complete daily data and no detected English residual or known agreement
@@ -104,7 +109,7 @@ a release blocker for EU distribution.
 
 ## Gate
 
-The code inventory and visual-QA candidate pass for `0.4.1` / build `1`. Changes
+The code inventory and exact internal TestFlight binary pass for `0.4.1` / build `1`. Changes
 since the delivered `0.4` binary are limited to replacing thin Didot interface
 type with the native readable typography system and slightly increasing the
 smallest back-card labels. They add no SDK,

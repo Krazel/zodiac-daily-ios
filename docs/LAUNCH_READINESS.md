@@ -2,10 +2,11 @@
 
 Updated: 2026-08-31
 
-Internal TestFlight `0.4` (`1`) is processed as `VALID` and is available to the
+Internal TestFlight `0.4.1` (`1`) is processed as `VALID` and is available to the
 automatic internal `Testers` group. It delivers the approved C6 enlarged card,
 removes the Today sign selector, preserves the complete stationary front/back,
-and uses Settings as the single sign-change path. The production Worker serves
+uses Settings as the single sign-change path, and applies the C7 readable type
+system across the card, Settings, sign selection, and Saved screens. The production Worker serves
 native deterministic Spanish for the current provider template. Historical `0.2.3` (`1`) remains the
 correction that replaced the disconnected 0.2.2 candidate.
 This document does not authorize StoreKit products, external testing, App
@@ -15,7 +16,7 @@ Review, or publication.
 
 - Historical internal TestFlight delivery 0.2.2/1: known disconnected build;
   do not use it for acceptance testing.
-- Current internal TestFlight 0.4/1: iPhone / iOS 16+, English/Spanish interface and
+- Current internal TestFlight 0.4.1/1: iPhone / iOS 16+, English/Spanish interface and
   language-specific daily editions selected in Settings.
 - This correction prevents legacy Saved cards
   from replacing the live Spanish edition, makes Spanish strict, repairs the
@@ -122,7 +123,7 @@ The IPA is intended as input to a local signing/install tool such as Sideloadly;
 it is not directly installable until that tool signs it for the test device.
 
 The deliverable workflow currently validates bundle ID
-`com.krazel.zodiacdaily`, marketing version `0.4`, build `1`, iOS 16 minimum,
+`com.krazel.zodiacdaily`, marketing version `0.4.1`, build `1`, iOS 16 minimum,
 the packaged endpoint and App Store ID, executable endpoint fallback, privacy
 manifest, compiled assets, and bundled horoscope content before packaging.
 Historical run `31347517648` (workflow run 5) completed
@@ -141,7 +142,7 @@ did not sign with distribution credentials or contact App Store Connect.
 
 The protected manual workflow
 `.github/workflows/build-ios-testflight.yml` compiled, tested, analyzed,
-archived, signed, inspected, exported, and uploaded version `0.4` build `1`.
+archived, signed, inspected, exported, and uploaded version `0.4.1` build `1`.
 The protected upload workflow completed successfully; App Store Connect
 reports the build `VALID`, iOS 16.0
 minimum, no non-exempt encryption, internal-only, and available to the

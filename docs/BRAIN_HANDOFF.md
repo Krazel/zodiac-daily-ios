@@ -384,3 +384,22 @@ workspace does not have write access to Brain.
   cierre. La inspeccion final confirma exactamente `0.4 (1)`, `VALID`,
   iOS 16.0, `INTERNAL_ONLY`, no caducada y acceso automatico para `Testers`
   sin publicar informacion sobre las personas del grupo.
+
+## TestFlight interno 0.4.1/1 — tipografia legible C7
+
+- El propietario autorizo expresamente la build, firma y subida interna. No se
+  autorizo testing externo, App Review ni publicacion.
+- La implementacion elimina Didot de la interfaz y de los datos cambiantes. La
+  serif nativa robusta queda reservada para grandes titulares editoriales;
+  reverso, puntuaciones, suerte, Settings, selector, Saved, controles y
+  navegacion usan sans-serif nativa legible, con digitos tabulares semibold.
+- Run visual `33348593592` paso pruebas, compilacion, todos los estados EN/ES y
+  layouts estacionarios en iPhone 15 Pro e iPhone SE. Las maestras, capturas y
+  hashes quedan registrados en `Design/APPROVALS.md`.
+- Run de build/upload `33399388605` paso pruebas, analisis Release, firma,
+  inspeccion, export, verificacion Apple y subida. Commit exacto `a84cab4`.
+- Run inspector `33399906575` confirma `0.4.1 (1)`, `VALID`, iOS 16.0,
+  `INTERNAL_ONLY`, no caducada, sin cifrado no exento y con acceso automatico
+  para el grupo interno.
+- IPA `ZodiacDaily-v0.4.1-build-1-a84cab4-TestFlight.ipa`, SHA-256
+  `0d7b9acb53b8499b4c0560c75ee374e5c97bd6cc9cc9819799d40b01fe72acaf`.
