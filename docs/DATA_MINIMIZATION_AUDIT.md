@@ -57,8 +57,8 @@ or authentication data that is not retained after the real-time request:
 - The App Store marketing URL and privacy-choices URL are intentionally blank.
   The optional promotional-text field is also blank.
 - The required support and privacy URLs are saved in App Store Connect. The
-  `No data collected` answer is saved and authorized for publication together
-  with the public 1.0 submission.
+  `No data collected` answer was published on 2026-08-31 after the exact 1.0
+  binary audit.
 - App Review contact details are filled only in Apple's private required review
   section. Their values are intentionally not copied into this repository or
   any public page.
@@ -112,6 +112,9 @@ app's public privacy/support pages.
   `VALID`, iOS 16.0+, not expired, declares no non-exempt encryption, and is
   `APP_STORE_ELIGIBLE`. No SDK, permission, data category, purchase surface, or
   transmission beyond the audited date-and-language request was added.
+- App Privacy was published on 2026-08-31 as `No data collected`; the public
+  preview and declared data-type list both state that no data is collected. The
+  result remains exact for the processed 1.0 (1) binary.
 
 ## Gate
 

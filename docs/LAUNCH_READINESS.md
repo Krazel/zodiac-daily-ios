@@ -52,10 +52,10 @@ accepting new agreements, or spending money.
 - The age-rating questionnaire is complete: 9+ globally (12+ in Vietnam and
   Brazil), with health or wellness topics disclosed and every other listed
   content category marked absent.
-- App Privacy is saved as `No data collected`. This is accurate under Apple's
+- App Privacy is published as `No data collected`. This is accurate under Apple's
   definition because the date request is used in real time and is not retained
-  or associated with an identity. The live privacy URL is saved; the answer
-  remains unpublished pending the final App Store Connect assembly.
+  or associated with an identity. The live privacy URL and public answer are
+  saved in App Store Connect.
 - Export compliance is declared in the build with
   `ITSAppUsesNonExemptEncryption = NO`; the app implements no proprietary or
   non-exempt encryption and relies only on standard HTTPS provided by Apple.
@@ -133,6 +133,14 @@ local implementation only, not uploads or external activation.
 - Screenshot run `33440182881` produced six English and six Spanish real-build
   captures at 1284 x 2778. Their individual hashes are registered in
   `Design/APPROVALS.md`; canonical store text is in `AppStore/METADATA.md`.
+- Screenshot upload run `33443511143` verified the canonical hashes and
+  uploaded the ordered English and Spanish `APP_IPHONE_65` sets. Apple reports
+  all 12 assets as `COMPLETE`, and the version page shows six screenshots in
+  each localization.
+- App Store Connect now has version `1.0`, build `1`, localized EN/ES
+  descriptions, keywords and subtitles, exact review notes, manual release,
+  and published `No data collected` privacy. `Add for Review` was deliberately
+  not used.
 
 ## Local QA IPA workflow
 
@@ -199,11 +207,11 @@ group.
 - [x] Record App Store Connect app ID `6800136195`, version `0.1.1`, and build
       `1`. Release is configured for manual publication.
 - [x] Complete age rating, content rights, and export compliance.
-- [ ] Publish the saved `No data collected` App Privacy answer only after
-      explicit authorization.
+- [x] Publish the exact `No data collected` App Privacy answer after explicit
+      authorization.
 - [x] Keep the required App Review contact complete in Apple's private review
       section; do not copy its values to public pages or repository docs.
-- [ ] Confirm that Apple's EU DSA compliance review has completed successfully.
+- [x] Confirm that Apple's EU DSA compliance status is active.
 - [x] Define supporter product IDs locally.
 - [ ] Create the App Store Connect subscription group/products after explicit
       external authorization.
@@ -217,7 +225,7 @@ group.
 - [x] Prepare a manual, no-secret Local QA IPA artifact workflow.
 - [x] Create the private GitHub remote, push `main`, run the workflow, and
       obtain the unsigned IPA artifact.
-- [ ] Validate the approved runtime icon and prepare App Store screenshots.
+- [x] Validate the approved runtime icon and prepare/upload App Store screenshots.
 - [x] Prepare a protected manual upload workflow and complete the explicitly
       authorized internal TestFlight upload.
 - [x] Obtain explicit authorization for signing-secret use and the internal

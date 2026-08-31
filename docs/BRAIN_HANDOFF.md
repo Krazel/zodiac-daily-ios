@@ -422,6 +422,10 @@ workspace does not have write access to Brain.
 - La 1.0 oculta por completo el apoyo StoreKit no configurado. No hay IAP,
   suscripcion, anuncios, analytics, cuenta, permisos ni tracking. La ficha
   canonica bilingue esta en `AppStore/METADATA.md`.
-- Pendiente unicamente ensamblar la ficha en App Store Connect: localizacion ES,
-  capturas EN/ES, version 1.0, build, notas y publicacion de `No data collected`.
-  No tocar `Añadir a revisión` hasta una nueva orden expresa.
+- Ficha ensamblada: localizacion EN/ES, subtitulo ES, version 1.0, build 1,
+  notas exactas, seis capturas por idioma y privacidad `No data collected`
+  publicada. Run `33443511143` confirma las 12 capturas `COMPLETE` y la UI de
+  Apple muestra `6 de 10` en ambos idiomas.
+- La app queda lista para `Añadir a revisión`, pero ese boton no se toco por la
+  instruccion expresa del propietario. Publicacion manual sigue seleccionada y
+  la pagina `Revisión de apps` permanece vacia.

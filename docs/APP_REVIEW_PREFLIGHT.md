@@ -11,12 +11,12 @@ This gate applies only to bundle `com.krazel.zodiacdaily`, marketing version
 | Network and storage | The app requests only date and `en`/`es` over HTTPS; sign, settings, cache, and saved cards remain local. | `docs/DATA_MINIMIZATION_AUDIT.md`. |
 | SDKs and tracking | Apple frameworks plus local `ZodiacDailyCore`; no ads, analytics, attribution, crash-reporting, social, or third-party SDK. No ATT. | App Privacy accurately remains `No data collected`. |
 | Purchases | No IAP or subscription exists in App Store Connect. The 1.0 binary hides all supporter purchase controls and does not start the StoreKit catalog. | `AppConfiguration.supporterPurchasesEnabled = false`; App Store Connect IAP and subscription pages are empty. |
-| Metadata | Name, subtitle, keywords, description, screenshots, and review notes contain no price, discount, or unavailable-feature claim. | Final scan required after store uploads. |
+| Metadata | Name, subtitle, keywords, description, screenshots, and review notes contain no price, discount, or unavailable-feature claim. | Final English/Spanish scan passed after store uploads. |
 | Legal and support | App-specific privacy and support URLs are live; standard Apple EULA; optional marketing and privacy-choices URLs remain blank. | URLs recorded in `docs/LAUNCH_READINESS.md`. |
 | EU distribution | DSA compliance is active. | App Store Connect account compliance, checked 2026-08-31. |
 | Content rights | Third-party horoscope content rights are declared; readings are identified as entertainment and reflection, not professional advice. | App Store Connect metadata and in-app notice. |
 | Encryption | Standard Apple HTTPS only; no proprietary or non-exempt encryption. | `ITSAppUsesNonExemptEncryption = NO`. |
-| Release | Public App Store eligible archive, processed build, screenshots, privacy publication, selected build, and coherent review notes. | Archive and screenshots pass; App Store Connect assembly remains, while review submission is explicitly excluded. |
+| Release | Public App Store eligible archive, processed build, screenshots, privacy publication, selected build, and coherent review notes. | App Store Connect assembly is complete; review submission is explicitly excluded. |
 
 ## Final review notes
 
@@ -37,12 +37,12 @@ offer. Horoscope content is for entertainment and personal reflection only.
 - [x] 1.0 (1) signed App Store eligible archive validated and processed.
 - [x] English and Spanish screenshots captured from the exact 1.0 source,
       hashed, and registered in `Design/APPROVALS.md`.
-- [ ] English and Spanish screenshots uploaded to App Store Connect.
-- [ ] Version field updated to 1.0 and build 1 selected.
-- [ ] Review notes replaced with the exact text above.
-- [ ] App Privacy `No data collected` published.
-- [ ] Final metadata scan completed after saving English and Spanish localizations.
-- [ ] App Review submission remains untouched until a later, separate owner instruction.
+- [x] English and Spanish screenshots uploaded to App Store Connect.
+- [x] Version field updated to 1.0 and build 1 selected.
+- [x] Review notes replaced with the exact text above.
+- [x] App Privacy `No data collected` published.
+- [x] Final metadata scan completed after saving English and Spanish localizations.
+- [x] App Review submission remains untouched until a later, separate owner instruction.
 
 ## Signed release evidence
 
@@ -58,3 +58,13 @@ offer. Horoscope content is for entertainment and personal reflection only.
 - Screenshot workflow: run `33440182881`, 12 captures at 1284 x 2778,
   artifact digest
   `sha256:2b1126361fd2d5492cf0f4aa3b9f343f9aa6c7584fac5d7476342467c73a8853`.
+- Screenshot upload: run `33443511143`; App Store Connect reports all six
+  `en-US` and all six `es-ES` assets as `COMPLETE` in ordered
+  `APP_IPHONE_65` sets. The version page independently shows `6 of 10` for
+  each localization.
+- App Store Connect final state: version `1.0`, build `1` selected, English and
+  Spanish metadata saved, Spanish subtitle saved, App Privacy published as
+  `No data collected`, manual release retained, and `Add for Review` left
+  untouched.
+- The App Review page remains empty and states that submitted items would
+  appear there, confirming that no review submission was created.
