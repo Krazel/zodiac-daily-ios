@@ -61,13 +61,7 @@ struct SavedView: View {
                 .padding(.bottom, 5)
 
             Text(appLocalized("Your Saved Cards", locale: locale))
-                .font(
-                    .custom(
-                        "Didot",
-                        size: model.savedCards.isEmpty ? 35 : 33,
-                        relativeTo: .largeTitle
-                    )
-                )
+                .font(ZodiacTypography.editorial(model.savedCards.isEmpty ? 35 : 33))
                 .foregroundStyle(ZodiacPalette.text)
                 .multilineTextAlignment(.center)
                 .minimumScaleFactor(0.78)
@@ -133,7 +127,7 @@ struct SavedView: View {
                 .accessibilityHidden(true)
 
             Text(appLocalized("No Cards Yet", locale: locale))
-                .font(.custom("Didot", size: 29, relativeTo: .title))
+                .font(ZodiacTypography.editorial(29))
                 .foregroundStyle(ZodiacPalette.text)
                 .padding(.top, 20)
                 .accessibilityAddTraits(.isHeader)
@@ -260,8 +254,8 @@ private struct SavedCardPreview: View {
             Spacer(minLength: 0)
 
             Text(card.horoscope.sign.localizedDisplayName(locale: locale).uppercased(with: locale))
-                .font(.custom("Didot", size: 20, relativeTo: .title2))
-                .tracking(1.25)
+                .font(ZodiacTypography.interface(19, weight: .semibold))
+                .tracking(0.5)
                 .foregroundStyle(ZodiacPalette.text)
                 .lineLimit(1)
                 .minimumScaleFactor(0.62)
@@ -278,7 +272,7 @@ private struct SavedCardPreview: View {
                 .padding(.top, 12)
 
             Text(card.horoscope.headline)
-                .font(.custom("Didot", size: 21, relativeTo: .title2))
+                .font(ZodiacTypography.editorial(21))
                 .foregroundStyle(ZodiacPalette.text)
                 .multilineTextAlignment(.center)
                 .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 3)
@@ -511,7 +505,7 @@ struct SavedCardDetailView: View {
         GeometryReader { geometry in
             ZStack {
                 Text(appLocalized("Saved Card", locale: locale))
-                    .font(.custom("Didot", size: 21, relativeTo: .title3))
+                    .font(ZodiacTypography.interface(21, weight: .semibold))
                     .foregroundStyle(ZodiacPalette.text)
 
                 HStack {

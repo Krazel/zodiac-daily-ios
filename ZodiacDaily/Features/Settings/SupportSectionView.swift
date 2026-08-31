@@ -104,7 +104,7 @@ struct SupportSectionView: View {
                 celestialIcon("sparkle", size: 31)
 
                 Text(tierTitle(at: index))
-                    .font(.custom("Didot", size: 14, relativeTo: .headline))
+                    .font(ZodiacTypography.interface(14, weight: .semibold))
                     .foregroundStyle(ZodiacPalette.settingsText)
                     .lineLimit(1)
                     .minimumScaleFactor(0.72)
@@ -116,13 +116,8 @@ struct SupportSectionView: View {
                         .tint(ZodiacPalette.settingsGold)
                 } else {
                     Text(isActive ? localized("support.active") : displayPrice(for: product, index: index))
-                        .font(
-                            .custom(
-                                "Didot",
-                                size: isActive ? 12 : 14,
-                                relativeTo: .subheadline
-                            )
-                        )
+                        .font(ZodiacTypography.numeric(isActive ? 12 : 14, weight: .semibold))
+                        .monospacedDigit()
                         .tracking(isActive ? 1.2 : 0)
                         .foregroundStyle(ZodiacPalette.settingsGold)
                         .lineLimit(1)
@@ -206,7 +201,7 @@ struct SupportSectionView: View {
             celestialIcon(systemImage, size: 31)
 
             Text(title)
-                .font(.custom("Didot", size: 13.5, relativeTo: .headline))
+                .font(ZodiacTypography.interface(13.5, weight: .medium))
                 .foregroundStyle(ZodiacPalette.settingsText)
 
             Spacer(minLength: 8)

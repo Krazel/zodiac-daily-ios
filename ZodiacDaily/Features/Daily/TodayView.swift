@@ -74,8 +74,8 @@ struct TodayView: View {
             }
 
             Text("ZODIAC DAILY")
-                .font(.custom("Didot", size: 22, relativeTo: .title2))
-                .tracking(1.8)
+                .font(ZodiacTypography.editorial(22))
+                .tracking(1.4)
                 .foregroundStyle(ZodiacPalette.paleGold)
                 .minimumScaleFactor(0.72)
                 .lineLimit(1)

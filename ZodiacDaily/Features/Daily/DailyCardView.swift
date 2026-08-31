@@ -166,7 +166,7 @@ struct DailyCardView: View {
             .accessibilityHidden(true)
 
             Text(horoscope.headline)
-                .font(.custom("Didot", size: headlineSize, relativeTo: .largeTitle))
+                .font(ZodiacTypography.editorial(headlineSize))
                 .foregroundStyle(ZodiacPalette.text)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
@@ -360,15 +360,15 @@ private struct DailyCardBackView: View {
                         .foregroundStyle(ZodiacPalette.gold)
 
                     Text(horoscope.sign.localizedDisplayName(locale: locale).uppercased(with: locale))
-                        .font(.system(size: 9.5, weight: .semibold))
-                        .tracking(2.8)
+                        .font(.system(size: 10, weight: .semibold))
+                        .tracking(2.0)
                         .foregroundStyle(ZodiacPalette.gold)
                         .lineLimit(1)
                 }
 
                 Text(appLocalized("DEEPER READING", locale: locale))
-                    .font(.custom("Didot", size: 14.5, relativeTo: .headline))
-                    .tracking(2.8)
+                    .font(ZodiacTypography.editorial(15))
+                    .tracking(1.8)
                     .foregroundStyle(ZodiacPalette.lavender)
 
                 ornamentalDivider
@@ -403,8 +403,8 @@ private struct DailyCardBackView: View {
                     .foregroundStyle(ZodiacPalette.gold)
 
                 Text(appLocalized("TAP TO TURN THE CARD", locale: locale))
-                    .font(.system(size: 9.5, weight: .semibold))
-                    .tracking(2.0)
+                    .font(.system(size: 10, weight: .semibold))
+                    .tracking(1.6)
                     .foregroundStyle(ZodiacPalette.lavender)
                     .accessibilityHidden(true)
             }
@@ -463,8 +463,8 @@ private struct DailyCardBackView: View {
             sectionDivider
 
             Text(appLocalized("DAILY SCORES", locale: locale))
-                .font(.system(size: 10, weight: .semibold))
-                .tracking(2.5)
+                .font(.system(size: 10.5, weight: .semibold))
+                .tracking(1.8)
                 .foregroundStyle(ZodiacPalette.gold)
 
             LazyVGrid(
@@ -518,7 +518,7 @@ private struct DailyCardBackView: View {
                     locale: locale
                 )
             )
-                .font(.custom("Didot", size: 15, relativeTo: .body))
+                .font(ZodiacTypography.interface(15, weight: .medium))
                 .foregroundStyle(ZodiacPalette.text.opacity(0.96))
                 .multilineTextAlignment(.center)
                 .padding(.vertical, 28)
@@ -531,12 +531,12 @@ private struct DailyCardBackView: View {
                 "\(horoscope.sign.localizedDisplayName(locale: locale).uppercased(with: locale)) "
                     + appLocalized("ESSENCE", locale: locale)
             )
-                .font(.system(size: 9.5, weight: .semibold))
-                .tracking(2.1)
+                .font(.system(size: 10, weight: .semibold))
+                .tracking(1.6)
                 .foregroundStyle(ZodiacPalette.gold)
 
             Text(details.signEssence)
-                .font(.custom("Didot", size: 14, relativeTo: .subheadline))
+                .font(ZodiacTypography.interface(14.5, weight: .medium))
                 .foregroundStyle(ZodiacPalette.paleGold)
                 .multilineTextAlignment(.center)
                 .lineLimit(2)
@@ -547,11 +547,11 @@ private struct DailyCardBackView: View {
     private func detailText(_ title: String, value: String, size: CGFloat) -> some View {
         VStack(spacing: 2) {
             Text(title)
-                .font(.system(size: 9.5, weight: .semibold))
-                .tracking(2.2)
+                .font(.system(size: 10, weight: .semibold))
+                .tracking(1.6)
                 .foregroundStyle(ZodiacPalette.gold)
             Text(value)
-                .font(.custom("Didot", size: size, relativeTo: .caption))
+                .font(ZodiacTypography.interface(size, weight: .semibold))
                 .foregroundStyle(ZodiacPalette.paleGold)
                 .multilineTextAlignment(.center)
                 .lineLimit(2)
@@ -563,11 +563,12 @@ private struct DailyCardBackView: View {
     private func scoreCell(_ title: String, value: Int) -> some View {
         VStack(spacing: 2) {
             Text(title)
-                .font(.system(size: 9, weight: .semibold))
-                .tracking(1.8)
+                .font(.system(size: 9.5, weight: .semibold))
+                .tracking(1.25)
                 .foregroundStyle(ZodiacPalette.gold)
             Text(String(value))
-                .font(.custom("Didot", size: 22, relativeTo: .title3))
+                .font(ZodiacTypography.numeric(23))
+                .monospacedDigit()
                 .foregroundStyle(ZodiacPalette.paleGold)
         }
         .frame(maxWidth: .infinity, minHeight: 40)
@@ -581,11 +582,11 @@ private struct DailyCardBackView: View {
     private func luckyDetail(_ title: String, value: String) -> some View {
         VStack(spacing: 2) {
             Text(title)
-                .font(.system(size: 8.5, weight: .semibold))
-                .tracking(1.6)
+                .font(.system(size: 9, weight: .semibold))
+                .tracking(1.0)
                 .foregroundStyle(ZodiacPalette.gold)
             Text(value)
-                .font(.custom("Didot", size: 18, relativeTo: .headline))
+                .font(ZodiacTypography.interface(18, weight: .semibold))
                 .foregroundStyle(ZodiacPalette.paleGold)
                 .minimumScaleFactor(0.72)
                 .lineLimit(1)

@@ -24,6 +24,23 @@ enum ZodiacPalette {
     static let settingsDeep = Color(red: 0.067, green: 0.094, blue: 0.157) // #111828
 }
 
+/// The app-wide typography contract. Editorial serif is reserved for large
+/// magazine-style titles; interface copy and changing daily data use the
+/// native sans-serif for dependable legibility at small sizes.
+enum ZodiacTypography {
+    static func editorial(_ size: CGFloat, weight: Font.Weight = .semibold) -> Font {
+        .system(size: size, weight: weight, design: .serif)
+    }
+
+    static func interface(_ size: CGFloat, weight: Font.Weight = .regular) -> Font {
+        .system(size: size, weight: weight, design: .default)
+    }
+
+    static func numeric(_ size: CGFloat, weight: Font.Weight = .semibold) -> Font {
+        .system(size: size, weight: weight, design: .rounded)
+    }
+}
+
 struct MidnightBackground: View {
     var dimming: Double = 0
 
@@ -71,8 +88,8 @@ struct ZodiacMasthead: View {
             .accessibilityHidden(true)
 
             Text("ZODIAC DAILY")
-                .font(.custom("Didot", size: compact ? 17 : 28))
-                .tracking(compact ? 1.4 : 3)
+                .font(ZodiacTypography.editorial(compact ? 17 : 28))
+                .tracking(compact ? 1.2 : 2)
                 .foregroundStyle(ZodiacPalette.paleGold)
                 .minimumScaleFactor(0.7)
                 .lineLimit(1)

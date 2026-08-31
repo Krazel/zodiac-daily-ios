@@ -32,7 +32,7 @@ struct SignSelectionView: View {
                                     ? appLocalized("Choose Your Sign", locale: locale)
                                     : appLocalized("Change Your Sign", locale: locale)
                             )
-                                .font(.custom("Didot", size: 30, relativeTo: .largeTitle))
+                                .font(ZodiacTypography.editorial(30))
                                 .foregroundStyle(ZodiacPalette.text)
                                 .multilineTextAlignment(.center)
                                 .minimumScaleFactor(0.8)
@@ -70,8 +70,8 @@ struct SignSelectionView: View {
                                     Text("✦")
                                         .accessibilityHidden(true)
                                 }
-                                .font(.custom("Didot", size: 15, relativeTo: .headline).weight(.semibold))
-                                .tracking(3)
+                                .font(ZodiacTypography.interface(15, weight: .semibold))
+                                .tracking(2.2)
                                 .frame(width: 283, height: 49)
                             }
                             .buttonStyle(.plain)
@@ -163,8 +163,8 @@ struct SignSelectionView: View {
             .accessibilityHidden(true)
 
             Text("ZODIAC DAILY")
-                .font(.custom("Didot", size: 21, relativeTo: .title2))
-                .tracking(1.6)
+                .font(ZodiacTypography.editorial(21))
+                .tracking(1.3)
                 .foregroundStyle(ZodiacPalette.paleGold)
                 .minimumScaleFactor(0.72)
                 .lineLimit(1)
@@ -189,8 +189,8 @@ private struct SignChoiceCard: View {
                     .minimumScaleFactor(0.7)
 
                 Text(sign.localizedDisplayName(locale: locale).uppercased(with: locale))
-                    .font(.custom("Didot", size: 10, relativeTo: .caption).weight(.medium))
-                    .tracking(1.0)
+                    .font(ZodiacTypography.interface(10.5, weight: .semibold))
+                    .tracking(0.45)
                     .foregroundStyle(ZodiacPalette.text)
                     .minimumScaleFactor(0.58)
                     .lineLimit(1)

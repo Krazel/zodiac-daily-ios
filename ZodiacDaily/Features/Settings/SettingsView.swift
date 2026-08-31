@@ -65,7 +65,7 @@ struct SettingsView: View {
                 .font(.system(size: 18, weight: .light))
                 .accessibilityHidden(true)
             Text(localized("common.settings"))
-                .font(.custom("Didot", size: 29, relativeTo: .largeTitle))
+                .font(ZodiacTypography.editorial(29))
                 .foregroundStyle(ZodiacPalette.settingsText)
                 .accessibilityAddTraits(.isHeader)
             Text("✦")
@@ -102,8 +102,8 @@ struct SettingsView: View {
                         model.selectedSign?.localizedDisplayName(locale: locale).uppercased()
                             ?? localized("settings.choose_sign").uppercased()
                     )
-                        .font(.custom("Didot", size: 18, relativeTo: .title3))
-                        .tracking(1.4)
+                        .font(ZodiacTypography.interface(18, weight: .semibold))
+                        .tracking(0.7)
                         .foregroundStyle(ZodiacPalette.settingsText)
                         .lineLimit(1)
                         .minimumScaleFactor(0.72)
@@ -183,7 +183,7 @@ struct SettingsView: View {
                 Spacer(minLength: 0)
 
                 Text(language.displayName)
-                    .font(.custom("Didot", size: 16, relativeTo: .headline))
+                    .font(ZodiacTypography.interface(16, weight: .semibold))
                     .foregroundStyle(isSelected ? ZodiacPalette.settingsGold : ZodiacPalette.settingsText)
 
                 if isSelected {
@@ -338,7 +338,7 @@ struct SettingsView: View {
             celestialIcon(systemImage)
 
             Text(title)
-                .font(.custom("Didot", size: 14, relativeTo: .headline))
+                .font(ZodiacTypography.interface(14.5, weight: .medium))
                 .foregroundStyle(ZodiacPalette.settingsText)
 
             Spacer(minLength: 8)
