@@ -376,16 +376,14 @@ workspace does not have write access to Brain.
 - El 2026-08-27 el propietario rechazo la calidad de la traduccion literal.
   La causa confirmada era `m2m100`: traducía titular, lectura y metadatos por
   separado, sin contexto editorial.
-- El Worker local usa ahora una sola adaptacion estructurada por signo con
-  `@cf/openai/gpt-oss-20b`, tono natural de castellano de España y prohibicion
-  expresa de inventar o alterar datos. Una segunda pasada bilingue independiente
-  con `@cf/meta/llama-3.1-8b-instruct-fast` rechaza omisiones, errores
-  gramaticales, ingles residual, cambios astrologicos o datos nuevos; una capa
-  determinista corrige concordancias ya observadas y canoniza signos, fases,
-  colores, titulares y palabras clave del proveedor. Las cifras y la identidad del proveedor siguen
-  copiandose directamente del documento ingles.
-- La revision de cache `es-r7` evita reutilizar las traducciones defectuosas sin
-  gastar nuevas llamadas a FreeAstroAPI. La suite del Worker pasa 28/28 y el
+- La plantilla editorial actual de FreeAstro se renderiza directamente en
+  castellano natural. Signo, planeta, casa, elemento, prioridad, consejo,
+  ambito, fase, color, titular y palabras clave tienen conversion determinista:
+  el camino diario normal no usa IA y no puede inventar ni omitir esos datos.
+  Si el proveedor cambia a una plantilla desconocida, `@cf/openai/gpt-oss-20b`
+  queda como respaldo y `@cf/meta/llama-3.1-8b-instruct-fast` revisa fidelidad.
+- La revision de cache `es-r8` evita reutilizar las traducciones defectuosas sin
+  gastar nuevas llamadas a FreeAstroAPI. La suite del Worker pasa 29/29 y el
   2026-08-31 se valido en preview remoto un Scorpio completo con ambos modelos.
 - Se pulio tambien la copia fija española para eliminar literalismos y jerga de
   proveedor. Estos cambios son locales: no se ha desplegado el Worker, subido

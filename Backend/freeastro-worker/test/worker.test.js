@@ -322,6 +322,26 @@ test("Workers AI translates every user-facing field into a valid Spanish edition
   assert.equal(isValidBundle(english, "2026-08-09", "es"), false);
 });
 
+test("known FreeAstro template renders native Spanish without any AI calls", async () => {
+  const english = validBundle("2026-08-09");
+  for (const horoscope of english.horoscopes) {
+    const englishSign = horoscope.sign[0].toUpperCase() + horoscope.sign.slice(1);
+    horoscope.headline = "Initiative";
+    horoscope.details.focus = "Initiative";
+    horoscope.details.keywords = ["Energy", "Boldness", "Perspective"];
+    horoscope.reading = `With the Moon in Aries (Full Moon), ${englishSign} picks up the day's sky through a fire lens. Venus activating your 7th house prioritizes relational openness and emotional timing. For ${englishSign}, this works best through clear directness. Center your decisions on love and use clear directness to convert momentum into concrete results.`;
+  }
+  const ai = { run: async () => { throw new Error("AI must not run for the known provider template"); } };
+
+  const spanish = await translateBundleToSpanish(english, ai);
+
+  assert.equal(spanish.horoscopes.length, 12);
+  assert.match(spanish.horoscopes[0].reading, /tu séptima casa/iu);
+  assert.doesNotMatch(JSON.stringify(spanish), /Full Moon|clear directness|Perspective/iu);
+  assert.equal(spanish.horoscopes[0].details.lucky_color, "Plateado");
+  assert.ok(isValidBundle(spanish, "2026-08-09", "es"));
+});
+
 test("Spanish translation retries transient AI failures without losing the edition", async () => {
   const english = validBundle("2026-08-09");
   let attempts = 0;
@@ -531,7 +551,7 @@ test("a second scheduled check uses KV and spends no provider quota", async () =
   });
   const kv = new MemoryKV({
     "daily:v3:en:2026-08-09": JSON.stringify(english),
-    "daily:v3:es-r7:2026-08-09": JSON.stringify(spanish),
+    "daily:v3:es-r8:2026-08-09": JSON.stringify(spanish),
   });
   let calls = 0;
   const result = await warmDate(
@@ -592,7 +612,7 @@ test("a public miss schedules one bounded queue repair without calling the provi
     task: "warm_date",
     date: "2026-08-09",
   }]);
-  assert.equal(await kv.get("repair:v3:es-r7:2026-08-09"), "1");
+  assert.equal(await kv.get("repair:v3:es-r8:2026-08-09"), "1");
 });
 
 test("public language selection never substitutes the wrong-language cache", async () => {
@@ -626,7 +646,7 @@ test("Spanish route returns only the cached Spanish edition and language header"
     now: () => new Date("2026-08-09T00:15:00Z"),
   });
   const kv = new MemoryKV({
-    "daily:v3:es-r7:2026-08-09": JSON.stringify(spanish),
+    "daily:v3:es-r8:2026-08-09": JSON.stringify(spanish),
   });
 
   const response = await handleRequest(
@@ -717,7 +737,7 @@ test("translation failure keeps English cached and retries never refetch FreeAst
   assert.equal(aiCalls, 3);
   assert.equal((await getCachedDaily("2026-08-09", env, "en")).language, "en");
   await assert.rejects(getCachedDaily("2026-08-09", env, "es"), /daily_cache_miss/);
-  assert.equal(await kv.get("failure:v3:es-r7:2026-08-09:aries"), "1");
+  assert.equal(await kv.get("failure:v3:es-r8:2026-08-09:aries"), "1");
 
   await assert.rejects(
     handleQueue({ messages: [{ body: ariesMessage }] }, env, options),

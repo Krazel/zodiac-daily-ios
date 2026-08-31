@@ -20,7 +20,7 @@ const UPSTREAM_URL = "https://api.freeastroapi.com/api/v2/horoscope/daily/sign";
 // preserve the reading as a whole and return a validated structured result.
 const TRANSLATION_MODEL = "@cf/openai/gpt-oss-20b";
 const TRANSLATION_REVIEW_MODEL = "@cf/meta/llama-3.1-8b-instruct-fast";
-const SPANISH_COPY_REVISION = 7;
+const SPANISH_COPY_REVISION = 8;
 const CACHE_SCHEMA_VERSION = 3;
 const LANGUAGES = Object.freeze(["en", "es"]);
 const MAX_HEADLINE_CHARACTERS = 52;
@@ -478,7 +478,12 @@ export async function translateBundleToSpanish(english, ai, options = {}) {
 }
 
 async function translateHoroscopeToSpanish(horoscope, ai, options = {}) {
-  const translated = await translateEditorialUnit(horoscope, ai, options);
+  // FreeAstro's current daily copy is a structured editorial template. Render
+  // that known contract directly in native Spanish so the normal daily path is
+  // deterministic, free, and cannot leak English metadata. Workers AI remains
+  // a guarded fallback if the provider introduces a genuinely new template.
+  const translated = translateKnownProviderTemplateToSpanish(horoscope)
+    ?? await translateEditorialUnit(horoscope, ai, options);
 
   return {
     ...horoscope,
@@ -494,6 +499,151 @@ async function translateHoroscopeToSpanish(horoscope, ai, options = {}) {
     },
   };
 }
+
+function translateKnownProviderTemplateToSpanish(horoscope) {
+  const match = horoscope.reading.match(
+    /^With the Moon in ([A-Za-z]+) \(([^)]+)\), ([A-Za-z]+) picks up the day's sky through an? (fire|earth|air|water) lens\. (.+) For ([A-Za-z]+), this works best through (.+)\. Center your decisions on (love|career|money|health) and use (.+) to convert momentum into concrete results\.$/u,
+  );
+  if (!match) return null;
+
+  const [,
+    sourceMoonSign,
+    sourceMoonPhase,
+    sourceSubjectSign,
+    sourceElement,
+    sourceInfluence,
+    sourceAdviceSign,
+    sourceApproach,
+    sourceArea,
+    repeatedApproach,
+  ] = match;
+  if (sourceApproach !== repeatedApproach) return null;
+
+  const sign = knownSpanishTerm(horoscope.sign);
+  const subjectSign = knownSpanishTerm(sourceSubjectSign);
+  const adviceSign = knownSpanishTerm(sourceAdviceSign);
+  const moonSign = knownSpanishTerm(sourceMoonSign);
+  const moonPhase = knownSpanishTerm(sourceMoonPhase);
+  const headline = knownSpanishTerm(horoscope.headline);
+  const luckyColor = knownSpanishTerm(horoscope.details.lucky_color);
+  const keywords = horoscope.details.keywords.map(knownSpanishTerm);
+  const element = SPANISH_ELEMENT_LENSES[sourceElement];
+  const approach = SPANISH_APPROACHES[sourceApproach];
+  const area = SPANISH_AREAS[sourceArea];
+  const influence = translateKnownInfluence(sourceInfluence);
+
+  if (
+    !sign || subjectSign !== sign || adviceSign !== sign || !moonSign || !moonPhase
+    || !headline || !luckyColor || keywords.some((value) => !value)
+    || !element || !approach || !area || !influence
+  ) return null;
+
+  return {
+    headline,
+    reading: [
+      `Con la Luna en ${moonSign} (${moonPhase}), ${sign} interpreta el cielo de hoy con ${element}.`,
+      influence,
+      `Para ${sign}, hoy conviene ${approach.recommendation}.`,
+      `Centra tus decisiones ${area.center} y apóyate en ${approach.tool} para llevar el impulso a resultados concretos.`,
+    ].join(" "),
+    keywords,
+    lucky_color: luckyColor,
+    moon_sign: moonSign,
+    moon_phase: moonPhase,
+  };
+}
+
+const SPANISH_ELEMENT_LENSES = Object.freeze({
+  fire: "una mirada enérgica",
+  earth: "una mirada práctica",
+  air: "una perspectiva racional",
+  water: "una mirada intuitiva",
+});
+
+const SPANISH_APPROACHES = Object.freeze({
+  "clear directness": {
+    recommendation: "expresarte con claridad y franqueza",
+    tool: "esa claridad y franqueza",
+  },
+  "reliability and follow-through": {
+    recommendation: "ser fiable y constante",
+    tool: "esa fiabilidad y constancia",
+  },
+  "dialogue and perspective": {
+    recommendation: "abrir espacio al diálogo y ampliar la perspectiva",
+    tool: "el diálogo y una perspectiva más amplia",
+  },
+  "security-first judgment": {
+    recommendation: "aplicar un criterio que priorice la seguridad",
+    tool: "ese criterio prudente",
+  },
+  "initiative and visible action": {
+    recommendation: "tomar la iniciativa y actuar de forma visible",
+    tool: "esa iniciativa y una acción visible",
+  },
+  "structure and execution": {
+    recommendation: "poner orden y pasar a la acción",
+    tool: "la estructura y la ejecución",
+  },
+  "emotional clarity and care": {
+    recommendation: "actuar con claridad emocional y cuidado",
+    tool: "esa claridad emocional y ese cuidado",
+  },
+  "information-led choices": {
+    recommendation: "tomar decisiones guiadas por la información",
+    tool: "la información disponible",
+  },
+});
+
+const SPANISH_AREAS = Object.freeze({
+  love: { center: "en el amor", direction: "del amor" },
+  career: { center: "en el trabajo", direction: "del trabajo" },
+  money: { center: "en el dinero", direction: "del dinero" },
+  health: { center: "en la salud", direction: "de la salud" },
+});
+
+const SPANISH_PRIORITIES = Object.freeze({
+  "relational openness and emotional timing": "la apertura en las relaciones y el momento emocional adecuado",
+  "professional direction and practical output": "la orientación profesional y los resultados prácticos",
+  "resource management and value decisions": "la gestión de los recursos y las decisiones sobre lo que valoras",
+});
+
+function translateKnownInfluence(source) {
+  const activation = source.match(
+    /^([A-Za-z]+) activating your (\d+)(?:st|nd|rd|th) house prioritizes (.+)\.$/u,
+  );
+  if (activation) {
+    const [, sourcePlanet, house, sourcePriority] = activation;
+    const planet = SPANISH_PLANETS[sourcePlanet];
+    const ordinal = SPANISH_HOUSE_ORDINALS[house];
+    const priority = SPANISH_PRIORITIES[sourcePriority];
+    return planet && ordinal && priority
+      ? `${planet}, al activar tu ${ordinal} casa, favorece ${priority}.`
+      : null;
+  }
+
+  const ruler = source.match(
+    /^Your ruler ([A-Za-z]+) is in a supportive condition from the (\d+)(?:st|nd|rd|th) house, shaping today's (love|career|money|health) direction\.$/u,
+  );
+  if (!ruler) return null;
+  const [, sourcePlanet, house, sourceArea] = ruler;
+  const planet = SPANISH_PLANETS[sourcePlanet];
+  const ordinal = SPANISH_HOUSE_ORDINALS[house];
+  const area = SPANISH_AREAS[sourceArea];
+  return planet && ordinal && area
+    ? `Tu regente, ${planet}, recibe apoyo desde la ${ordinal} casa y orienta hoy el ámbito ${area.direction}.`
+    : null;
+}
+
+const SPANISH_PLANETS = Object.freeze({
+  Sun: "Sol", Moon: "Luna", Mercury: "Mercurio", Venus: "Venus", Mars: "Marte",
+  Jupiter: "Júpiter", Saturn: "Saturno", Uranus: "Urano", Neptune: "Neptuno", Pluto: "Plutón",
+});
+
+const SPANISH_HOUSE_ORDINALS = Object.freeze({
+  1: "primera", 2: "segunda", 3: "tercera", 4: "cuarta", 5: "quinta", 6: "sexta",
+  7: "séptima", 8: "octava", 9: "novena", 10: "décima", 11: "undécima", 12: "duodécima",
+});
 
 async function translateEditorialUnit(horoscope, ai, options = {}) {
   const wait = options.wait ?? sleep;

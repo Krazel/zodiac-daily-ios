@@ -36,13 +36,12 @@ twelve-sign upstream bulk endpoint. The queue consumer calls all twelve signs
 sequentially, at least one second apart, and exposes them as one bulk document.
 After initial warm-up, this normally uses 12 of the free plan's published 80
 daily requests. Initial activation can use up to 24 while current and next-day
-editions are populated. The queue then adapts each complete English sign as one
-editorial unit with Workers AI `@cf/openai/gpt-oss-20b`. A second independent
-structured pass with `@cf/meta/llama-3.1-8b-instruct-fast` rejects copy that is not natural
-Spanish, contains grammar errors or English metadata, changes astrological
-meaning, omits guidance, or introduces new facts. A deterministic local gate
-also corrects known agreement errors and canonicalizes the provider's finite
-sign, phase, color, headline, and keyword vocabulary. Scores, lucky
+editions are populated. The provider's current structured editorial template
+is rendered directly as native Spanish, with canonical signs, houses, phases,
+colors, headlines, and keywords. This normal path uses no AI, is deterministic,
+and preserves the provider values exactly. If FreeAstro introduces an unknown
+template, Workers AI `@cf/openai/gpt-oss-20b` provides a guarded editorial
+fallback and `@cf/meta/llama-3.1-8b-instruct-fast` reviews its fidelity. Scores, lucky
 number, sign, date, and content version bypass generation and remain copied
 from the provider document. EN and ES remain under separate KV keys.
 
